@@ -18,9 +18,6 @@ public:
 
 	bool parse()
 	{
-		// load first token
-		_cur = _lexer.next();
-
 		//top down parse
 		return pattern() && eof();
 	}
@@ -30,13 +27,19 @@ private:
 	// choice '|'
 	bool pattern()
 	{
-		return expr() && patternTail();
+		const std::size_t count = _lexer.count();
+
+		// If the empty string is not a valid pattern, remove the || empty line
+		return expr() && patternTail()
+			|| (retract(count), empty());
 	}
 
 	bool patternTail()
 	{
+		const std::size_t count = _lexer.count();
+
 		return m('|') && expr() && patternTail()
-			|| empty();
+			|| (retract(count), empty());
 	}
 
 	// concatenation
@@ -47,8 +50,10 @@ private:
 
 	bool exprTail()
 	{
+		const std::size_t count = _lexer.count();
+
 		return term() && exprTail()
-			|| empty();
+			|| (retract(count), empty());
 	}
 
 	// repitition '*'
@@ -59,19 +64,25 @@ private:
 
 	bool termTail()
 	{
+		const std::size_t count = _lexer.count();
+
 		return m('*')
-			|| empty();
+			|| (retract(count), empty());
 	}
 
 	// atoms
 	bool factor()
 	{
+		const std::size_t count = _lexer.count();
+
 		return symbol()
-			|| m('(') && pattern() && m(')');
+			|| (retract(count), m('(') && pattern() && m(')'));
 	}
 
 	bool symbol()
 	{
+		const std::size_t count = _lexer.count();
+
 		// statics are captured automatically by lambas (no need for [&] capture instruction)
 		static const std::string special = { "|*()[]" };
 
@@ -86,7 +97,7 @@ private:
 		};
 
 		return m(fncNotIn)
-			|| m('\\') && m(fncIn);
+			|| (retract(count), m('\\') && m(fncIn));
 	}
 
 	bool empty() const
@@ -96,17 +107,31 @@ private:
 
 	bool eof() const
 	{
-		return _cur == '\0';
+		return _lexer.cur() == '\0';
 	}
+
+	void retract(std::size_t count_)
+	{
+		_lexer.retract(_lexer.count() - count_);
+	}
+
+	//Note: match does not assert/throw on _lexer.pos() == eof() because this parser allows for backtracking. If the current production fails, there may
+	//be an empty() production that makes the parse succeed without further matching.
+	//If no empty() production exists, a false result propagates back up to the toplevel invocation.
 
 	bool m(char c_)
 	{
 		bool match = false;
-		if (match = !eof() && _cur == c_)
+		if (!eof())
 		{
-			std::cout << "match(c) " << _cur << std::endl;
-			_cur = _lexer.next();
+			if (match = _lexer.cur() == c_)
+			{
+				std::cout << "match(c) " << _lexer.cur() << std::endl;
+			}
+
+			_lexer.next();
 		}
+		
 		return match;
 	}
 
@@ -114,16 +139,20 @@ private:
 	bool m(const Pred& pred)
 	{
 		bool match = false;
-		if (match = !eof() && pred(_cur))
+		if (!eof())
 		{
-			std::cout << "match(p) " << _cur << std::endl;
-			_cur = _lexer.next();
+			if (match = pred(_lexer.cur()))
+			{
+				std::cout << "match(p) " << _lexer.cur() << std::endl;
+			}
+
+			_lexer.next();
 		}
+
 		return match;
 	}
 
 private:
 	Lexer<Buffer> _lexer;
-	char _cur;
 };
 

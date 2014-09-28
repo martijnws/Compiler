@@ -3,14 +3,20 @@
 #include <sstream>
 #include <iostream>
 
-int _tmain(int argc, _TCHAR* argv[])
+void parse(const std::string& pattern_)
 {
-	const std::string pattern("aa(a|b)*bb");
-	std::stringstream is(pattern, std::ios_base::in);
+	std::stringstream is(pattern_, std::ios_base::in);
 
 	Parser parser(is);
 	bool res = parser.parse();
 
 	std::cout << res << std::endl;
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	parse("");
+	parse("aa(a|b)*bb");
+	
 	return 0;
 }

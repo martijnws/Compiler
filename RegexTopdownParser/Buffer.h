@@ -9,52 +9,48 @@ class Buffer
 public:
 	Buffer(std::istream& is_)
 		:
-		_is(is_), _cur(_buf), _fwd(_buf + Size * 2 - 1)
+		_is(is_), _cur(_buf)
 	{
 		memset(_buf, '\0', sizeof(_buf));
+
+		//load first buffer
+		_is.read(_cur, Size);
+		_cur[_is.gcount()] = '\0';
 	}
 	
-	char cur()
+	char cur() const
 	{
 		return *_cur;
 	}
 
-	char fwd()
+	void next()
 	{
-		if (!_is && *_fwd == '\0')
+		if (!_is && *_cur == '\0')
 			throw std::exception();
 
-		if (*++_fwd == '\0')
+		if (*++_cur == '\0')
 		{
 			// reached end of first buffer?
-			if (_fwd == _buf + Size)
+			if (_cur == _buf + Size)
 			{
 				//load second buffer
-				_is.read(_fwd, Size);
-				_fwd[_is.gcount()] = '\0';
+				_is.read(_cur, Size);
+				_cur[_is.gcount()] = '\0';
 			}
 			else
-			if (_fwd == _buf + Size * 2)
+			if (_cur == _buf + Size * 2)
 			{
 				// circle back to first buffer
-				_fwd = _buf;
+				_cur = _buf;
 				//load first buffer
-				_is.read(_fwd, Size);
-				_fwd[_is.gcount()] = '\0';
+				_is.read(_cur, Size);
+				_cur[_is.gcount()] = '\0';
 			}
 		}
-
-		return *_fwd;
-	}
-
-	void syncCur()
-	{
-		_cur = _fwd;
 	}
 
 private:
 	char _buf[2 * Size + 8];
 	std::istream& _is;
 	char* _cur;
-	char* _fwd;
 };

@@ -15,6 +15,7 @@
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="Exception.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
