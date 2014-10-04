@@ -43,29 +43,6 @@ public:
 
 private:
 
-	// Some awesome new C++11 functional programming features! A compact way of building commands/functors with state.
-	// 
-	// isNotIn is a factory function that returns a lambda expression. 
-	std::function<bool(char)> isNotIn(const std::string& special)
-	{
-		// The & indicates that the lamda expression captures variables in scope. Thus the lamda expr returned here captures the 'special' variable.
-		return [&](char cur_)
-		{
-			// the implementation uses an stl algo that in turn expects a functor. Again a lamba expr is used. This lamda also captures variables
-			// in scope. The 'cur_' variable in this case
-			return std::none_of(special.begin(), special.end(), [&](char c_){ return cur_ == c_; });
-		};
-	}
-
-	std::function<bool(char)> isIn(const std::string& special)
-	{
-		return [&](char cur_)
-		{
-			return std::any_of(special.begin(), special.end(), [&](char c_){ return c_ == cur_; });
-		};
-	}
-
-
 	// choice '|'
 	bool pattern()
 	{
@@ -233,6 +210,28 @@ private:
 	bool eof() const
 	{
 		return _lexer.cur() == '\0';
+	}
+
+	// Some awesome new C++11 functional programming features! A compact way of building commands/functors with state.
+	// 
+	// isNotIn is a factory function that returns a lambda expression. 
+	std::function<bool(char)> isNotIn(const std::string& special)
+	{
+		// The & indicates that the lamda expression captures variables in scope. Thus the lamda expr returned here captures the 'special' variable.
+		return [&](char cur_)
+		{
+			// the implementation uses an stl algo that in turn expects a functor. Again a lamba expr is used. This lamda also captures variables
+			// in scope. The 'cur_' variable in this case
+			return std::none_of(special.begin(), special.end(), [&](char c_){ return cur_ == c_; });
+		};
+	}
+
+	std::function<bool(char)> isIn(const std::string& special)
+	{
+		return [&](char cur_)
+		{
+			return std::any_of(special.begin(), special.end(), [&](char c_){ return c_ == cur_; });
+		};
 	}
 
 	void retract(std::size_t count_)
