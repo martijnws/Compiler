@@ -78,10 +78,10 @@ private:
 	// repitition '*'
 	bool term()
 	{
-		return factor() && termOpt();
+		return factor() && termTail();
 	}
 
-	bool termOpt()
+	bool termTail()
 	{
 		const std::size_t count = _lexer.count();
 
