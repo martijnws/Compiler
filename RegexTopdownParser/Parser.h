@@ -6,6 +6,25 @@
 #include <cassert>
 #include <iostream>
 
+// Notes on grammar
+//
+// A list containing zero or more items
+//
+// List     = Item List | empty
+//
+// A list containing at least 1 item
+//
+// List     = Item ListTail
+// ListTail = Item ListTail | e
+//
+//  An optional item
+//
+// OptItem  = Item | e
+//
+//
+// Whenever a non-terminal has more than 1 possible production we track the lexer position so that we can retry the next production if one fails
+//
+
 class Parser
 {
 public:
@@ -23,6 +42,29 @@ public:
 	}
 
 private:
+
+	// Some awesome new C++11 functional programming features! A compact way of building commands/functors with state.
+	// 
+	// isNotIn is a factory function that returns a lambda expression. 
+	std::function<bool(char)> isNotIn(const std::string& special)
+	{
+		// The & indicates that the lamda expression captures variables in scope. Thus the lamda expr returned here captures the 'special' variable.
+		return [&](char cur_)
+		{
+			// the implementation uses an stl algo that in turn expects a functor. Again a lamba expr is used. This lamda also captures variables
+			// in scope. The 'cur_' variable in this case
+			return std::none_of(special.begin(), special.end(), [&](char c_){ return cur_ == c_; });
+		};
+	}
+
+	std::function<bool(char)> isIn(const std::string& special)
+	{
+		return [&](char cur_)
+		{
+			return std::any_of(special.begin(), special.end(), [&](char c_){ return c_ == cur_; });
+		};
+	}
+
 
 	// choice '|'
 	bool pattern()
@@ -59,10 +101,10 @@ private:
 	// repitition '*'
 	bool term()
 	{
-		return factor() && termTail();
+		return factor() && termOpt();
 	}
 
-	bool termTail()
+	bool termOpt()
 	{
 		const std::size_t count = _lexer.count();
 
@@ -76,6 +118,7 @@ private:
 		const std::size_t count = _lexer.count();
 
 		return symbol()
+			|| (retract(count), charClass())
 			|| (retract(count), m('(') && pattern() && m(')'));
 	}
 
@@ -83,21 +126,103 @@ private:
 	{
 		const std::size_t count = _lexer.count();
 
-		// statics are captured automatically by lambas (no need for [&] capture instruction)
-		static const std::string special = { "|*()[]" };
+		// raw string syntax: R"delimOfChoice(rawChars*)delimOfChoice"
+		static const std::string special = { R"R(|*()[]\)R" };
 
-		auto fncNotIn = [](char cur_)
-		{
-			return std::none_of(special.begin(), special.end(), [&](char c_){ return cur_ == c_; });
-		};
+		return m(isNotIn(special))
+			|| (retract(count), m('\\') && m(isIn(special)));
+	}
 
-		auto fncIn = [](char cur_)
-		{
-			return std::any_of(special.begin(), special.end(), [&](char c_){ return c_ == cur_; });
-		};
+	// charClass grammar:
+	//
+	// cc         = [ negO ccSet ]
+	// ccSet      = - ccRngLstO | ccRngLst ccRngSepO
+	// ccNetO     = ^ | e
+	// ccRngSepO  = - | e
+	// ccRngLstO  = ccRngLst | e
+	// ccRngLst   = ccRng ccRngLstT
+	// ccRngLstT  = ccRng ccRngLstT | e
+	// ccRng      = ccSym ccRngT
+	// ccRngT     = - ccSym | e
+	// ccSym      = notSpecial | ^ | \ special
+	// special    = ] | - | ^
+	// notSpecial = complement(special)
 
-		return m(fncNotIn)
-			|| (retract(count), m('\\') && m(fncIn));
+	// a '-' (aka charClassRangeSepOpt) at the beginning or end is treated as any other character
+	bool charClass()
+	{
+		return m('[') && charClassNegateOpt() && charClassSet() && m(']');
+	}
+	
+	bool charClassSet()
+	{
+		const std::size_t count = _lexer.count();
+
+		return m('-') && charClassRangeListOpt()
+			|| (retract(count), charClassRangeList() && charClassRangeSepOpt());
+	}
+
+	bool charClassNegateOpt()
+	{
+		const std::size_t count = _lexer.count();
+
+		return m('^')
+			|| (retract(count), empty());
+	}
+
+	bool charClassRangeSepOpt()
+	{
+		const std::size_t count = _lexer.count();
+
+		return m('-')
+			|| (retract(count), empty());
+	}
+
+	bool charClassRangeListOpt()
+	{
+		const std::size_t count = _lexer.count();
+
+		return charClassRangeList()
+			|| (retract(count), empty());
+	}
+
+	bool charClassRangeList()
+	{
+		return charClassRange() && charClassRangeListTail();
+	}
+
+	bool charClassRangeListTail()
+	{
+		const std::size_t count = _lexer.count();
+
+		return charClassRange() && charClassRangeListTail()
+			|| (retract(count), empty());
+	}
+
+	bool charClassRange()
+	{
+		return charClassSymbol() && charClassRangeTail();
+	}
+
+	bool charClassRangeTail()
+	{
+		const std::size_t count = _lexer.count();
+
+		return m('-') && charClassSymbol()
+			|| (retract(count), empty());
+	}
+
+	bool charClassSymbol()
+	{
+		const std::size_t count = _lexer.count();
+
+		// Note: the '^' symbol is in the special list yet we override this decision in the grammar below.
+		// This is done because '^' may be prefixed with or without escape. Its both special and not special
+		static const std::string special = { R"R(-]^\)R" };
+
+		return m(isNotIn(special))
+			|| (retract(count), m('^'))
+			|| (retract(count), m('\\') && m(isIn(special)));
 	}
 
 	bool empty() const
@@ -126,7 +251,7 @@ private:
 		{
 			if (match = _lexer.cur() == c_)
 			{
-				std::cout << "match(c) " << _lexer.cur() << std::endl;
+				//std::cout << "match(c) " << _lexer.cur() << std::endl;
 			}
 
 			_lexer.next();
@@ -135,15 +260,14 @@ private:
 		return match;
 	}
 
-	template<typename Pred>
-	bool m(const Pred& pred)
+	bool m(const std::function<bool (char)>& pred)
 	{
 		bool match = false;
 		if (!eof())
 		{
 			if (match = pred(_lexer.cur()))
 			{
-				std::cout << "match(p) " << _lexer.cur() << std::endl;
+				//std::cout << "match(p) " << _lexer.cur() << std::endl;
 			}
 
 			_lexer.next();
