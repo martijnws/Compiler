@@ -170,13 +170,8 @@ private:
 	{
 		assert(_lexer == &_regexLexer);
 
-		if (!m(T::CharClassB))
-			return false;
-
 		_lexer = &_charClassLexer;
-
-		bool res = charClassNegateOpt() && charClassSet();
-
+		bool res = m(T::CharClassB) && charClassNegateOpt() && charClassSet();
 		_lexer = &_regexLexer;
 
 		if (res)
@@ -276,12 +271,12 @@ private:
 		bool match = false;
 		if (!eof())
 		{
+			//Note: only get next() on successfull match to ensure we don't 'lex' past a token marking a different lexicon (requiering a lexer switch)
+			//In particular: the '[' token can only successfully match in combination with a lexer switch.
 			if (match = _cur._type == type_)
 			{
-				//std::cout << "match(c) " << _cur << std::endl;
+				_cur = _lexer->next();
 			}
-
-			_cur = _lexer->next();
 		}
 
 		return match;
@@ -290,11 +285,12 @@ private:
 private:
 	typedef Buffer<256> Buf;
 
-	Buf _buf;
-	RegexLexer<Buf> _regexLexer;
+	Buf                 _buf;
+	RegexLexer<Buf>     _regexLexer;
 	CharClassLexer<Buf> _charClassLexer;
-	ILexer* _lexer;
-	Token _cur;
+	// TODO: look for solution that does not require virtual call on lexer
+	ILexer*             _lexer;
+	Token               _cur;
 };
 
 }}}
