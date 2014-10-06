@@ -3,7 +3,7 @@
 #include <exception>
 #include <string>
 
-namespace mws { namespace td { namespace bt {
+namespace mws { namespace td { namespace pr {
 
 class Exception
 	:

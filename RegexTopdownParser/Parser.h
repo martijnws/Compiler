@@ -25,6 +25,8 @@
 // Whenever a non-terminal has more than 1 possible production we track the lexer position so that we can retry the next production if one fails
 //
 
+namespace mws { namespace td { namespace bt {
+
 class Parser
 {
 public:
@@ -279,3 +281,4 @@ private:
 	Lexer<Buffer> _lexer;
 };
 
+}}}

@@ -5,6 +5,8 @@
 #include <string>
 #include <sstream>
 
+namespace mws { namespace td { namespace bt {
+
 template<typename Buffer>
 class Lexer
 {
@@ -57,3 +59,5 @@ private:
 	std::size_t _count;
 	std::size_t _cur;
 };
+
+}}}

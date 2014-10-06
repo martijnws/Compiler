@@ -12,10 +12,14 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Exception.h" />
+    <ClInclude Include="Lexer.h" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="Token.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="RegexTopdownParserUnitTest.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="BufferTest.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
 </Project>

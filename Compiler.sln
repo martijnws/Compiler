@@ -8,7 +8,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegexTopdownParserUnitTest", "RegexTopdownParserUnitTest\RegexTopdownParserUnitTest.vcxproj", "{8178EB40-7FAE-463A-8E20-87EB7627271F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{07B6992B-8FE1-4DB3-AF2E-59EF63DF31CF} = {07B6992B-8FE1-4DB3-AF2E-59EF63DF31CF}
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331} = {BDB4AFFD-D2A0-4C67-8123-B43CF0005331}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegexPredictiveTopdownParser", "RegexPredictiveTopdownParser\RegexPredictiveTopdownParser.vcxproj", "{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +46,17 @@ Global
 		{8178EB40-7FAE-463A-8E20-87EB7627271F}.Release|Win32.ActiveCfg = Release|Win32
 		{8178EB40-7FAE-463A-8E20-87EB7627271F}.Release|Win32.Build.0 = Release|Win32
 		{8178EB40-7FAE-463A-8E20-87EB7627271F}.Release|x64.ActiveCfg = Release|Win32
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Debug|Win32.Build.0 = Debug|Win32
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Debug|x64.ActiveCfg = Debug|x64
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Debug|x64.Build.0 = Debug|x64
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Release|Win32.ActiveCfg = Release|Win32
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Release|Win32.Build.0 = Release|Win32
+		{BDB4AFFD-D2A0-4C67-8123-B43CF0005331}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

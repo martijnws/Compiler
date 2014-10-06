@@ -2,6 +2,8 @@
 
 #include <istream>
 
+namespace mws { namespace td { namespace bt {
+
 class Buffer
 {
 	static const size_t Size = 4096;
@@ -54,3 +56,5 @@ private:
 	std::istream& _is;
 	char* _cur;
 };
+
+}}}

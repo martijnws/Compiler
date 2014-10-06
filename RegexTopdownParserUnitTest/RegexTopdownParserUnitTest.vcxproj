@@ -73,7 +73,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\cpp\lib\boost_1_56_0;C:\cpp\lib\gtest-1.7.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>F:\dev\cpp\Compiler;C:\cpp\lib\boost_1_56_0;C:\cpp\lib\gtest-1.7.0\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\cpp\lib\gtest-1.7.0\gtest_vs2013\x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -147,6 +147,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BufferTest.cpp" />
     <ClCompile Include="RegexTopdownParserUnitTest.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
