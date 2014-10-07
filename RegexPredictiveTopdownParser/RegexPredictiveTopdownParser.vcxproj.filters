@@ -17,6 +17,9 @@
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Token.h" />
+    <ClInclude Include="RegexParser.h" />
+    <ClInclude Include="CharClassParser.h" />
+    <ClInclude Include="ParserState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
