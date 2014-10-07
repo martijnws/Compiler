@@ -101,25 +101,16 @@ public:
 		return t;
 	}
 
-	std::size_t pos() const
-	{
-		return _buf.pos();
-	}
-
-	void retract(std::size_t diff_)
-	{
-		_buf.retract(diff_);
-	}
-
 protected:
-	static const TokenTypeMapT _map;
-	BufferT&                   _buf;
+	static const TokenTypeMapT          _map;
+	BufferT&                            _buf;
 	boost::circular_buffer<Token::Type> _lookBehind;
 };
 
 template<typename DerivedT, typename BufferT, typename TokenTypeMapT>
 const TokenTypeMapT Lexer<DerivedT, BufferT, TokenTypeMapT>::_map = TokenTypeMapT();
 
+// TODO: restructure these templates (make postProcess internal to Lexer)
 
 template<typename BufferT>
 class RegexLexer
@@ -161,13 +152,11 @@ public:
 			char c = _buf.next();
 			_buf.retract(1);
 
-			const std::size_t size = _lookBehind.size();
-
-			if (_map.type(c) == Token::Type::CharClassE
+			if (_map.type(c) == Token::Type::CharClassE // -]
 				||
-				size > 0 && _lookBehind[size - 1] == Token::Type::CharClassB
+				_lookBehind.size() == 0 // [-
 				||
-				size > 1 && _lookBehind[size - 2] == Token::Type::CharClassB && _lookBehind[size - 2] == Token::Type::CharClassNeg)
+				_lookBehind.size() == 1 && _lookBehind.back() == Token::Type::CharClassNeg) // [^-
 			{
 				t_._type = Token::Type::Symbol;
 			}
@@ -175,9 +164,7 @@ public:
 		else 
 		if (t_._type == Token::Type::CharClassNeg)
 		{
-			const std::size_t size = _lookBehind.size();
-
-			if (size > 0 && _lookBehind[size - 1] != Token::Type::CharClassB)
+			if (_lookBehind.size() > 0) // [...^
 			{
 				t_._type = Token::Type::Symbol;
 			}

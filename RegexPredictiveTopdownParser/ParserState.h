@@ -36,20 +36,9 @@ public:
 		return _cur;
 	}
 
-	std::size_t pos() const
-	{
-		return _lexer.pos();
-	}
-
 	BufferT& buf()
 	{
 		return _buf;
-	}
-
-	void retract(std::size_t pos_, const Token& t_)
-	{
-		_lexer.retract(pos() - pos_);
-		_cur = t_;
 	}
 
 	//Note: match does not assert/throw on this->pos() == eof() because this parser allows for backtracking. If the current production fails, there may

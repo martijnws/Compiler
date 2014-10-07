@@ -5,7 +5,7 @@
 
 namespace {
 
-typedef mws::td::bt::Parser Parser;
+typedef mws::td::pr::Parser Parser;
 
 // The fixture for testing class Foo.
 class ParserBasicExprTest : public ::testing::Test

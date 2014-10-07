@@ -22,23 +22,15 @@ public:
 
 	// charClass grammar:
 	//
-	// cc          = [ negO ccSet ]         First = { symbol, ^, - }
-	// ccSet       = - ccRngLstO            First = { - }
-	//             | ccRngLst ccRngSepO     First = { symbol, ^ }
+	// cc          = [ negO ccRngLst ]      First = { symbol, ^ }
 	// ccNegO      = ^                      First = { ^ }
 	//             | e
-	// ccRngSepO   = -                      First = { - }
+	// ccRngLst    = ccRng ccRngLstT        First = { symbol }
+	// ccRngLstT   = ccRng ccRngLstT        First = { symbol }
 	//             | e
-	// ccRngLstO   = ccRngLst               First = { symbol, ^ }
+	// ccRng       = sybmol ccRngT          First = { symbol }
+	// ccRngT      = - symbol               First = { - }
 	//             | e
-	// ccRngLst    = ccRng ccRngLstT        First = { symbol, ^ }
-	// ccRngLstT   = ccRng ccRngLstT        First = { symbol, ^ }
-	//             | e
-	// ccRng       = ccSym ccRngT           First = { symbol, ^ }
-	// ccRngT      = - ccSym                First = { - }
-	//             | e
-	// ccSym       = symbol                 First = { symbol }
-	//             | ^                      First = { ^ }
 
 	using T = Token::Type;
 
@@ -46,44 +38,15 @@ public:
 	{
 		_st.init();
 
-		return charClassNegateOpt() && charClassSet();
+		return charClassNegateOpt() && charClassRangeList();
 	}
 
 private:
-
-	bool charClassSet()
-	{
-		// a '-' (aka CharClassSep) at the beginning or end is treated as any other character
-
-		if (isIn(_st.cur(), {T::Symbol, T::CharClassNeg}))
-			return charClassRangeList() && charClassRangeSepOpt();
-		else
-		if (_st.cur()._type == T::CharClassSep)
-			return _st.m(T::CharClassSep) && charClassRangeListOpt();
-		else
-			return false;
-	}
 
 	bool charClassNegateOpt()
 	{
 		if (_st.cur()._type == T::CharClassNeg)
 			return _st.m(T::CharClassNeg);
-		else
-			return _st.empty();
-	}
-
-	bool charClassRangeSepOpt()
-	{
-		if (_st.cur()._type == T::CharClassSep)
-			return _st.m(T::CharClassSep);
-		else
-			return _st.empty();
-	}
-
-	bool charClassRangeListOpt()
-	{
-		if (isIn(_st.cur(), {T::Symbol, T::CharClassNeg}))
-			return charClassRangeList();
 		else
 			return _st.empty();
 	}
@@ -95,7 +58,7 @@ private:
 
 	bool charClassRangeListTail()
 	{
-		if (isIn(_st.cur(), {T::Symbol, T::CharClassNeg}))
+		if (_st.cur()._type == T::Symbol)
 			return charClassRange() && charClassRangeListTail();
 		else
 			return _st.empty();
@@ -103,28 +66,15 @@ private:
 
 	bool charClassRange()
 	{
-		return charClassSymbol() && charClassRangeTail();
+		return _st.m(T::Symbol) && charClassRangeTail();
 	}
 
 	bool charClassRangeTail()
 	{
 		if (_st.cur()._type == T::CharClassSep)
-			return _st.m(T::CharClassSep) && charClassSymbol();
+			return _st.m(T::CharClassSep) && _st.m(T::Symbol);
 		else
 			return _st.empty();
-	}
-
-	bool charClassSymbol()
-	{
-		switch(_st.cur()._type)
-		{
-		case T::Symbol:
-			return _st.m(T::Symbol);
-		case T::CharClassNeg:
-			return _st.m(T::CharClassNeg);
-		default:
-			return false;
-		}
 	}
 };
 
