@@ -22,14 +22,14 @@ public:
 
 	// charClass grammar:
 	//
-	// cc          = [ negO ccRngLst ]      First = { symbol, ^ }
-	// ccNegO      = ^                      First = { ^ }
+	// cc        = [ negO RngLst ]    First = { symbol, ^ }
+	// NegO      = ^                  First = { ^ }
 	//             | e
-	// ccRngLst    = ccRng ccRngLstT        First = { symbol }
-	// ccRngLstT   = ccRng ccRngLstT        First = { symbol }
+	// RngLst    = Rng RngLstT        First = { symbol }
+	// RngLstT   = Rng RngLstT        First = { symbol }
 	//             | e
-	// ccRng       = sybmol ccRngT          First = { symbol }
-	// ccRngT      = - symbol               First = { - }
+	// Rng       = sybmol RngT        First = { symbol }
+	// RngT      = - symbol           First = { - }
 	//             | e
 
 	using T = Token::Type;
@@ -38,12 +38,12 @@ public:
 	{
 		_st.init();
 
-		return charClassNegateOpt() && charClassRangeList();
+		return negateOpt() && rangeList();
 	}
 
 private:
 
-	bool charClassNegateOpt()
+	bool negateOpt()
 	{
 		if (_st.cur()._type == T::CharClassNeg)
 			return _st.m(T::CharClassNeg);
@@ -51,25 +51,25 @@ private:
 			return _st.empty();
 	}
 
-	bool charClassRangeList()
+	bool rangeList()
 	{
-		return charClassRange() && charClassRangeListTail();
+		return range() && rangeListTail();
 	}
 
-	bool charClassRangeListTail()
+	bool rangeListTail()
 	{
 		if (_st.cur()._type == T::Symbol)
-			return charClassRange() && charClassRangeListTail();
+			return range() && rangeListTail();
 		else
 			return _st.empty();
 	}
 
-	bool charClassRange()
+	bool range()
 	{
-		return _st.m(T::Symbol) && charClassRangeTail();
+		return _st.m(T::Symbol) && rangeTail();
 	}
 
-	bool charClassRangeTail()
+	bool rangeTail()
 	{
 		if (_st.cur()._type == T::CharClassSep)
 			return _st.m(T::CharClassSep) && _st.m(T::Symbol);
