@@ -73,20 +73,8 @@ private:
 	Token::Type _map[256];
 };
 
-class ILexer
-{
-public:
-	virtual ~ILexer() {}
-
-	virtual Token       next() = 0;
-	virtual std::size_t pos() const = 0;
-	virtual void        retract(std::size_t diff_) = 0;
-};
-
 template<typename BufferT, typename TokenTypeMapT>
 class Lexer
-	:
-	public ILexer
 {
 public:
 	Lexer(BufferT& buf_)
@@ -96,7 +84,7 @@ public:
 		
 	}
 
-	Token next() override
+	Token next()
 	{
 		char c = _buf.next();
 
@@ -120,17 +108,12 @@ public:
 		}
 	}
 
-	/*Token cur() const override
-	{
-		return _cur;
-	}
-*/
-	std::size_t pos() const override
+	std::size_t pos() const
 	{
 		return _buf.pos();
 	}
 
-	void retract(std::size_t diff_) override
+	void retract(std::size_t diff_)
 	{
 		_buf.retract(diff_);
 	}
@@ -138,7 +121,6 @@ public:
 private:
 	static const TokenTypeMapT _map;
 	BufferT& _buf;
-	//Token _cur;
 };
 
 template<typename BufferT, typename TokenTypeMapT>
