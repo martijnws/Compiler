@@ -20,6 +20,7 @@
     <ClInclude Include="RegexParser.h" />
     <ClInclude Include="CharClassParser.h" />
     <ClInclude Include="ParserState.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

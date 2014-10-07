@@ -2,23 +2,9 @@
 
 #include "Buffer.h"
 #include "Token.h"
+#include <boost/circular_buffer.hpp>
 
 namespace mws { namespace td { namespace pr {
-
-// Forward declares
-
-template<typename BufferT, typename TokenTypeMapT>
-class Lexer;
-
-class RegexTokenTypeMap;
-
-template<typename BufferT>
-using RegexLexer = Lexer<BufferT, RegexTokenTypeMap>;
-
-class CharClassTokenTypeMap;
-
-template<typename BufferT>
-using CharClassLexer = Lexer<BufferT, CharClassTokenTypeMap>;
 
 class RegexTokenTypeMap
 {
@@ -73,13 +59,13 @@ private:
 	Token::Type _map[256];
 };
 
-template<typename BufferT, typename TokenTypeMapT>
+template<typename DerivedT, typename BufferT, typename TokenTypeMapT>
 class Lexer
 {
 public:
 	Lexer(BufferT& buf_)
 		:
-		_buf(buf_)
+		_buf(buf_), _lookBehind(2)
 	{
 		
 	}
@@ -88,24 +74,31 @@ public:
 	{
 		char c = _buf.next();
 
+		Token t = { Token::Type::None, c };
+
 		if (c != '\\')
 		{
-			Token t = { _map.type(c), c };
-			return t;
-		}
-		
-		c = _buf.next();
-
-		Token::Type type = _map.type(c);
-		if (type == Token::Type::Symbol && c != '\\' || type == Token::Type::Eof)
-		{
-			throw Exception("invalid escape sequence");
+			t._type = _map.type(c);
+			DerivedT& derived = static_cast<DerivedT&>(*this);
+			derived.postProcess(t);
 		}
 		else
 		{
-			Token t = { Token::Type::Symbol, c };
-			return t;
+			c = _buf.next();
+
+			Token::Type type = _map.type(c);
+			if (type == Token::Type::Symbol && c != '\\' || type == Token::Type::Eof)
+			{
+				throw Exception("invalid escape sequence");
+			}
+			else
+			{
+				t._type = Token::Type::Symbol;
+			}
 		}
+
+		_lookBehind.push_back(t._type);
+		return t;
 	}
 
 	std::size_t pos() const
@@ -118,12 +111,78 @@ public:
 		_buf.retract(diff_);
 	}
 
-private:
+protected:
 	static const TokenTypeMapT _map;
-	BufferT& _buf;
+	BufferT&                   _buf;
+	boost::circular_buffer<Token::Type> _lookBehind;
 };
 
-template<typename BufferT, typename TokenTypeMapT>
-const TokenTypeMapT Lexer<BufferT, TokenTypeMapT>::_map = TokenTypeMapT();
+template<typename DerivedT, typename BufferT, typename TokenTypeMapT>
+const TokenTypeMapT Lexer<DerivedT, BufferT, TokenTypeMapT>::_map = TokenTypeMapT();
+
+
+template<typename BufferT>
+class RegexLexer
+	: public Lexer<RegexLexer<BufferT>, BufferT, RegexTokenTypeMap>
+{
+public:
+	RegexLexer(BufferT& buf_)
+		:
+		Lexer(buf_)
+	{
+		
+	}
+
+	void postProcess(Token& t_)
+	{
+		
+	}
+};
+
+template<typename BufferT>
+class CharClassLexer
+	: public Lexer<CharClassLexer<BufferT>, BufferT, CharClassTokenTypeMap>
+{
+public:
+	CharClassLexer(BufferT& buf_)
+		:
+		Lexer(buf_)
+	{
+		
+	}
+
+	void postProcess(Token& t_)
+	{
+		//Handle context dependencies of CharClassSep::lexeme
+
+		if (t_._type == Token::Type::CharClassSep)
+		{
+			//peek 1 char ahead
+			char c = _buf.next();
+			_buf.retract(1);
+
+			const std::size_t size = _lookBehind.size();
+
+			if (_map.type(c) == Token::Type::CharClassE
+				||
+				size > 0 && _lookBehind[size - 1] == Token::Type::CharClassB
+				||
+				size > 1 && _lookBehind[size - 2] == Token::Type::CharClassB && _lookBehind[size - 2] == Token::Type::CharClassNeg)
+			{
+				t_._type = Token::Type::Symbol;
+			}
+		}
+		else 
+		if (t_._type == Token::Type::CharClassNeg)
+		{
+			const std::size_t size = _lookBehind.size();
+
+			if (size > 0 && _lookBehind[size - 1] != Token::Type::CharClassB)
+			{
+				t_._type = Token::Type::Symbol;
+			}
+		}
+	}
+};
 
 }}}

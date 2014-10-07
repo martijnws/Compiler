@@ -3,6 +3,7 @@
 #include "ParserState.h"
 #include "CharClassParser.h"
 #include "Lexer.h"
+#include "Util.h"
 
 namespace mws { namespace td { namespace pr {
 
@@ -40,28 +41,29 @@ private:
 	// term        = factor termTail               First = { symbol, [, ( }
 	// termTail    = *                             First = { *, e }
 	//             | e                             
-	// factor      = symbol                        First = { symbol, [, ( }
-	//             | cc
-	//             | ( pattern )
+	// factor      = symbol                        First = { symbol }
+	//             | cc							   First = { [ }
+	//             | ( pattern )                   First = { ( }
 
 	using T = Token::Type;
 
 	// choice '|'
 	bool pattern()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
+		// If the empty string is not a valid pattern, remove the empty line
+		if (isIn(_st.cur(), { T::Symbol, T::CharClassB, T::SubExprB }))
+			return expr() && patternTail();
+		else
+			return _st.empty();
 
-		// If the _st.empty string is not a valid pattern, remove the || _st.empty line
-		return expr() && patternTail()
-			|| (_st.retract(pos, cur), _st.empty());
 	}
 
 	bool patternTail()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
-		return _st.m(T::Choice) && expr() && patternTail()
-			|| (_st.retract(pos, cur), _st.empty());
+		if (_st.cur()._type == T::Choice)
+			return _st.m(T::Choice) && expr() && patternTail();
+		else
+			return _st.empty();
 	}
 
 	// concatenation
@@ -72,10 +74,10 @@ private:
 
 	bool exprTail()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
-		return term() && exprTail()
-			|| (_st.retract(pos, cur), _st.empty());
+		if (isIn(_st.cur(), { T::Symbol, T::CharClassB, T::SubExprB }))
+			return term() && exprTail();
+		else
+			return _st.empty();
 	}
 
 	// repitition '*'
@@ -86,20 +88,26 @@ private:
 
 	bool termTail()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
-		return _st.m(T::ZeroToMany)
-			|| (_st.retract(pos, cur), _st.empty());
+		if (_st.cur()._type == T::ZeroToMany)
+			return _st.m(T::ZeroToMany);
+		else
+			return _st.empty();
 	}
 
 	// atoms
 	bool factor()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
-		return _st.m(T::Symbol)
-			|| (_st.retract(pos, cur), charClass())
-			|| (_st.retract(pos, cur), _st.m(T::SubExprB) && pattern() && _st.m(T::SubExprE));
+		switch(_st.cur()._type)
+		{
+		case T::Symbol:
+			return _st.m(T::Symbol);
+		case T::CharClassB:
+			return charClass();
+		case T::SubExprB:
+			return _st.m(T::SubExprB) && pattern() && _st.m(T::SubExprE);
+		default:
+			return false;
+		}
 	}
 
 	bool charClass()

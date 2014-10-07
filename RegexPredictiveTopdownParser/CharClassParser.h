@@ -2,6 +2,7 @@
 
 #include "ParserState.h"
 #include "Lexer.h"
+#include "Util.h"
 #include <iostream>
 
 namespace mws { namespace td { namespace pr {
@@ -21,23 +22,23 @@ public:
 
 	// charClass grammar:
 	//
-	// cc          = [ negO ccSet ]
-	// ccSet       = - ccRngLstO 
-	//             | ccRngLst ccRngSepO
-	// ccNetO      = ^ 
+	// cc          = [ negO ccSet ]         First = { symbol, ^, - }
+	// ccSet       = - ccRngLstO            First = { - }
+	//             | ccRngLst ccRngSepO     First = { symbol, ^ }
+	// ccNegO      = ^                      First = { ^ }
 	//             | e
-	// ccRngSepO   = - 
+	// ccRngSepO   = -                      First = { - }
 	//             | e
-	// ccRngLstO   = ccRngLst 
+	// ccRngLstO   = ccRngLst               First = { symbol, ^ }
 	//             | e
-	// ccRngLst    = ccRng ccRngLstT
-	// ccRngLstT   = ccRng ccRngLstT 
+	// ccRngLst    = ccRng ccRngLstT        First = { symbol, ^ }
+	// ccRngLstT   = ccRng ccRngLstT        First = { symbol, ^ }
 	//             | e
-	// ccRng       = ccSym ccRngT
-	// ccRngT      = - ccSym 
+	// ccRng       = ccSym ccRngT           First = { symbol, ^ }
+	// ccRngT      = - ccSym                First = { - }
 	//             | e
-	// ccSym       = symbol
-	//             | ^ 
+	// ccSym       = symbol                 First = { symbol }
+	//             | ^                      First = { ^ }
 
 	using T = Token::Type;
 
@@ -52,35 +53,39 @@ private:
 
 	bool charClassSet()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
 		// a '-' (aka CharClassSep) at the beginning or end is treated as any other character
-		return _st.m(T::CharClassSep) && charClassRangeListOpt()
-			|| (_st.retract(pos, cur), charClassRangeList() && charClassRangeSepOpt());
+
+		if (isIn(_st.cur(), {T::Symbol, T::CharClassNeg}))
+			return charClassRangeList() && charClassRangeSepOpt();
+		else
+		if (_st.cur()._type == T::CharClassSep)
+			return _st.m(T::CharClassSep) && charClassRangeListOpt();
+		else
+			return false;
 	}
 
 	bool charClassNegateOpt()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
-		return _st.m(T::CharClassNeg)
-			|| (_st.retract(pos, cur), _st.empty());
+		if (_st.cur()._type == T::CharClassNeg)
+			return _st.m(T::CharClassNeg);
+		else
+			return _st.empty();
 	}
 
 	bool charClassRangeSepOpt()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
-		return _st.m(T::CharClassSep)
-			|| (_st.retract(pos, cur), _st.empty());
+		if (_st.cur()._type == T::CharClassSep)
+			return _st.m(T::CharClassSep);
+		else
+			return _st.empty();
 	}
 
 	bool charClassRangeListOpt()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
-		return charClassRangeList()
-			|| (_st.retract(pos, cur), _st.empty());
+		if (isIn(_st.cur(), {T::Symbol, T::CharClassNeg}))
+			return charClassRangeList();
+		else
+			return _st.empty();
 	}
 
 	bool charClassRangeList()
@@ -90,10 +95,10 @@ private:
 
 	bool charClassRangeListTail()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
-		return charClassRange() && charClassRangeListTail()
-			|| (_st.retract(pos, cur), _st.empty());
+		if (isIn(_st.cur(), {T::Symbol, T::CharClassNeg}))
+			return charClassRange() && charClassRangeListTail();
+		else
+			return _st.empty();
 	}
 
 	bool charClassRange()
@@ -103,18 +108,23 @@ private:
 
 	bool charClassRangeTail()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
-		return _st.m(T::CharClassSep) && charClassSymbol()
-			|| (_st.retract(pos, cur), _st.empty());
+		if (_st.cur()._type == T::CharClassSep)
+			return _st.m(T::CharClassSep) && charClassSymbol();
+		else
+			return _st.empty();
 	}
 
 	bool charClassSymbol()
 	{
-		const std::size_t pos = _st.pos(); Token cur = _st.cur();
-
-		return _st.m(T::Symbol)
-			|| (_st.retract(pos, cur), _st.m(T::CharClassNeg));
+		switch(_st.cur()._type)
+		{
+		case T::Symbol:
+			return _st.m(T::Symbol);
+		case T::CharClassNeg:
+			return _st.m(T::CharClassNeg);
+		default:
+			return false;
+		}
 	}
 };
 

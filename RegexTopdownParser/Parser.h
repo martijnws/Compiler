@@ -115,7 +115,7 @@ private:
 	// charClass grammar:
 	//
 	// cc         = [ negO ccSet ]
-	// ccSet      = - ccRngLstO | ccRngLst ccRngSepO
+	// ccSet      = - ccRngLstO ccRngSepO | ccRngLst ccRngSepO	//[--] is allowed
 	// ccNetO     = ^ | e
 	// ccRngSepO  = - | e
 	// ccRngLstO  = ccRngLst | e
@@ -137,7 +137,7 @@ private:
 	{
 		const std::size_t count = _lexer.count();
 
-		return m('-') && charClassRangeListOpt()
+		return m('-') && charClassRangeListOpt() && charClassRangeSepOpt()
 			|| (retract(count), charClassRangeList() && charClassRangeSepOpt());
 	}
 

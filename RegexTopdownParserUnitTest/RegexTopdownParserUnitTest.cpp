@@ -5,7 +5,7 @@
 
 namespace {
 
-typedef mws::td::pr::Parser Parser;
+typedef mws::td::bt::Parser Parser;
 
 // The fixture for testing class Foo.
 class ParserBasicExprTest : public ::testing::Test
@@ -82,6 +82,7 @@ INSTANTIATE_TEST_CASE_P(CharClass, ParserCharClassCorrectTest, ::testing::Values
 	"[a-z]",
 	"[a-zA-Z0-9]",
 	"[-]",
+	"[--]", //syntacticcaly correct, semantically wrong/redundant
 	"[-ab]",
 	"[ab-]",
 	"[a[]",
@@ -127,7 +128,6 @@ TEST_P(ParserCharClassIncorrectTest, parse)
 INSTANTIATE_TEST_CASE_P(CharClass, ParserCharClassIncorrectTest, ::testing::Values(
 	"[]",
 	"[^]",
-	"[--]",
 	R"R([\a])R"
 	));
 		
