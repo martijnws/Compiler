@@ -54,6 +54,7 @@ private:
 	{
 		const std::size_t pos = _st.pos(); Token cur = _st.cur();
 
+		// a '-' (aka CharClassSep) at the beginning or end is treated as any other character
 		return _st.m(T::CharClassSep) && charClassRangeListOpt()
 			|| (_st.retract(pos, cur), charClassRangeList() && charClassRangeSepOpt());
 	}

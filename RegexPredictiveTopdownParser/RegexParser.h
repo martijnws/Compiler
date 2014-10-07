@@ -97,17 +97,11 @@ private:
 	{
 		const std::size_t pos = _st.pos(); Token cur = _st.cur();
 
-		return symbol()
+		return _st.m(T::Symbol)
 			|| (_st.retract(pos, cur), charClass())
 			|| (_st.retract(pos, cur), _st.m(T::SubExprB) && pattern() && _st.m(T::SubExprE));
 	}
 
-	bool symbol()
-	{
-		return _st.m(T::Symbol);
-	}
-
-	// a '-' (aka charClassRangeSepOpt) at the beginning or end is treated as any other character
 	bool charClass()
 	{
 		CharClassParser<Buf> body(_st.buf(), _st.cur());
