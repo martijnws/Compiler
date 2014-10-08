@@ -24,65 +24,71 @@ public:
 
 	// charClass grammar:
 	//
-	// charClass = [ {A;} negO RngLst ] {A;}    First = { symbol, ^ }
-	// NegO      = ^ {A;}                       First = { ^ }
+	// charClass = [ negO RngLst  {A (if negO);} ]   First = { symbol, ^ }
+	// negO      = ^ {A;}                            First = { ^ }
 	//             | e
-	// RngLst    = Rng RngLstT                  First = { symbol }
-	// RngLstT   = Rng {A;} RngLstT             First = { symbol }
+	// choice    = Rng choiceT                       First = { symbol }
+	// choiceT   = Rng {A;} choiceT                  First = { symbol }
 	//             | e
-	// Rng       = factor RngT                  First = { symbol }
-	// RngT      = - factor {A;}                First = { - }
+	// Rng       = option RngT                       First = { symbol }
+	// RngT      = - option {A;}                     First = { - }
 	//             | e
-	// factor    = symbol {A;}
+	// option    = symbol {A;}
 
 	using T = Token::Type;
 
 	bool parse()
 	{
-		return _st.m(T::CharClassB) && (_h.onCharClassBeg(), true) 
-			   && 
-			   negateOpt() && rangeList() 
-			   && 
-			   _st.m(T::CharClassE) && (_h.onCharClassEnd(), true);
+		bool isNegate = false;
+
+		bool res = _st.m(T::CharClassB) && negateOpt(isNegate) && choice() && _st.m(T::CharClassE);
+
+		if (res && isNegate)
+		{
+			_h.onNegate();
+		}
+
+		return res;
 	}
 
 private:
 
-	bool negateOpt()
+	bool negateOpt(bool& isNegate)
 	{
-		if (_st.cur()._type == T::CharClassNeg)
-			return _st.m(T::CharClassNeg) && (_h.onNegate(), true);
+		if (isNegate = _st.cur()._type == T::CharClassNeg)
+			return _st.m(T::CharClassNeg);
 		else
 			return _st.empty();
 	}
 
-	bool rangeList()
+	// concatenation in charClass means choice
+	bool choice()
 	{
-		return range() && rangeListT();
+		return range() && choiceT();
 	}
 
-	bool rangeListT()
+	bool choiceT()
 	{
 		if (_st.cur()._type == T::Symbol)
-			return range() && (_h.onRangeList(), true) && rangeListT();
+			return range() && (_h.onChoice(), true) && choiceT();
 		else
 			return _st.empty();
 	}
 
 	bool range()
 	{
-		return factor() && rangeT();
+		return option() && rangeT();
 	}
 
 	bool rangeT()
 	{
 		if (_st.cur()._type == T::CharClassSep)
-			return _st.m(T::CharClassSep) && factor() && (_h.onRange(), true);
+			return _st.m(T::CharClassSep) && option() && (_h.onRange(), true);
 		else
 			return _st.empty();
 	}
 
-	bool factor()
+	bool option()
 	{
 		Token t = _st.cur();
 		return _st.m(T::Symbol) && (_h.onSymbol(t), true);

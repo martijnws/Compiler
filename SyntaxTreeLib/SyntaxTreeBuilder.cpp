@@ -1,60 +1,79 @@
 #include "SyntaxTreeBuilder.h"
+#include "SyntaxNode.h"
+#include <cassert>
 
 namespace mws { namespace ast {
 
+using Stack = std::stack<SyntaxNode*>;
+
+void push(Stack& stack_, SyntaxNode* n_)
+{
+	stack_.push(n_);
+}
+
+SyntaxNode* pop(Stack& stack_)
+{
+	assert(!stack_.empty());
+
+	SyntaxNode* n = stack_.top();
+	stack_.pop();
+	return n;
+}
+
+template<typename OperatorT>
+void onUnaryOp(Stack& stack_)
+{
+	SyntaxNode* n = pop(stack_);
+	push(stack_, new OperatorT(n));
+}
+
+template<typename OperatorT>
+void onBinaryOp(Stack& stack_)
+{
+	SyntaxNode* rhs = pop(stack_);
+	SyntaxNode* lhs = pop(stack_);
+	push(stack_, new OperatorT(lhs, rhs));
+}
+
 void SyntaxTreeBuilder::onEof()
 {
-
+	//can be zero if empty expression is allowed
+	assert(_stack.size() <= 1);
 }
 
 void SyntaxTreeBuilder::onChoice()
 {
-
+	onBinaryOp<Choice>(_stack);
 }
 
 void SyntaxTreeBuilder::onConcat()
 {
-
+	onBinaryOp<Concat>(_stack);
 }
 
 void SyntaxTreeBuilder::onZeroToMany()
 {
-
+	onUnaryOp<ZeroToMany>(_stack);
 }
 
 void SyntaxTreeBuilder::onSymbol(const td::LL1::Token& t_)
 {
-
+	push(_stack, new Symbol(t_));
 }
 
-void SyntaxTreeBuilder::onCharClassBeg()
+void SyntaxTreeBuilder::onCharClass()
 {
-
-}
-
-void SyntaxTreeBuilder::onCharClassEnd()
-{
-
+	onUnaryOp<CharClass>(_stack);
 }
 
 void SyntaxTreeBuilder::onNegate()
 {
-
-}
-
-void SyntaxTreeBuilder::onRangeList()
-{
-
+	onUnaryOp<Negate>(_stack);
 }
 
 void SyntaxTreeBuilder::onRange()
 {
-
-}
-
-void SyntaxTreeBuilder::onRangeSep()
-{
-
+	onBinaryOp<Range>(_stack);
 }
 
 }}

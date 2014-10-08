@@ -116,9 +116,9 @@ private:
 
 	bool charClass()
 	{
-		CharClassParser<Buf> body(_st.buf(), _st.cur(), _h);
+		CharClassParser<Buf> cc(_st.buf(), _st.cur(), _h);
 
-		return body.parse();
+		return cc.parse() && (_h.onCharClass(), true);
 	}
 };
 

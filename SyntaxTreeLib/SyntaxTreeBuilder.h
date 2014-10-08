@@ -2,8 +2,11 @@
 
 #include <RegexLL1ParserLib/Token.h>
 #include <RegexLL1ParserLib/ParserHandler.h>
+#include <stack>
 
 namespace mws { namespace ast {
+
+class SyntaxNode;
 
 class SyntaxTreeBuilder
 	:
@@ -15,12 +18,12 @@ public:
 	virtual void onConcat();
 	virtual void onZeroToMany();
 	virtual void onSymbol(const td::LL1::Token& t_);
-	virtual void onCharClassBeg();
-	virtual void onCharClassEnd();
+	virtual void onCharClass();
 	virtual void onNegate();
-	virtual void onRangeList();
 	virtual void onRange();
-	virtual void onRangeSep();
+
+private:
+	std::stack<SyntaxNode*> _stack;
 };
 
 }}
