@@ -3,6 +3,9 @@
 #include <RegexPredictiveTopdownParser/Parser.h>
 #include <gtest/gtest.h>
 
+//TODO: remove this hack when projects are converted to libraries
+#include <RegexPredictiveTopdownParser/SyntaxTreeBuilder.cpp>
+
 namespace {
 
 typedef mws::td::pr::Parser Parser;

@@ -21,9 +21,12 @@
     <ClInclude Include="CharClassParser.h" />
     <ClInclude Include="ParserState.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="ParserHandler.h" />
+    <ClInclude Include="SyntaxTreeBuilder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="SyntaxTreeBuilder.cpp" />
   </ItemGroup>
 </Project>

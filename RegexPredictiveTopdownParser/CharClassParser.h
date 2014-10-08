@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ParserState.h"
+#include "ParserHandler.h"
 #include "Lexer.h"
 #include "Util.h"
 #include <iostream>
@@ -11,34 +12,38 @@ template<typename BufferT>
 class CharClassParser
 {
 	ParserState<BufferT, CharClassLexer<BufferT>> _st;
+	ParserHandler&                                _h;
 
 public:
-	CharClassParser(BufferT& buf_, Token& cur_)
+	CharClassParser(BufferT& buf_, Token& cur_, ParserHandler& h_)
 		:
-		_st(buf_, cur_)
+		_st(buf_, cur_), _h(h_)
 	{
 		
 	}
 
 	// charClass grammar:
 	//
-	// cc        = [ negO RngLst ]    First = { symbol, ^ }
-	// NegO      = ^                  First = { ^ }
+	// charClass = [ {A;} negO RngLst ] {A;}    First = { symbol, ^ }
+	// NegO      = ^ {A;}                       First = { ^ }
 	//             | e
-	// RngLst    = Rng RngLstT        First = { symbol }
-	// RngLstT   = Rng RngLstT        First = { symbol }
+	// RngLst    = Rng RngLstT                  First = { symbol }
+	// RngLstT   = Rng {A;} RngLstT             First = { symbol }
 	//             | e
-	// Rng       = sybmol RngT        First = { symbol }
-	// RngT      = - symbol           First = { - }
+	// Rng       = factor RngT                  First = { symbol }
+	// RngT      = - factor {A;}                First = { - }
 	//             | e
+	// factor    = symbol {A;}
 
 	using T = Token::Type;
 
 	bool parse()
 	{
-		_st.init();
-
-		return negateOpt() && rangeList();
+		return _st.m(T::CharClassB) && (_h.onCharClassBeg(), true) 
+			   && 
+			   negateOpt() && rangeList() 
+			   && 
+			   _st.m(T::CharClassE) && (_h.onCharClassEnd(), true);
 	}
 
 private:
@@ -46,35 +51,41 @@ private:
 	bool negateOpt()
 	{
 		if (_st.cur()._type == T::CharClassNeg)
-			return _st.m(T::CharClassNeg);
+			return _st.m(T::CharClassNeg) && (_h.onNegate(), true);
 		else
 			return _st.empty();
 	}
 
 	bool rangeList()
 	{
-		return range() && rangeListTail();
+		return range() && rangeListT();
 	}
 
-	bool rangeListTail()
+	bool rangeListT()
 	{
 		if (_st.cur()._type == T::Symbol)
-			return range() && rangeListTail();
+			return range() && (_h.onRangeList(), true) && rangeListT();
 		else
 			return _st.empty();
 	}
 
 	bool range()
 	{
-		return _st.m(T::Symbol) && rangeTail();
+		return factor() && rangeT();
 	}
 
-	bool rangeTail()
+	bool rangeT()
 	{
 		if (_st.cur()._type == T::CharClassSep)
-			return _st.m(T::CharClassSep) && _st.m(T::Symbol);
+			return _st.m(T::CharClassSep) && factor() && (_h.onRange(), true);
 		else
 			return _st.empty();
+	}
+
+	bool factor()
+	{
+		Token t = _st.cur();
+		return _st.m(T::Symbol) && (_h.onSymbol(t), true);
 	}
 };
 

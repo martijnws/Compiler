@@ -2,6 +2,7 @@
 
 #include "RegexParser.h"
 #include "Buffer.h"
+#include "SyntaxTreeBuilder.h"
 #include <iostream>
 
 // Notes on grammar
@@ -31,17 +32,17 @@ class Parser
 {
 public:
 	Parser(std::istream& is_)
-		: _buf(is_)
+		: _buf(is_), _cur({ Token::Type::None, '\0' })
 
 	{
-		_cur = { Token::Type::None, '\0' };
+	
 	}
 
 	bool parse()
 	{
 		try
 		{
-			RegexParser<Buf> parser(_buf, _cur);
+			RegexParser<Buf> parser(_buf, _cur, _astBuilder);
 
 			return parser.parse();
 		}
@@ -55,6 +56,7 @@ public:
 private:
 	Buf   _buf;
 	Token _cur;
+	SyntaxTreeBuilder _astBuilder;
 };
 
 }}}
