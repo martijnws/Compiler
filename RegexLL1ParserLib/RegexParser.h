@@ -22,11 +22,16 @@ public:
 		
 	}
 
-	bool parse()
+	void parse()
 	{
 		_st.init();
 
-		return choice() && _st.eof() && (_h.onEof(), true);
+		choice(); 
+		
+		// failure is reported by means of exceptions. If we make it here, the full string is parsed
+		assert(_st.eof());
+		
+		_h.onEof();
 	}
 
 private:
@@ -50,75 +55,82 @@ private:
 	using T = Token::Type;
 
 	// choice '|'
-	bool choice()
+	void choice()
 	{
-		// If the empty string is not a valid choice, remove the empty line
 		if (isIn(_st.cur(), { T::Symbol, T::CharClassB, T::SubExprB }))
-			return concat() && choiceT();
+		{
+			concat(); choiceT();
+		}
 		else
-			return _st.empty();
-
+		// If the empty string is not a valid choice, throw unconditional 
+		if (!_st.eof())
+		{
+			throw common::Exception("Parser error: Invalid first symbol");
+		}
 	}
 
-	bool choiceT()
+	void choiceT()
 	{
 		if (_st.cur()._type == T::Choice)
-			return _st.m(T::Choice) && concat() && (_h.onChoice(), true) && choiceT();
-		else
-			return _st.empty();
+		{
+			_st.m(T::Choice); concat(); _h.onChoice(); choiceT();
+		}
 	}
 
 	// concatenation
-	bool concat()
+	void concat()
 	{
-		return term() && concatT();
+		term(); concatT();
 	}
 
-	bool concatT()
+	void concatT()
 	{
 		if (isIn(_st.cur(), { T::Symbol, T::CharClassB, T::SubExprB }))
-			return term() && (_h.onConcat(), true) && concatT();
-		else
-			return _st.empty();
+		{
+			term(); _h.onConcat(); concatT();
+		}
 	}
 
 	// repitition '*'
-	bool term()
+	void term()
 	{
-		return factor() && zeroToManyO();
+		factor(); zeroToManyO();
 	}
 
-	bool zeroToManyO()
+	void zeroToManyO()
 	{
 		if (_st.cur()._type == T::ZeroToMany)
-			return _st.m(T::ZeroToMany) && (_h.onZeroToMany(), true);
-		else
-			return _st.empty();
+		{
+			_st.m(T::ZeroToMany); _h.onZeroToMany();
+		}
 	}
 
 	// atoms
-	bool factor()
+	void factor()
 	{
 		Token t = _st.cur();
 
 		switch(_st.cur()._type)
 		{
 		case T::Symbol:
-			return _st.m(T::Symbol) && (_h.onSymbol(t), true);
+			_st.m(T::Symbol); _h.onSymbol(t);
+			break;
 		case T::CharClassB:
-			return charClass();
+			charClass();
+			break;
 		case T::SubExprB:
-			return _st.m(T::SubExprB) && choice() && _st.m(T::SubExprE);
+			_st.m(T::SubExprB); choice(); _st.m(T::SubExprE);
+			break;
 		default:
-			return false;
+			throw common::Exception("Parser error: Expected factor");
 		}
 	}
 
-	bool charClass()
+	void charClass()
 	{
 		CharClassParser<Buf> cc(_st.buf(), _st.cur(), _h);
 
-		return cc.parse() && (_h.onCharClass(), true);
+		cc.parse(); _h.onCharClass();
 	}
 };
 

@@ -44,7 +44,8 @@ public:
 		{
 			RegexParser<Buf> parser(_buf, _cur, _astBuilder);
 
-			return parser.parse();
+			parser.parse();
+			return true;
 		}
 		catch(const common::Exception& e)
 		{

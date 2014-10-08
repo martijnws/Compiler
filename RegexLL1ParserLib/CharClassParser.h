@@ -37,61 +37,59 @@ public:
 
 	using T = Token::Type;
 
-	bool parse()
+	void parse()
 	{
 		bool isNegate = false;
 
-		bool res = _st.m(T::CharClassB) && negateOpt(isNegate) && choice() && _st.m(T::CharClassE);
+		_st.m(T::CharClassB); negateOpt(isNegate); choice(); _st.m(T::CharClassE);
 
-		if (res && isNegate)
+		if (isNegate)
 		{
 			_h.onNegate();
 		}
-
-		return res;
 	}
 
 private:
 
-	bool negateOpt(bool& isNegate)
+	void negateOpt(bool& isNegate)
 	{
 		if (isNegate = _st.cur()._type == T::CharClassNeg)
-			return _st.m(T::CharClassNeg);
-		else
-			return _st.empty();
+		{
+			_st.m(T::CharClassNeg);
+		}
 	}
 
 	// concatenation in charClass means choice
-	bool choice()
+	void choice()
 	{
-		return range() && choiceT();
+		range(); choiceT();
 	}
 
-	bool choiceT()
+	void choiceT()
 	{
 		if (_st.cur()._type == T::Symbol)
-			return range() && (_h.onChoice(), true) && choiceT();
-		else
-			return _st.empty();
+		{
+			range(); _h.onChoice(); choiceT();
+		}
 	}
 
-	bool range()
+	void range()
 	{
-		return option() && rangeT();
+		option(); rangeT();
 	}
 
-	bool rangeT()
+	void rangeT()
 	{
 		if (_st.cur()._type == T::CharClassSep)
-			return _st.m(T::CharClassSep) && option() && (_h.onRange(), true);
-		else
-			return _st.empty();
+		{
+			_st.m(T::CharClassSep); option(); _h.onRange();
+		}
 	}
 
-	bool option()
+	void option()
 	{
 		Token t = _st.cur();
-		return _st.m(T::Symbol) && (_h.onSymbol(t), true);
+		_st.m(T::Symbol); _h.onSymbol(t);
 	}
 };
 
