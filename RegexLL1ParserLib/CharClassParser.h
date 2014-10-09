@@ -24,9 +24,9 @@ public:
 
 	// charClass grammar:
 	//
-	// charClass = [ negO RngLst  {A (if negO);} ]   First = { symbol, ^ }
-	// negO      = ^ {A;}                            First = { ^ }
-	//             | e
+	// charClass = [ body ]                          First = { symbol, ^ }
+	// body      = ^ choice {A;}                     First = { ^ }
+	//           | choice                            First = { symbol }
 	// choice    = Rng choiceT                       First = { symbol }
 	// choiceT   = Rng {A;} choiceT                  First = { symbol }
 	//             | e
@@ -39,23 +39,23 @@ public:
 
 	void parse()
 	{
-		bool isNegate = false;
-
-		_st.m(T::CharClassB); negateOpt(isNegate); choice(); _st.m(T::CharClassE);
-
-		if (isNegate)
-		{
-			_h.onNegate();
-		}
+		_st.m(T::CharClassB); body(); _st.m(T::CharClassE);
 	}
 
 private:
 
-	void negateOpt(bool& isNegate)
+	void body()
 	{
-		if (isNegate = _st.cur()._type == T::CharClassNeg)
+		switch(_st.cur()._type)
 		{
-			_st.m(T::CharClassNeg);
+		case T::CharClassNeg:
+			_st.m(T::CharClassNeg); choice(); _h.onNegate();
+			break;
+		case T::Symbol:
+			choice();
+			break;
+		default:
+			throw common::Exception("Parser error: CharClass must begin with ^ or symbol");
 		}
 	}
 

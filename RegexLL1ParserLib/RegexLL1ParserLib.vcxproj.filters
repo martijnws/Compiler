@@ -17,5 +17,6 @@
     <ClInclude Include="ParserState.h" />
     <ClInclude Include="RegexParser.h" />
     <ClInclude Include="Token.h" />
+    <ClInclude Include="TableDrivenParser.h" />
   </ItemGroup>
 </Project>

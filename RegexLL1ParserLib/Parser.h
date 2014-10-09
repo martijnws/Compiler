@@ -38,6 +38,7 @@ public:
 	
 	}
 
+	//TODO: make void and handle exception in caller (fix unittests appropriately)
 	bool parse()
 	{
 		try

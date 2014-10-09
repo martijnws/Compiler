@@ -140,6 +140,7 @@
     <ClInclude Include="ParserHandler.h" />
     <ClInclude Include="ParserState.h" />
     <ClInclude Include="RegexParser.h" />
+    <ClInclude Include="TableDrivenParser.h" />
     <ClInclude Include="Token.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
