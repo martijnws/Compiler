@@ -159,6 +159,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RegexLL1ParserLib\RegexLL1ParserLib.vcxproj">
+      <Project>{6704ef8a-bda5-40be-8007-d20652b9ef75}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\SyntaxTreeLib\SyntaxTreeLib.vcxproj">
       <Project>{6e560029-ae47-406b-8828-b6737123d5a9}</Project>
     </ProjectReference>

@@ -19,4 +19,7 @@
     <ClInclude Include="Token.h" />
     <ClInclude Include="TableDrivenParser.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TableDrivenParser.cpp" />
+  </ItemGroup>
 </Project>

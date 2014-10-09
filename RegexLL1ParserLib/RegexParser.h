@@ -38,9 +38,9 @@ private:
 
 	// Regex grammar:
 	//
-	// choice     = expr choiceT  {A;}          First = { symbol, [, ( }
+	// choice     = concat choiceT              First = { symbol, [, ( }
 	//             | e
-	// choiceT =  '|' expr {A;}  choiceT        First = { |, e }
+	// choiceT =  '|' concat {A;}  choiceT      First = { |, e }
 	//             | e
 	// concat        = term concatT             First = { symbol, [, ( }
 	// concatT    = term {A;} concatT           First = { symbol, [, ( }

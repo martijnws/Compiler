@@ -143,6 +143,9 @@
     <ClInclude Include="TableDrivenParser.h" />
     <ClInclude Include="Token.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TableDrivenParser.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
