@@ -6,6 +6,8 @@
 #include "Token.h"
 #include <functional>
 #include <initializer_list>
+#include <vector>
+#include <set>
 #include <cstdint>
 #include <cassert>
 
@@ -44,22 +46,25 @@ using action     = std::function<void(const Token& t_, ParserHandler& h_, TokenS
 
 struct GrammarSymbol
 {
-	uint32_t _type;
+	bool     _isTerminal;
+	uint8_t  _type;
 	action   _action;
 };
 
 struct Production
 {
 	Production(const std::initializer_list<GrammarSymbol>& gsList_)
-		: _gsList(gsList_)
+		: _gsList(gsList_.begin(), gsList_.end()), _derivesEmpty(false)
 	{
-	
+		assert(_gsList.size() > 0);
 	}
 
-	const std::initializer_list<GrammarSymbol> _gsList;
+	const std::vector<GrammarSymbol> _gsList;
+	std::set<uint8_t>                _first;
+	bool                             _derivesEmpty;
 };
 
-enum NonTerminal { Choice = Token::Type::Eof + 1, ChoiceT, Concat, ConcatT, Term, ZeroToManyO, Factor, Empty, CharClass };
+enum NonTerminal { Choice, ChoiceT, Concat, ConcatT, Term, ZeroToManyO, Factor, CharClass };
 
 bool init();
 

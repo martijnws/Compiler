@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include <RegexLL1ParserLib/Parser.h>
-#include <RegexLL1ParserLib/TableDrivenParser.h>
 #include <gtest/gtest.h>
 
 namespace {
@@ -13,11 +12,6 @@ class ParserBasicExprTest : public ::testing::Test
 protected:
 		
 };
-
-TEST(TableDrivenParserTest, init) 
-{
-	EXPECT_TRUE(mws::td::LL1::init());
-}
 
 TEST_F(ParserBasicExprTest, parseEmpty) 
 {
