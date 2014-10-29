@@ -2,6 +2,7 @@
 #include <CommonLib/Exception.h>
 #include <algorithm>
 #include <map>
+#include <iostream>
 
 namespace mws { namespace td { namespace LL1 {
 
@@ -88,8 +89,8 @@ using N = NonTerminal;
 class NT
 {
 public:
-	NT(const std::initializer_list<Production>& prodList_)
-		: _prodList(prodList_.begin(), prodList_.end())
+	NT(const std::string& name_, const std::initializer_list<Production>& prodList_)
+		: _prodList(prodList_.begin(), prodList_.end()), _name(name_)
 	{
 		
 	}
@@ -109,60 +110,72 @@ public:
 
 	std::vector<Production> _prodList;
 	std::set<uint8_t>       _follow;
+	std::string             _name;
 };
 
 
 static const uint8_t E = -1;
 static const uint8_t e = -2;
 
-static const Production empty({ t(e) });
+static const Production empty({});
 
 NT grammar[] = { 
-//choice
-{ { n(N::Concat), n(N::ChoiceT) },
-  { empty } },
-//choiceT
-{ { t(T::Choice), n(N::Concat, &H::onChoice), n(N::ChoiceT) },
-  { empty } },
-//concat
-{ { n(N::Term), n(N::ConcatT) } },
-//concatT
-{ { n(N::Term, &H::onConcat), n(N::ConcatT) },
-  { empty } },
-//term
-{ { n(N::Factor), n(N::ZeroToManyO) } },
-//zeroToManyO
-{ { t(T::ZeroToMany, &H::onZeroToMany) },
-  { empty } },
-//factor
-{ { t(T::Symbol, &H::onSymbol) },
-//{ n(N::CharClass) },
-  { t(T::SubExprB), n(N::Choice), t(T::SubExprE) } },
+
+NT("Choice",      { { n(N::Concat), n(N::ChoiceT) },
+                    { empty } }),
+
+NT("ChoiceT",     { { t(T::Choice), n(N::Concat, &H::onChoice), n(N::ChoiceT) },
+                    { empty } }),
+
+NT("Concat",      { { n(N::Term), n(N::ConcatT) } }),
+
+NT("ConcatT",     { { n(N::Term, &H::onConcat), n(N::ConcatT) },
+                    { empty } }),
+
+NT("Term",        { { n(N::Factor), n(N::ZeroToManyO) } }),
+
+NT("ZeroToManyO", { { t(T::ZeroToMany, &H::onZeroToMany) },
+                    { empty } }),
+
+NT("Factor",      { { t(T::Symbol, &H::onSymbol) },
+//                  { n(N::CharClass) },
+                    { t(T::SubExprB), n(N::Choice), t(T::SubExprE) } }),
 };
+
+
+std::ostream& operator << (std::ostream& os_, const std::set<uint8_t>& set_)
+{
+	for (auto i : set_)
+	{
+		os_ << (int)i << " ";
+	}
+
+	return os_;
+}
 
 static const std::size_t cN = N::CharClass + 1;
 static const std::size_t cT = T::Eof + 1;
 static uint8_t parserTable[cN][cT] = { E };
 
+static bool isFirstComputed[cN] = { false };
+
 void first(uint8_t ntt_)
 {
 	assert(ntt_ >= 0 && ntt_ <= N::CharClass);
 
-	NT& nt = grammar[ntt_];
-	if (!nt.derivesEmpty())
+	if (isFirstComputed[ntt_])
 	{
 		return;
 	}
 
+	NT& nt = grammar[ntt_];
+
 	for (Production& prod : nt._prodList)
 	{
+		prod._derivesEmpty = true;
+
 		for (const GrammarSymbol& gs : prod._gsList)
 		{
-			if (gs._type == e)
-			{
-				continue;
-			}
-
 			// FIRST of terminal is terminal itself.
 			if (gs._isTerminal)
 			{
@@ -172,7 +185,7 @@ void first(uint8_t ntt_)
 			}
 
 			// FIRST of non terminal
-			first(static_cast<NonTerminal>(gs._type));
+			first(gs._type);
 
 			const NT& ntL = grammar[gs._type];
 			ntL.getFirst(prod._first);
@@ -185,24 +198,12 @@ void first(uint8_t ntt_)
 			}
 		}
 	}
+
+	isFirstComputed[ntt_] = true;
 }
 
-static std::vector<uint8_t> followSetRequestStack[cN];
-
-void resolveFollowSets(const std::set<uint8_t>& followSet_, std::vector<uint8_t>& todoStack_)
-{
-	while (!todoStack_.empty())
-	{
-		uint8_t ntt = todoStack_.back();
-		assert(ntt >= 0 && ntt < N::CharClass);
-
-		NT& nt = grammar[ntt];
-		nt._follow.insert(followSet_.begin(), followSet_.end());
-		todoStack_.pop_back();
-
-		resolveFollowSets(nt._follow, followSetRequestStack[ntt]);
-	}
-}
+static std::set<uint8_t> ntToFollowSetsMap[cN];
+static std::set<uint8_t> followSetToNtsMap[cN];
 
 void follow(uint8_t nttHead_, Production& prod_)
 {
@@ -210,63 +211,55 @@ void follow(uint8_t nttHead_, Production& prod_)
 	
 	NT& ntHead = grammar[nttHead_];
 
-	for (uint8_t i = 0; i < prod_._gsList.size(); ++i)
+	// start with true because last grammar symbol requires follow(ntHead)
+	bool requiresFollow = true;
+	std::set<uint8_t> followSet;
+
+	for (int64_t i = prod_._gsList.size() - 1; i >= 0; --i)
 	{
 		const GrammarSymbol& gs = prod_._gsList[i];
-
-		//not interested in follow of terminals
 		if (gs._isTerminal)
+		{
+			requiresFollow = false;
+			followSet.clear();
+			followSet.insert(gs._type);
 			continue;
-
-		uint8_t ntt = prod_._gsList[i]._type;
-		assert(ntt >= 0 && ntt <= N::CharClass);
-		NT& nt = grammar[ntt];
-
-		//keep adding to nt.follow until a non empty deriving GrammarSymbol is encountered
-		bool done = false;
-		for (uint8_t j = i + 1; j < prod_._gsList.size(); ++j)
-		{
-			const GrammarSymbol& gsNext = prod_._gsList[j];
-
-			if (gsNext._isTerminal)
-			{
-				nt._follow.insert(gsNext._type);
-				done = true;
-				break;
-			}
-
-			NT& ntNext = grammar[prod_._gsList[j]._type];
-			ntNext.getFirst(nt._follow);
-
-			if (!ntNext.derivesEmpty())
-			{
-				done = true;
-				break;
-			}
 		}
 
-		if (!done)
-		{
+		// update nt.follow with followSet prepared in previous iteration
+		NT& nt = grammar[gs._type];
+		nt._follow.insert(followSet.begin(), followSet.end());
 
-			if (!ntHead._follow.empty())
-			{
-				nt._follow.insert(ntHead._follow.begin(), ntHead._follow.end());
-				// resolve pending requests
-				resolveFollowSets(nt._follow, followSetRequestStack[ntt]);
-			}
-			else
-			{
-				followSetRequestStack[nttHead_].push_back(ntt);
-			}
+		// make a note that follow(ntHead) must be added in a later pass
+		if (requiresFollow && gs._type != nttHead_ /*prevent H -> aH recursion*/)
+		{
+			ntToFollowSetsMap[gs._type].insert(nttHead_);
+			followSetToNtsMap[nttHead_].insert(gs._type);
 		}
+
+		// prepare followSet for symbol to the left (next iteration)
+
+		// 1) as soon as we encounter a non-empty deriving symbol, follow(ntHead) will no longer be required
+		requiresFollow &= nt.derivesEmpty();
+		if (!requiresFollow)
+		{
+			followSet.clear();
+		}
+
+		// 2) first of current = follow of symbol on the left
+		nt.getFirst(followSet);
 	}
 }
 
+
 void follow()
 {
+	std::cout << "Follow:" << std::endl;
+
 	NT& ntStart = grammar[0];
 	ntStart._follow.insert(T::Eof);
 
+	// first pass: add first sets
 	for (uint8_t i = 0; i < sizeof(grammar)/sizeof(NT); ++i)
 	{
 		for (Production& prod : grammar[i]._prodList)
@@ -274,13 +267,58 @@ void follow()
 			follow(i, prod);
 		}
 	}
+
+	// second pass: add followsets
+	std::vector<uint8_t> completeFollowSets;
+	
+	for (uint8_t i = 0; i < cN; ++i)
+	{
+		if (ntToFollowSetsMap[i].empty())
+		{
+			completeFollowSets.push_back(i);
+		}
+	}
+
+	for (size_t i = 0; i < completeFollowSets.size(); ++i)
+	{
+		uint8_t nttComplete = completeFollowSets[i];
+		const NT& ntComplete = grammar[nttComplete];
+
+		std::set<uint8_t>& incompleteFollowSets = followSetToNtsMap[nttComplete];
+		for (uint8_t nttIncomplete : incompleteFollowSets)
+		{
+			// add follow(nttComplete) to follow(nttIncomplete)
+			NT& ntIncomplete = grammar[nttIncomplete];
+			ntIncomplete._follow.insert(ntComplete._follow.begin(), ntComplete._follow.end());
+
+			std::set<uint8_t>& followSet = ntToFollowSetsMap[nttIncomplete];
+
+			followSet.erase(nttComplete);
+			if (followSet.empty())
+			{
+				completeFollowSets.push_back(nttIncomplete);
+			}
+		}
+	}
+
+	for (uint8_t i = 0; i < sizeof(grammar)/sizeof(NT); ++i)
+	{
+		std::cout << grammar[i]._name << " " << grammar[i]._follow << std::endl;
+	}
+	
+	assert(completeFollowSets.size() == cN);
 }
 
 void first()
 {
+	std::cout << "First:" << std::endl;
+
 	for (uint8_t i = 0; i < sizeof(grammar)/sizeof(NT); ++i)
 	{
 		first(i);
+		std::set<uint8_t> firstSet;
+		grammar[i].getFirst(firstSet);
+		std::cout << grammar[i]._name << " " << firstSet << std::endl;
 	}
 }
 
@@ -292,38 +330,6 @@ bool init()
 	follow();
 	return true;
 }
-
-//void init(NonTerminal nt_, const std::initializer_list<Token::Type>& firstSet_, uint8_t prod_, uint8_t otherwise_)
-//{
-//	uint8_t* row_ = parserTable[nt_];
-//	std::fill(row_, row_ + cT, otherwise_);
-//
-//	for (Token::Type t : firstSet_)
-//	{
-//		row_[t] = prod_;
-//	}
-//}
-//
-//bool init()
-//{
-//	std::fill(*parserTable, *parserTable + cN * cT, E);
-//
-//	init(N::Choice,      { T::Symbol, T::CharClassB, T::SubExprB }, 0, 1);
-//	init(N::ChoiceT,     { T::Choice },                             0, 1);
-//
-//	init(N::Concat,      { T::Symbol, T::CharClassB, T::SubExprB }, 0, E);
-//	init(N::ConcatT,     { T::Symbol, T::CharClassB, T::SubExprB }, 0, 1);
-//
-//	init(N::Term,        { T::Symbol, T::CharClassB, T::SubExprB }, 0, E);
-//
-//	init(N::ZeroToManyO, { T::ZeroToMany },                         0, 1);
-//
-//	init(N::Factor,      { T::Symbol },                             0, E);
-//	init(N::Factor,      { T::CharClassB },                         1, E);
-//	init(N::Factor,      { T::SubExprB },                           2, E);
-//
-//	return true;
-//}
 
 const Production& expand(NonTerminal nt_, Token::Type t_)
 {

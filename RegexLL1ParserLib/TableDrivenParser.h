@@ -56,7 +56,7 @@ struct Production
 	Production(const std::initializer_list<GrammarSymbol>& gsList_)
 		: _gsList(gsList_.begin(), gsList_.end()), _derivesEmpty(false)
 	{
-		assert(_gsList.size() > 0);
+		
 	}
 
 	const std::vector<GrammarSymbol> _gsList;
