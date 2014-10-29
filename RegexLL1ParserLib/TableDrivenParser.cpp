@@ -202,8 +202,8 @@ void first(uint8_t ntt_)
 	isFirstComputed[ntt_] = true;
 }
 
-static std::set<uint8_t> ntToFollowSetsMap[cN];
-static std::set<uint8_t> followSetToNtsMap[cN];
+static uint8_t    ntFollowSetsCount[cN] = { 0 };
+static std::vector<uint8_t> followSetToNtsMap[cN];
 
 void follow(uint8_t nttHead_, Production& prod_)
 {
@@ -233,8 +233,8 @@ void follow(uint8_t nttHead_, Production& prod_)
 		// make a note that follow(ntHead) must be added in a later pass
 		if (requiresFollow && gs._type != nttHead_ /*prevent H -> aH recursion*/)
 		{
-			ntToFollowSetsMap[gs._type].insert(nttHead_);
-			followSetToNtsMap[nttHead_].insert(gs._type);
+			followSetToNtsMap[nttHead_].push_back(gs._type);
+			++ntFollowSetsCount[gs._type];
 		}
 
 		// prepare followSet for symbol to the left (next iteration)
@@ -273,7 +273,7 @@ void follow()
 	
 	for (uint8_t i = 0; i < cN; ++i)
 	{
-		if (ntToFollowSetsMap[i].empty())
+		if (ntFollowSetsCount[i] == 0)
 		{
 			completeFollowSets.push_back(i);
 		}
@@ -284,17 +284,17 @@ void follow()
 		uint8_t nttComplete = completeFollowSets[i];
 		const NT& ntComplete = grammar[nttComplete];
 
-		std::set<uint8_t>& incompleteFollowSets = followSetToNtsMap[nttComplete];
+		std::vector<uint8_t>& incompleteFollowSets = followSetToNtsMap[nttComplete];
 		for (uint8_t nttIncomplete : incompleteFollowSets)
 		{
 			// add follow(nttComplete) to follow(nttIncomplete)
 			NT& ntIncomplete = grammar[nttIncomplete];
 			ntIncomplete._follow.insert(ntComplete._follow.begin(), ntComplete._follow.end());
 
-			std::set<uint8_t>& followSet = ntToFollowSetsMap[nttIncomplete];
+			uint8_t& count = ntFollowSetsCount[nttIncomplete];
+			assert(count > 0);
 
-			followSet.erase(nttComplete);
-			if (followSet.empty())
+			if (--count == 0)
 			{
 				completeFollowSets.push_back(nttIncomplete);
 			}
