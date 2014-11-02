@@ -202,6 +202,19 @@ void first(uint8_t ntt_)
 	isFirstComputed[ntt_] = true;
 }
 
+void first()
+{
+	std::cout << "First:" << std::endl;
+
+	for (uint8_t i = 0; i < sizeof(grammar)/sizeof(NT); ++i)
+	{
+		first(i);
+		std::set<uint8_t> firstSet;
+		grammar[i].getFirst(firstSet);
+		std::cout << grammar[i]._name << " " << firstSet << std::endl;
+	}
+}
+
 static uint8_t    ntFollowSetsCount[cN] = { 0 };
 static std::vector<uint8_t> followSetToNtsMap[cN];
 
@@ -309,16 +322,39 @@ void follow()
 	assert(completeFollowSets.size() == cN);
 }
 
-void first()
+void buildParserTable()
 {
-	std::cout << "First:" << std::endl;
-
-	for (uint8_t i = 0; i < sizeof(grammar)/sizeof(NT); ++i)
+	for (uint8_t ntt = 0; ntt < cN; ++ntt)
 	{
-		first(i);
-		std::set<uint8_t> firstSet;
-		grammar[i].getFirst(firstSet);
-		std::cout << grammar[i]._name << " " << firstSet << std::endl;
+		const NT& nt = grammar[ntt];
+
+		for (uint8_t i = 0; i < nt._prodList.size(); ++i)
+		{
+			const Production& prod = nt._prodList[i];
+
+			// populate first
+			for (uint8_t t : prod._first)
+			{
+				if (parserTable[ntt][t] != E) 
+					throw common::Exception("ParserTable confict: first set not disjoint");
+
+				parserTable[ntt][t] = i;
+			}
+
+			if (!prod._derivesEmpty)
+			{
+				continue;
+			}
+
+			// populate follow
+			for (uint8_t t : nt._follow)
+			{
+				if (parserTable[ntt][t] != E && parserTable[ntt][t] != i) 
+					throw common::Exception("ParserTable confict: follow set not disjoint");
+
+				parserTable[ntt][t] = i;
+			}
+		}
 	}
 }
 
@@ -328,6 +364,7 @@ bool init()
 
 	first();
 	follow();
+	buildParserTable();
 	return true;
 }
 
