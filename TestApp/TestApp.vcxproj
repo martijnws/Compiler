@@ -146,10 +146,12 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="ToStringVisitor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="TestApp.cpp" />
+    <ClCompile Include="ToStringVisitor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RegexLL1ParserLib\RegexLL1ParserLib.vcxproj">

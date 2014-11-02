@@ -380,4 +380,54 @@ const Production& expand(NonTerminal nt_, Token::Type t_)
 	return grammar[nt_]._prodList[index];
 }
 
+void ParserDriver::parse()
+{
+	_st.init();
+
+	typedef std::pair<GrammarSymbol, bool> GSEntry;
+
+	TokenStore store;
+
+	std::vector<GSEntry> stack;
+	//stack.push_back(std::make_pair(t(T::Eof), true));
+	stack.push_back(std::make_pair(n(N::Choice), false));
+
+	while (!stack.empty())
+	{
+		GSEntry& entry = stack.back();
+		const GrammarSymbol& gs = stack.back().first;
+
+		Token tokCur = _st.cur();
+
+		if (gs._isTerminal)
+		{
+			// match
+			_st.m(static_cast<Token::Type>(gs._type));
+		}
+
+		// is entry expanded?
+		if (entry.second)
+		{
+			gs._action(tokCur, _h, store);
+			stack.pop_back();
+			continue;
+		}
+
+		assert(!gs._isTerminal);
+		// mark entry as expanded
+		entry.second = true;
+
+		// expand
+		const Production& prod = expand(static_cast<NonTerminal>(gs._type), tokCur._type);
+		for (int i = static_cast<int>(prod._gsList.size()) - 1; i >= 0; --i)
+		{
+			const GrammarSymbol& gs = prod._gsList[i];
+			stack.push_back(std::make_pair(gs, gs._isTerminal));
+		}
+	}
+
+	assert(_st.eof());
+}
+
+
 }}}

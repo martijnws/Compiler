@@ -15,5 +15,6 @@
   <ItemGroup>
     <ClInclude Include="SyntaxTreeBuilder.h" />
     <ClInclude Include="SyntaxNode.h" />
+    <ClInclude Include="Visitor.h" />
   </ItemGroup>
 </Project>

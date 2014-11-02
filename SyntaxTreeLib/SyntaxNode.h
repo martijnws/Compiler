@@ -1,10 +1,40 @@
 #pragma once
 
+#include "Visitor.h"
 #include <RegexLL1ParserLib/Token.h>
 
 namespace mws { namespace ast {
 
+class Acceptor
+{
+public:
+	virtual void accept(Visitor& visitor_) const = 0;
+};
+
+template<typename Base>
+class AcceptorImpl
+	:
+	public Base
+{
+public:
+
+	template<typename... Args>
+	AcceptorImpl(Args... args_)
+		:
+		Base(args_...)
+	{
+	
+	}
+
+	virtual void accept(Visitor& visitor_) const
+	{
+		visitor_.visit(static_cast<const Base&>(*this));
+	}
+};
+
 class SyntaxNode
+	:
+	public Acceptor
 {
 public:
 	SyntaxNode(const SyntaxNode&) = delete;
@@ -23,6 +53,11 @@ public:
 		: SyntaxNode(), _t(t_)
 	{
 	
+	}
+
+	const td::LL1::Token& token() const
+	{
+		return _t;
 	}
 
 private:

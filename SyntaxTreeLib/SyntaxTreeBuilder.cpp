@@ -24,7 +24,7 @@ template<typename OperatorT>
 void onUnaryOp(Stack& stack_)
 {
 	SyntaxNode* n = pop(stack_);
-	push(stack_, new OperatorT(n));
+	push(stack_, new AcceptorImpl<OperatorT>(n));
 }
 
 template<typename OperatorT>
@@ -32,7 +32,7 @@ void onBinaryOp(Stack& stack_)
 {
 	SyntaxNode* rhs = pop(stack_);
 	SyntaxNode* lhs = pop(stack_);
-	push(stack_, new OperatorT(lhs, rhs));
+	push(stack_, new AcceptorImpl<OperatorT>(lhs, rhs));
 }
 
 void SyntaxTreeBuilder::onEof()
@@ -58,7 +58,7 @@ void SyntaxTreeBuilder::onZeroToMany()
 
 void SyntaxTreeBuilder::onSymbol(const td::LL1::Token& t_)
 {
-	push(_stack, new Symbol(t_));
+	push(_stack, new AcceptorImpl<Symbol>(t_));
 }
 
 void SyntaxTreeBuilder::onCharClass()

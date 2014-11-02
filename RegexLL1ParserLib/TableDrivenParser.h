@@ -4,6 +4,10 @@
 
 #include "ParserHandler.h"
 #include "Token.h"
+#include "ParserState.h"
+#include "ParserHandler.h"
+#include "Lexer.h"
+#include <CommonLib/Util.h>
 #include <functional>
 #include <initializer_list>
 #include <vector>
@@ -69,5 +73,23 @@ enum NonTerminal { Choice, ChoiceT, Concat, ConcatT, Term, ZeroToManyO, Factor, 
 bool init();
 
 const Production& expand(NonTerminal nt_, Token::Type t_);
+
+class ParserDriver
+{
+	using Buf = common::Buffer<256>;
+
+	ParserState<Buf, RegexLexer<Buf>> _st;
+	ParserHandler&                    _h;
+
+public:
+	ParserDriver(Buf& buf_, Token& cur_, ParserHandler& h_)
+		:
+		_st(buf_, cur_), _h(h_)
+	{
+		
+	}
+
+	void parse();
+};
 
 }}}

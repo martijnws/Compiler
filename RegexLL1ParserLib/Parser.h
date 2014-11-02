@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RegexParser.h"
+#include "TableDrivenParser.h"
 #include <CommonLib/Buffer.h>
 #include <SyntaxTreeLib/SyntaxTreeBuilder.h>
 #include <iostream>
@@ -43,7 +44,8 @@ public:
 	{
 		try
 		{
-			RegexParser<Buf> parser(_buf, _cur, _astBuilder);
+			//RegexParser<Buf> parser(_buf, _cur, _astBuilder);
+			ParserDriver parser(_buf, _cur, _astBuilder);
 
 			parser.parse();
 			return true;
@@ -55,7 +57,6 @@ public:
 		}
 	}
 
-private:
 	Buf   _buf;
 	Token _cur;
 	ast::SyntaxTreeBuilder _astBuilder;

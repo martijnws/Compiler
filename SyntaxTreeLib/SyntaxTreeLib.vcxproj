@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="SyntaxNode.h" />
     <ClInclude Include="SyntaxTreeBuilder.h" />
+    <ClInclude Include="Visitor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
