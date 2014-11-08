@@ -43,16 +43,21 @@ private:
 	Token _tokens[256];
 };
 
+struct GrammarSymbol;
 
 using onTokenEvt = void (ParserHandler::*)(const Token&);
 using onEvt      = void (ParserHandler::*)();
 using action     = std::function<void(const Token& t_, ParserHandler& h_, TokenStore& store_)>;
+using parse      = std::function<void(const GrammarSymbol& startSymbol_, common::Buffer<256>& buf_, Token& t_, ParserHandler& h_)>;
 
 struct GrammarSymbol
 {
 	bool     _isTerminal;
+    bool     _isSubGrammarStartSymbol;
+    bool     _fetchNext;
 	uint8_t  _type;
 	action   _action;
+    parse    _parse;
 };
 
 struct Production
@@ -68,18 +73,23 @@ struct Production
 	bool                             _derivesEmpty;
 };
 
-enum NonTerminal { Choice, ChoiceT, Concat, ConcatT, Term, ZeroToManyO, Factor, CharClass, RngConcat, RngConcatT, Rng, RngT, Option };
+enum NonTerminal { Start, Choice, ChoiceT, Concat, ConcatT, Term, ZeroToManyO, Factor, CharClass, RngConcat, RngConcatT, Rng, RngT, Option };
+
+GrammarSymbol n(uint32_t type_);
 
 bool init();
 
 const Production& expand(NonTerminal nt_, Token::Type t_);
 
+template< template<typename> class LexerT>
 class ParserDriver
 {
+public:
 	using Buf = common::Buffer<256>;
 
-	ParserState<Buf, RegexLexer<Buf>> _st;
-	ParserHandler&                    _h;
+private:
+	ParserState<Buf, LexerT<Buf>> _st;
+	ParserHandler&                _h;
 
 public:
 	ParserDriver(Buf& buf_, Token& cur_, ParserHandler& h_)
@@ -90,6 +100,79 @@ public:
 	}
 
 	void parse();
+    void parse(const GrammarSymbol& startSymbol_);
 };
+
+template< template<typename> class LexerT>
+void ParserDriver<LexerT>::parse()
+{
+    parse(n(NonTerminal::Start));
+}
+
+template< template<typename> class LexerT>
+void ParserDriver<LexerT>::parse(const GrammarSymbol& startSymbol_)
+{
+	_st.init();
+
+	typedef std::pair<GrammarSymbol, bool> GSEntry;
+
+	TokenStore store;
+
+	std::vector<GSEntry> stack;
+	stack.push_back(std::make_pair(startSymbol_, false));
+
+	while (!stack.empty())
+	{
+		GSEntry& entry = stack.back();
+		const GrammarSymbol& gs = entry.first;
+
+        Token tokCur = _st.cur();
+
+        if (gs._isSubGrammarStartSymbol)
+        {
+            // in sub parse, this startSymbol becomes the toplevel startsymbol.
+            GrammarSymbol startSymbol(gs);
+            // To prevent infinite recursion.
+            startSymbol._isSubGrammarStartSymbol = false;
+            gs._parse(startSymbol, _st.buf(), _st.cur(), _h);
+
+            // Do not execute action. It is already executed in sub parse
+			stack.pop_back();
+			continue;
+        }
+
+		if (gs._isTerminal)
+		{
+			// match
+			_st.m(static_cast<Token::Type>(gs._type), gs._fetchNext);
+            // mark entry as expanded
+		    entry.second = true;
+
+		}
+
+		// is entry expanded?
+		if (entry.second)
+		{
+			gs._action(tokCur, _h, store);
+			stack.pop_back();
+			continue;
+		}
+
+		assert(!gs._isTerminal);
+		// mark entry as expanded
+		entry.second = true;
+
+		// expand
+		const Production& prod = expand(static_cast<NonTerminal>(gs._type), tokCur._type);
+		for (int i = static_cast<int>(prod._gsList.size()) - 1; i >= 0; --i)
+		{
+			const GrammarSymbol& gs = prod._gsList[i];
+			stack.push_back(std::make_pair(gs, false));
+		}
+	}
+
+	//assert(_st.eof());
+}
+
 
 }}}

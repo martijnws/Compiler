@@ -12,7 +12,11 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	mws::td::LL1::init();
 
-	std::stringstream is("abc(a|ab)*ab*", std::ios_base::in);
+    //const char* regex = "abc(a|ab)*ab*";
+
+    const char* regex = "abc[^a-zA-Z]def";
+
+	std::stringstream is(regex, std::ios_base::in);
 	mws::td::LL1::Parser parser(is);
 
 	parser.parse();

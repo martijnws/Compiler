@@ -6,18 +6,35 @@
 
 namespace mws { namespace td { namespace LL1 {
 
-GrammarSymbol gs(bool isTerminal_, uint32_t type_)
+template< template<typename> class LexerT>
+GrammarSymbol sgss(uint32_t type_, onEvt callback_)
 {
-	static auto no_op = [](const Token& t_, ParserHandler& h_, TokenStore& store_){};
-	return { isTerminal_, type_, no_op };
+    static auto parser_func = [](const GrammarSymbol& startSymbol_, typename common::Buffer<256>& buf_, Token& t_, ParserHandler& h_)
+    {
+        ParserDriver<LexerT> parser(buf_, t_, h_);
+
+        parser.parse(startSymbol_);
+    };
+
+	return { false, true, true, type_, [callback_](const Token& t_, ParserHandler& h_, TokenStore& store_)
+	{
+		(h_.*callback_)();
+	}, parser_func};
 }
 
-inline GrammarSymbol t(uint32_t type_) { return gs(true, type_); }
-inline GrammarSymbol n(uint32_t type_) { return gs(false, type_); }
+GrammarSymbol gs(bool isTerminal_, bool fetchNext_, uint32_t type_)
+{
+	static auto no_op = [](const Token& t_, ParserHandler& h_, TokenStore& store_){};
+	return { isTerminal_, false, fetchNext_, type_, no_op };
+}
+
+inline GrammarSymbol t(uint32_t type_) { return gs(true, true, type_); }
+inline GrammarSymbol t(uint32_t type_, bool fetchNext_) { return gs(true, fetchNext_, type_); }
+inline GrammarSymbol n(uint32_t type_) { return gs(false, true, type_); }
 
 GrammarSymbol gs(bool isTerminal_, uint32_t type_, onEvt callback_)
 {
-	return { isTerminal_, type_, [callback_](const Token& t_, ParserHandler& h_, TokenStore& store_)
+	return { isTerminal_, false, true, type_, [callback_](const Token& t_, ParserHandler& h_, TokenStore& store_)
 	{
 		(h_.*callback_)();
 	}};
@@ -28,7 +45,7 @@ inline GrammarSymbol n(uint32_t type_, onEvt callback_) { return gs(false, type_
 
 GrammarSymbol gs(bool isTerminal_, uint32_t type_, onTokenEvt callback_)
 {
-	return { isTerminal_, type_, [callback_](const Token& t_, ParserHandler& h_, TokenStore& store_)
+	return { isTerminal_, false, true, type_, [callback_](const Token& t_, ParserHandler& h_, TokenStore& store_)
 	{
 		(h_.*callback_)(t_);
 	}};
@@ -39,7 +56,7 @@ inline GrammarSymbol n(uint32_t type_, onTokenEvt callback_) { return gs(false, 
 
 GrammarSymbol t_S(uint32_t type_, const uint8_t index_)
 {
-	return { true, type_, [index_](const Token& t_, ParserHandler& h_, TokenStore& store_)
+	return { true, false, true, type_, [index_](const Token& t_, ParserHandler& h_, TokenStore& store_)
 	{
 		store_.save(index_, t_);
 	}};
@@ -47,7 +64,7 @@ GrammarSymbol t_S(uint32_t type_, const uint8_t index_)
 
 GrammarSymbol n_G(uint32_t type_, onTokenEvt callback_, const uint8_t index_)
 {
-	return { false, type_, [callback_, index_](const Token& t_, ParserHandler& h_, TokenStore& store_)
+	return { false, false, true, type_, [callback_, index_](const Token& t_, ParserHandler& h_, TokenStore& store_)
 	{
 		(h_.*callback_)(store_.get(index_));
 	}};
@@ -55,7 +72,7 @@ GrammarSymbol n_G(uint32_t type_, onTokenEvt callback_, const uint8_t index_)
 
 GrammarSymbol n_P(uint32_t type_, onTokenEvt callback_, const uint8_t index_)
 {
-	return { false, type_, [callback_, index_](const Token& t_, ParserHandler& h_, TokenStore& store_)
+	return { false, false, true, type_, [callback_, index_](const Token& t_, ParserHandler& h_, TokenStore& store_)
 	{
 		(h_.*callback_)(store_.pop(index_));
 	}};
@@ -80,8 +97,8 @@ GrammarSymbol n_P(uint32_t type_, onTokenEvt callback_, const uint8_t index_)
 
 // charClass grammar:
 	//
-	// charClass   = ^ choice {A;}              First = { symbol, ^ }
-	//             | choice                     First = { symbol }
+	// charClass   = ^ RngConcat {A;}           First = { symbol, ^ }
+	//             | RngConcat                  First = { symbol }
 	// RngConcat   = Rng RngConcatT             First = { symbol }
 	// RngConcatT  = Rng {A;} RngConcatT        First = { symbol }
 	//             | e
@@ -132,8 +149,10 @@ static const Production empty({});
 
 NT grammar[] = { 
 
-NT("Choice",      { { n(N::Concat), n(N::ChoiceT) },
+NT("Start",       { { n(N::Choice) },
                     { empty } }),
+
+NT("Choice",      { { n(N::Concat), n(N::ChoiceT) } }),
 
 NT("ChoiceT",     { { t(T::Choice), n(N::Concat, &H::onChoice), n(N::ChoiceT) },
                     { empty } }),
@@ -149,20 +168,20 @@ NT("ZeroToManyO", { { t(T::ZeroToMany, &H::onZeroToMany) },
                     { empty } }),
 
 NT("Factor",      { { t(T::Symbol, &H::onSymbol) },
-                    { t(T::CharClassB), n(N::CharClass), t(T::CharClassE) },
+                    { t(T::CharClassB, false), sgss<CharClassLexer>(N::CharClass, &H::onCharClass), t(T::CharClassE) },
                     { t(T::SubExprB), n(N::Choice), t(T::SubExprE) } }),
 
-NT("CharClass",   { { t(T::CharClassNeg), n(N::RngConcat) },
+NT("CharClass",   { { t(T::CharClassNeg), n(N::RngConcat, &H::onNegate) },
                     { n(N::RngConcat) } }),
 
 NT("RngConcat",     { { n(N::Rng), n(N::RngConcatT) } }),
                     
-NT("RngConcatT",    { { n(N::Rng), n(N::RngConcatT) },
+NT("RngConcatT",    { { n(N::Rng, &H::onRngConcat), n(N::RngConcatT) },
                     { empty } }),
 
 NT("Rng",         { { n(N::Option), n(N::RngT) } }),
 
-NT("RngT",        { { t(T::RngSep), n(N::Option) },
+NT("RngT",        { { t(T::RngSep), n(N::Option, &H::onRng) },
                     { empty } }),
 
 NT("Option",      { { t(T::Symbol, &H::onSymbol) } }),
@@ -179,7 +198,7 @@ std::ostream& operator << (std::ostream& os_, const std::set<uint8_t>& set_)
 	return os_;
 }
 
-static const std::size_t cN = N::CharClass + 1;
+static const std::size_t cN = N::Option + 1;
 static const std::size_t cT = T::Eof + 1;
 static uint8_t parserTable[cN][cT] = { E };
 
@@ -187,7 +206,7 @@ static bool isFirstComputed[cN] = { false };
 
 void first(uint8_t ntt_)
 {
-	assert(ntt_ >= 0 && ntt_ <= N::CharClass);
+	assert(ntt_ >= 0 && ntt_ <= N::Option);
 
 	if (isFirstComputed[ntt_])
 	{
@@ -246,7 +265,7 @@ static std::vector<uint8_t> followSetToNtsMap[cN];
 
 void follow(uint8_t nttHead_, Production& prod_)
 {
-	assert(nttHead_ >= 0 && nttHead_ <= N::CharClass);
+	assert(nttHead_ >= 0 && nttHead_ <= N::Option);
 	
 	NT& ntHead = grammar[nttHead_];
 
@@ -406,54 +425,6 @@ const Production& expand(NonTerminal nt_, Token::Type t_)
 	return grammar[nt_]._prodList[index];
 }
 
-void ParserDriver::parse()
-{
-	_st.init();
-
-	typedef std::pair<GrammarSymbol, bool> GSEntry;
-
-	TokenStore store;
-
-	std::vector<GSEntry> stack;
-	//stack.push_back(std::make_pair(t(T::Eof), true));
-	stack.push_back(std::make_pair(n(N::Choice), false));
-
-	while (!stack.empty())
-	{
-		GSEntry& entry = stack.back();
-		const GrammarSymbol& gs = stack.back().first;
-
-		Token tokCur = _st.cur();
-
-		if (gs._isTerminal)
-		{
-			// match
-			_st.m(static_cast<Token::Type>(gs._type));
-		}
-
-		// is entry expanded?
-		if (entry.second)
-		{
-			gs._action(tokCur, _h, store);
-			stack.pop_back();
-			continue;
-		}
-
-		assert(!gs._isTerminal);
-		// mark entry as expanded
-		entry.second = true;
-
-		// expand
-		const Production& prod = expand(static_cast<NonTerminal>(gs._type), tokCur._type);
-		for (int i = static_cast<int>(prod._gsList.size()) - 1; i >= 0; --i)
-		{
-			const GrammarSymbol& gs = prod._gsList[i];
-			stack.push_back(std::make_pair(gs, gs._isTerminal));
-		}
-	}
-
-	assert(_st.eof());
-}
 
 
 }}}

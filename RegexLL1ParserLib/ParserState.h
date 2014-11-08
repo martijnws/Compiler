@@ -41,14 +41,22 @@ public:
 		return _buf;
 	}
 
-	void m(Token::Type type_)
+    void m(Token::Type type_)
+	{
+        m(type_, true);
+    }
+
+	void m(Token::Type type_, bool fetchNext_)
 	{
 		if (eof() || _cur._type != type_)
 		{
 			throw common::Exception("Lexer error");
 		}
 
-		_cur = _lexer.next();
+        if (fetchNext_)
+        {
+		    _cur = _lexer.next();
+        }
 	}
 
 private:

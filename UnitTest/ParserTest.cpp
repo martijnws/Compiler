@@ -198,7 +198,7 @@ TEST_P(ParserSpecialSymbolTest, parse)
 		std::stringstream is(c, std::ios_base::in);
 		Parser parser(is);
 
-		EXPECT_FALSE(parser.parse());
+		EXPECT_FALSE(parser.parse()) << "cc expr = " << GetParam();
 	}
 }
 
@@ -208,6 +208,8 @@ INSTANTIATE_TEST_CASE_P(SingleChar, ParserSpecialSymbolTest, ::testing::Values('
 
 int main(int argc, char **argv) 
 {
-	::testing::InitGoogleTest(&argc, argv);
+    mws::td::LL1::init();
+	
+    ::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }

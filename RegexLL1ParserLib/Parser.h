@@ -44,8 +44,8 @@ public:
 	{
 		try
 		{
-			RegexParser<Buf> parser(_buf, _cur, _astBuilder);
-			//ParserDriver parser(_buf, _cur, _astBuilder);
+			//RegexParser<Buf> parser(_buf, _cur, _astBuilder);
+			ParserDriver<RegexLexer> parser(_buf, _cur, _astBuilder);
 
 			parser.parse();
 			return true;
