@@ -176,12 +176,25 @@ public:
 	}
 };
 
-class Range
+class Rng
 	:
 	public BinaryOp
 {
 public:
-	Range(SyntaxNode* lhs_, SyntaxNode* rhs_)
+	Rng(SyntaxNode* lhs_, SyntaxNode* rhs_)
+		: BinaryOp(lhs_, rhs_)
+	{
+	
+	}
+};
+
+
+class RngConcat
+	:
+	public BinaryOp
+{
+public:
+	RngConcat(SyntaxNode* lhs_, SyntaxNode* rhs_)
 		: BinaryOp(lhs_, rhs_)
 	{
 	

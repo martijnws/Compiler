@@ -17,6 +17,11 @@ public:
 
 	void init()
 	{
+		next();
+	}
+
+	void next()
+	{
 		//load first token
 		_cur = _lexer.next();
 	}

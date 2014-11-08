@@ -64,20 +64,31 @@ GrammarSymbol n_P(uint32_t type_, onTokenEvt callback_, const uint8_t index_)
 
 // Regex grammar:
 	//
-	// choice     = concat choiceT              First = { symbol, [, ( }
+	// choice      = concat choiceT             First = { symbol, [, ( }
 	//             | e
-	// choiceT =  '|' concat {A;}  choiceT      First = { |, e }
+	// choiceT     =  '|' concat {A;}  choiceT  First = { |, e }
 	//             | e
-	// concat        = term concatT             First = { symbol, [, ( }
-	// concatT    = term {A;} concatT           First = { symbol, [, ( }
+	// concat      = term concatT               First = { symbol, [, ( }
+	// concatT     = term {A;} concatT          First = { symbol, [, ( }
 	//             | e
 	// term        = factor zeroToManyO         First = { symbol, [, ( }
 	// zeroToManyO = * {A}                      First = { *, e }
 	//             | e                             
 	// factor      = symbol {A}                 First = { symbol }
-	//             | charClass					First = { [ }
+	//             | [ charClass ]			    First = { [ }
 	//             | ( choice )                 First = { ( }
 
+// charClass grammar:
+	//
+	// charClass   = ^ choice {A;}              First = { symbol, ^ }
+	//             | choice                     First = { symbol }
+	// RngConcat   = Rng RngConcatT             First = { symbol }
+	// RngConcatT  = Rng {A;} RngConcatT        First = { symbol }
+	//             | e
+	// Rng         = option RngT                First = { symbol }
+	// RngT        = - option {A;}              First = { - }
+	//             | e
+	// option      = symbol {A;}
 
 // Rows
 
@@ -138,10 +149,25 @@ NT("ZeroToManyO", { { t(T::ZeroToMany, &H::onZeroToMany) },
                     { empty } }),
 
 NT("Factor",      { { t(T::Symbol, &H::onSymbol) },
-//                  { n(N::CharClass) },
+                    { t(T::CharClassB), n(N::CharClass), t(T::CharClassE) },
                     { t(T::SubExprB), n(N::Choice), t(T::SubExprE) } }),
-};
 
+NT("CharClass",   { { t(T::CharClassNeg), n(N::RngConcat) },
+                    { n(N::RngConcat) } }),
+
+NT("RngConcat",     { { n(N::Rng), n(N::RngConcatT) } }),
+                    
+NT("RngConcatT",    { { n(N::Rng), n(N::RngConcatT) },
+                    { empty } }),
+
+NT("Rng",         { { n(N::Option), n(N::RngT) } }),
+
+NT("RngT",        { { t(T::RngSep), n(N::Option) },
+                    { empty } }),
+
+NT("Option",      { { t(T::Symbol, &H::onSymbol) } }),
+
+};
 
 std::ostream& operator << (std::ostream& os_, const std::set<uint8_t>& set_)
 {

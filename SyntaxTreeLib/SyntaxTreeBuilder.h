@@ -21,7 +21,8 @@ public:
 	virtual void onSymbol(const td::LL1::Token& t_);
 	virtual void onCharClass();
 	virtual void onNegate();
-	virtual void onRange();
+    virtual void onRngConcat();
+	virtual void onRng();
 
 	SyntaxNode* root()
 	{

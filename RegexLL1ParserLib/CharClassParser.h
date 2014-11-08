@@ -25,10 +25,10 @@ public:
 	// charClass grammar:
 	//
 	// charClass = [ body ]                          First = { symbol, ^ }
-	// body      = ^ choice {A;}                     First = { ^ }
-	//           | choice                            First = { symbol }
-	// choice    = Rng choiceT                       First = { symbol }
-	// choiceT   = Rng {A;} choiceT                  First = { symbol }
+	// body      = ^ rngConcat {A;}                     First = { ^ }
+	//           | rngConcat                            First = { symbol }
+	// rngConcat    = Rng rngConcatT                       First = { symbol }
+	// rngConcatT   = Rng {A;} rngConcatT                  First = { symbol }
 	//             | e
 	// Rng       = option RngT                       First = { symbol }
 	// RngT      = - option {A;}                     First = { - }
@@ -39,7 +39,9 @@ public:
 
 	void parse()
 	{
-		_st.m(T::CharClassB); body(); _st.m(T::CharClassE);
+		_st.init();
+
+		body();
 	}
 
 private:
@@ -49,40 +51,39 @@ private:
 		switch(_st.cur()._type)
 		{
 		case T::CharClassNeg:
-			_st.m(T::CharClassNeg); choice(); _h.onNegate();
+			_st.m(T::CharClassNeg); rngConcat(); _h.onNegate();
 			break;
 		case T::Symbol:
-			choice();
+			rngConcat();
 			break;
 		default:
 			throw common::Exception("Parser error: CharClass must begin with ^ or symbol");
 		}
 	}
 
-	// concatenation in charClass means choice
-	void choice()
+	void rngConcat()
 	{
-		range(); choiceT();
+		rng(); rngConcatT();
 	}
 
-	void choiceT()
+	void rngConcatT()
 	{
 		if (_st.cur()._type == T::Symbol)
 		{
-			range(); _h.onChoice(); choiceT();
+			rng(); _h.onRngConcat(); rngConcatT();
 		}
 	}
 
-	void range()
+	void rng()
 	{
-		option(); rangeT();
+		option(); rngT();
 	}
 
-	void rangeT()
+	void rngT()
 	{
-		if (_st.cur()._type == T::CharClassSep)
+		if (_st.cur()._type == T::RngSep)
 		{
-			_st.m(T::CharClassSep); option(); _h.onRange();
+			_st.m(T::RngSep); option(); _h.onRng();
 		}
 	}
 

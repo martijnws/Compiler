@@ -14,7 +14,8 @@ public:
 	virtual void onSymbol(const Token& t_) = 0;
 	virtual void onCharClass() = 0;
 	virtual void onNegate() = 0;
-	virtual void onRange() = 0;
+    virtual void onRngConcat() = 0;
+	virtual void onRng() = 0;
 };
 
 }}}

@@ -68,7 +68,7 @@ struct Production
 	bool                             _derivesEmpty;
 };
 
-enum NonTerminal { Choice, ChoiceT, Concat, ConcatT, Term, ZeroToManyO, Factor, CharClass };
+enum NonTerminal { Choice, ChoiceT, Concat, ConcatT, Term, ZeroToManyO, Factor, CharClass, RngConcat, RngConcatT, Rng, RngT, Option };
 
 bool init();
 

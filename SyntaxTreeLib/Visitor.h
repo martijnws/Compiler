@@ -10,7 +10,8 @@ class Concat;
 class ZeroToMany;
 class CharClass;
 class Negate;
-class Range;
+class RngConcat;
+class Rng;
 
 class Visitor
 {
@@ -25,7 +26,8 @@ public:
 	virtual void visit(const ZeroToMany& n_) = 0;
 	virtual void visit(const CharClass& n_) = 0;
 	virtual void visit(const Negate& n_) = 0;
-	virtual void visit(const Range& n_) = 0;
+    virtual void visit(const RngConcat& n_) = 0;
+	virtual void visit(const Rng& n_) = 0;
 };
 
 }}

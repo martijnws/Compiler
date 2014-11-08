@@ -45,7 +45,7 @@ public:
 		}
 
 		_map['^' ] = Token::Type::CharClassNeg;
-		_map['-' ] = Token::Type::CharClassSep;
+		_map['-' ] = Token::Type::RngSep;
 		_map[']' ] = Token::Type::CharClassE;
 		_map['\0'] = Token::Type::Eof;
 	}
@@ -144,9 +144,9 @@ public:
 
 	void postProcess(Token& t_)
 	{
-		//Handle context dependencies of CharClassSep::lexeme
+		//Handle context dependencies of RngSep::lexeme
 
-		if (t_._type == Token::Type::CharClassSep)
+		if (t_._type == Token::Type::RngSep)
 		{
 			//peek 1 char ahead
 			char c = _buf.next();

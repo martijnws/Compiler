@@ -57,7 +57,14 @@ void ToStringVisitor::visit(const ast::Negate& n_)
 	n_.opr().accept(*this);
 }
 
-void ToStringVisitor::visit(const ast::Range& n_)
+void ToStringVisitor::visit(const ast::RngConcat& n_)
+{
+	n_.lhs().accept(*this);
+
+	n_.rhs().accept(*this);
+}
+
+void ToStringVisitor::visit(const ast::Rng& n_)
 {
 	n_.lhs().accept(*this);
 	_result += "-";

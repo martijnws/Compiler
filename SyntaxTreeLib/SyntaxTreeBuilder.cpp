@@ -71,9 +71,14 @@ void SyntaxTreeBuilder::onNegate()
 	onUnaryOp<Negate>(_stack);
 }
 
-void SyntaxTreeBuilder::onRange()
+void SyntaxTreeBuilder::onRngConcat()
 {
-	onBinaryOp<Range>(_stack);
+	onBinaryOp<RngConcat>(_stack);
+}
+
+void SyntaxTreeBuilder::onRng()
+{
+	onBinaryOp<Rng>(_stack);
 }
 
 }}

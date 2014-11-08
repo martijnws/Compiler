@@ -6,7 +6,7 @@ struct Token
 {
 	enum Type 
 	{
-		None, Symbol, Choice, ZeroToMany, SubExprB, SubExprE, CharClassB, CharClassE, CharClassNeg, CharClassSep, Eof
+		None, Symbol, Choice, ZeroToMany, SubExprB, SubExprE, CharClassB, CharClassE, CharClassNeg, RngSep, Eof
 	};
 
 	Type _type;

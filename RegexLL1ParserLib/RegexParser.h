@@ -130,7 +130,7 @@ private:
 	{
 		CharClassParser<Buf> cc(_st.buf(), _st.cur(), _h);
 
-		cc.parse(); _h.onCharClass();
+		cc.parse(); _st.m(T::CharClassE); _h.onCharClass(); 
 	}
 };
 
