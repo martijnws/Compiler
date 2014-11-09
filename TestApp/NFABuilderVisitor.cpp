@@ -118,6 +118,8 @@ void NFABuilderVisitor::visit(const ast::CharClass& n_)
         astBuilder.onChoice();
     }
 
+    _charClassSet.clear();
+
     // continue NFA construction from temporarely created AST
     ast::SyntaxNodePtr root(astBuilder.detach());
     root->accept(*this);
