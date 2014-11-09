@@ -16,6 +16,7 @@ public:
 	virtual void onNegate() = 0;
     virtual void onRngConcat() = 0;
 	virtual void onRng() = 0;
+    virtual void onCharClassSymbol(const td::LL1::Token& t_) = 0;
 };
 
 }}}

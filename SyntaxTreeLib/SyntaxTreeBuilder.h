@@ -23,13 +23,16 @@ public:
 	virtual void onNegate();
     virtual void onRngConcat();
 	virtual void onRng();
+    virtual void onCharClassSymbol(const td::LL1::Token& t_);
 
-	SyntaxNode* root()
+	SyntaxNode* detach()
 	{
 		if (_stack.size())
 		{
 			assert(_stack.size() == 1);
-			return _stack.top();
+			SyntaxNode* n = _stack.top();
+            _stack.pop();
+            return n;
 		}
 		else
 		{

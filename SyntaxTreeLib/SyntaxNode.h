@@ -2,12 +2,17 @@
 
 #include "Visitor.h"
 #include <RegexLL1ParserLib/Token.h>
+#include <memory>
 
 namespace mws { namespace ast {
+
+class SyntaxNode;
+using SyntaxNodePtr = std::unique_ptr<SyntaxNode>;
 
 class Acceptor
 {
 public:
+    virtual ~Acceptor() {}
 	virtual void accept(Visitor& visitor_) const = 0;
 };
 
@@ -49,19 +54,19 @@ class Symbol
 	public SyntaxNode
 {
 public:
-	Symbol(const td::LL1::Token& t_)
-		: SyntaxNode(), _t(t_)
+	Symbol(char l_)
+		: SyntaxNode(), _l(l_)
 	{
 	
 	}
 
-	const td::LL1::Token& token() const
+	char lexeme() const
 	{
-		return _t;
+		return _l;
 	}
 
 private:
-	const td::LL1::Token _t;
+	const char _l;
 };
 
 class UnaryOp
@@ -69,7 +74,7 @@ class UnaryOp
 	public SyntaxNode
 {
 protected:
-
+  
 	UnaryOp(SyntaxNode* n_)
 		: _n(n_)
 	{
@@ -84,7 +89,7 @@ public:
 	}
 
 private:
-	SyntaxNode* _n;
+	SyntaxNodePtr _n;
 };
 
 class BinaryOp
@@ -112,8 +117,8 @@ public:
 	}
 
 private:
-	SyntaxNode* _lhs;
-	SyntaxNode* _rhs;
+	SyntaxNodePtr _lhs;
+	SyntaxNodePtr _rhs;
 };
 
 class Choice
@@ -176,6 +181,18 @@ public:
 	}
 };
 
+class RngConcat
+	:
+	public BinaryOp
+{
+public:
+	RngConcat(SyntaxNode* lhs_, SyntaxNode* rhs_)
+		: BinaryOp(lhs_, rhs_)
+	{
+	
+	}
+};
+
 class Rng
 	:
 	public BinaryOp
@@ -186,16 +203,25 @@ public:
 	{
 	
 	}
+
+    const Symbol& lhsSymbol() const
+    {
+        return static_cast<const Symbol&>(lhs());
+    }
+
+    const Symbol& rhsSymbol() const
+    {
+        return static_cast<const Symbol&>(rhs());
+    }
 };
 
-
-class RngConcat
+class CharClassSymbol
 	:
-	public BinaryOp
+	public Symbol
 {
 public:
-	RngConcat(SyntaxNode* lhs_, SyntaxNode* rhs_)
-		: BinaryOp(lhs_, rhs_)
+	CharClassSymbol(char l_)
+		: Symbol(l_)
 	{
 	
 	}

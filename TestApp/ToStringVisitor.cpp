@@ -5,17 +5,7 @@ namespace mws {
 
 void ToStringVisitor::visit(const ast::Symbol& n_)
 {
-	_result += n_.token()._lexeme;
-}
-
-void ToStringVisitor::visit(const ast::UnaryOp& n_)
-{
-	
-}
-
-void ToStringVisitor::visit(const ast::BinaryOp& n_)
-{
-
+	_result += n_.lexeme();
 }
 
 void ToStringVisitor::visit(const ast::Choice& n_)
@@ -71,5 +61,9 @@ void ToStringVisitor::visit(const ast::Rng& n_)
 	n_.rhs().accept(*this);
 }
 
+void ToStringVisitor::visit(const ast::CharClassSymbol& n_)
+{
+    visit(static_cast<const ast::Symbol&>(n_));
+}
 
 };
