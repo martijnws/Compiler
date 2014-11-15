@@ -45,8 +45,21 @@ public:
     public:
         bool operator()(const DFANode* lhs_, const DFANode* rhs_) const
         {
+            if (lhs_->_nfaNodes.size() != rhs_->_nfaNodes.size())
+            {
+                return false;
+            }
+
             Hash hash;
-            return hash(lhs_) == hash(rhs_);
+            std::size_t hlhs = hash(lhs_);
+            std::size_t hrhs = hash(rhs_);
+
+            if (hlhs != hrhs)
+            {
+                return false;
+            }
+
+            return lhs_->_nfaNodes == rhs_->_nfaNodes;
         }
     };
 
