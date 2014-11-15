@@ -84,12 +84,18 @@ void NFABuilderVisitor::visit(const ast::ZeroToMany& n_)
     NFANode* s = new NFANode();
     NFANode* f = new NFANode();
 
-    // start ->(e) opr.start -> opr.final ->(e) final
+    // start ->(e) opr.start -> opr.final ->(e) final (1 repetition)
     s->_transitionMap.insert(std::make_pair(NFA::E, opr._s));
     opr._f->_transitionMap.insert(std::make_pair(NFA::E, f));
 
-    // start ->(e) final
+    // start ->(e) final (for zero repetition)
     s->_transitionMap.insert(std::make_pair(NFA::E, f));
+
+    // opr.final ->(e) opr.start (loop back)
+    opr._f->_transitionMap.insert(std::make_pair(NFA::E, opr._s));
+
+    _result._s = s;
+    _result._f = f;
 }
 
 void NFABuilderVisitor::visit(const ast::CharClass& n_)

@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "ToStringVisitor.h"
 #include "NFABuilderVisitor.h"
+#include "DFABuilder.h"
 #include <RegexLL1ParserLib/TableDrivenParser.h>
 #include <RegexLL1ParserLib/Parser.h>
 #include <SyntaxTreeLib/SyntaxNode.h>
@@ -14,7 +15,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	mws::td::LL1::init();
 
     //const char* regex = "abc(a|ab)*ab*";
-
     const char* regex = "abc[^a-zA-Z]def";
 
 	std::stringstream is(regex, std::ios_base::in);
@@ -32,6 +32,12 @@ int _tmain(int argc, _TCHAR* argv[])
     {
         mws::NFABuilderVisitor visitor;
 	    root->accept(visitor);
+
+        mws::DFANode* dfa = mws::convert(visitor._result._s);
+
+        const char* str = "abc@def";
+        //const char* str = "abcaabaaabaaababaaabbb";
+        bool res = match(dfa, visitor._result._f, str);
     }
 
 	return 0;

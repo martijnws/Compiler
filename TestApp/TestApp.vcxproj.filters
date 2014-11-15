@@ -8,6 +8,8 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ToStringVisitor.h" />
     <ClInclude Include="NFABuilderVisitor.h" />
+    <ClInclude Include="DFABuilder.h" />
+    <ClInclude Include="NFA.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

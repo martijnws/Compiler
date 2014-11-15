@@ -184,7 +184,7 @@ NT("Rng",         { { n(N::Option), n(N::RngT) } }),
 NT("RngT",        { { t(T::RngSep), n(N::Option, &H::onRng) },
                     { empty } }),
 
-NT("Option",      { { t(T::Symbol, &H::onSymbol) } }),
+NT("Option",      { { t(T::Symbol, &H::onCharClassSymbol) } }),
 
 };
 
