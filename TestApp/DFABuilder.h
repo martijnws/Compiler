@@ -15,28 +15,34 @@ public:
     using NFANodeSet = std::set<const NFANode*>;
     using DFANodeMap = std::map<char, DFANode*>;
 
+    DFANode() : _hash(0){}
+
     void insert(const NFANode* nfaNode_)
     {
         _nfaNodes.insert(nfaNode_);
     }
 
+    void calculateHash()
+    {
+        // not a tested and proven hash (its rubbish!) but good enough for now
+        std::hash<const NFANode*> hash;
+            
+        for (const NFANode* n : _nfaNodes)
+        {
+            _hash <<= 1;
+            _hash += hash(n);
+            _hash >>= 1;
+        }
+    }
+
     class Hash
     {
     public:
+     
         std::size_t operator()(const DFANode* d_) const
         {
-            // not a tested and proven hash (its rubbish!) but good enough for now
-            std::hash<const NFANode*> hash;
-            std::size_t res(0);
-
-            for (const NFANode* n : d_->_nfaNodes)
-            {
-                res <<= 1;
-                res += hash(n);
-                res >>= 1;
-            }
-
-            return res;
+            assert(d_->_hash != 0);
+            return d_->_hash;
         }
     };
 
@@ -63,8 +69,9 @@ public:
         }
     };
 
-    DFANodeMap _transitionMap;
-    NFANodeSet _nfaNodes;
+    DFANodeMap  _transitionMap;
+    NFANodeSet  _nfaNodes;
+    std::size_t _hash;
 };
 
 using DFANodeSet = std::unordered_set<DFANode*, DFANode::Hash, DFANode::Pred>;
@@ -137,6 +144,7 @@ void convert(DFANode* dSrc_, DFANodeSet& dfaNodes_)
         // this condition holds because we just checked each c has a transition for some n in d
         assert(!dDst->_nfaNodes.empty());
 
+        dDst->calculateHash();
         auto res = dfaNodes_.insert(dDst);
         // Ensure we link to DFANode in the map. This node will be different from dDst if an equivalent DFANode is already in the map
         dSrc_->_transitionMap.insert(std::make_pair(c, *res.first));
@@ -159,6 +167,7 @@ DFANode* convert(const NFANode* n_)
     e_closure(d);
 
     DFANodeSet dfaNodes;
+    d->calculateHash();
     dfaNodes.insert(d);
     convert(d, dfaNodes);
 
