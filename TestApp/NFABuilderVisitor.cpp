@@ -10,7 +10,8 @@ namespace {
 std::set<char> sigma()
 {
     std::set<char> result;
-    for (int c = 0; c < 256; ++c)
+    // 255 is reserved for NFA::E
+    for (int c = 0; c < 255; ++c)
     {
         result.insert(static_cast<char>(c));
     }
@@ -98,6 +99,8 @@ void NFABuilderVisitor::visit(const ast::ZeroToMany& n_)
     _result._f = f;
 }
 
+// Very slow CharClass NFA. Due to long E paths, conversion to DFA (think e_closure, DFANode's with lots
+// of NFANode's with only E in and out edges) is very slow
 void NFABuilderVisitor::visit(const ast::CharClass& n_)
 {
     assert(_charClassSet.empty());
