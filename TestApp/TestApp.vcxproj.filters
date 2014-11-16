@@ -10,11 +10,13 @@
     <ClInclude Include="NFABuilderVisitor.h" />
     <ClInclude Include="DFABuilder.h" />
     <ClInclude Include="NFA.h" />
+    <ClInclude Include="NFABuilderVisitorV2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="TestApp.cpp" />
     <ClCompile Include="ToStringVisitor.cpp" />
     <ClCompile Include="NFABuilderVisitor.cpp" />
+    <ClCompile Include="NFABuilderVisitorV2.cpp" />
   </ItemGroup>
 </Project>

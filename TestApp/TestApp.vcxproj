@@ -147,12 +147,14 @@
     <ClInclude Include="DFABuilder.h" />
     <ClInclude Include="NFA.h" />
     <ClInclude Include="NFABuilderVisitor.h" />
+    <ClInclude Include="NFABuilderVisitorV2.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ToStringVisitor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NFABuilderVisitor.cpp" />
+    <ClCompile Include="NFABuilderVisitorV2.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="TestApp.cpp" />
     <ClCompile Include="ToStringVisitor.cpp" />

@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <map>
 #include <cassert>
-#include <iostream>
+#include <memory>
 
 namespace mws {
 
@@ -190,6 +190,21 @@ bool match(const DFANode* dfa_, const NFANode* nEnd_, const std::string& str_)
     }
 
     return d->_nfaNodes.find(nEnd_) != d->_nfaNodes.end();
+}
+
+bool simulate(const NFA& nfa_, const std::string& str_)
+{
+    // start state
+    std::unique_ptr<DFANode> d(new DFANode());
+    d->insert(nfa_._s);
+    e_closure(d.get());
+
+    for (char c : str_)
+    {
+        d.reset(e_closure(move(d.get(), c)));
+    }
+
+    return d->_nfaNodes.find(nfa_._f) != d->_nfaNodes.end();
 }
 
 }
