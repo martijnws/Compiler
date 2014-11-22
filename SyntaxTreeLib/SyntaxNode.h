@@ -7,7 +7,7 @@
 namespace mws { namespace ast {
 
 class SyntaxNode;
-using SyntaxNodePtr = std::unique_ptr<SyntaxNode>;
+using SyntaxNodePtr = std::unique_ptr<const SyntaxNode>;
 
 class Acceptor
 {
@@ -75,7 +75,7 @@ class UnaryOp
 {
 protected:
   
-	UnaryOp(SyntaxNode* n_)
+	UnaryOp(const SyntaxNode* n_)
 		: _n(n_)
 	{
 	
@@ -98,7 +98,7 @@ class BinaryOp
 {
 protected:
 
-	BinaryOp(SyntaxNode* lhs_, SyntaxNode* rhs_)
+	BinaryOp(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
 		: _lhs(lhs_), _rhs(rhs_)
 	{
 	
@@ -126,7 +126,7 @@ class Choice
 	public BinaryOp
 {
 public:
-	Choice(SyntaxNode* lhs_, SyntaxNode* rhs_)
+	Choice(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
 		: BinaryOp(lhs_, rhs_)
 	{
 	
@@ -138,7 +138,7 @@ class Concat
 	public BinaryOp
 {
 public:
-	Concat(SyntaxNode* lhs_, SyntaxNode* rhs_)
+	Concat(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
 		: BinaryOp(lhs_, rhs_)
 	{
 	
@@ -150,7 +150,7 @@ class ZeroToMany
 	public UnaryOp
 {
 public:
-	ZeroToMany(SyntaxNode* n_)
+	ZeroToMany(const SyntaxNode* n_)
 		: UnaryOp(n_)
 	{
 	
@@ -162,7 +162,7 @@ class CharClass
 	public UnaryOp
 {
 public:
-	CharClass(SyntaxNode* n_)
+	CharClass(const SyntaxNode* n_)
 		: UnaryOp(n_)
 	{
 	
@@ -174,7 +174,7 @@ class Negate
 	public UnaryOp
 {
 public:
-	Negate(SyntaxNode* n_)
+	Negate(const SyntaxNode* n_)
 		: UnaryOp(n_)
 	{
 	
@@ -186,7 +186,7 @@ class RngConcat
 	public BinaryOp
 {
 public:
-	RngConcat(SyntaxNode* lhs_, SyntaxNode* rhs_)
+	RngConcat(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
 		: BinaryOp(lhs_, rhs_)
 	{
 	
@@ -198,7 +198,7 @@ class Rng
 	public BinaryOp
 {
 public:
-	Rng(SyntaxNode* lhs_, SyntaxNode* rhs_)
+	Rng(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
 		: BinaryOp(lhs_, rhs_)
 	{
 	

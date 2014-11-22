@@ -5,6 +5,8 @@
 #include "ToStringVisitor.h"
 #include "NFABuilderVisitor.h"
 #include "NFABuilderVisitorV2.h"
+#include "DFAInfoBuilderVisitor.h"
+#include "DFAInfo.h"
 #include "DFABuilder.h"
 #include <RegexLL1ParserLib/TableDrivenParser.h>
 #include <RegexLL1ParserLib/Parser.h>
@@ -26,6 +28,11 @@ int _tmain(int argc, _TCHAR* argv[])
         mws::ToStringVisitor visitor;
 	    root->accept(visitor);
 	    std::cout << visitor._result << std::endl;
+    }
+
+    {
+        mws::DFAInfoBuilderVisitor visitor;
+        root->accept(visitor);
     }
 
     {
