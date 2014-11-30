@@ -139,8 +139,7 @@ void DFAInfoBuilderVisitor::visit(const ast::CharClass& n_)
     assert(_charClassSet.empty());
 
 	n_.opr().accept(*this);
-    DFAInfo* opr = _dfaInfo;
-
+    
     auto n = new DFAInfo();
 
     n->_isNullable = _charClassSet.empty();

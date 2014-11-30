@@ -3,6 +3,7 @@
 #include <set>
 #include <map>
 #include <cassert>
+#include <iostream>
 
 namespace mws {
 
@@ -62,6 +63,9 @@ public:
             {
                 return false;
             }
+
+            // TODO: this is very inefficient. Most compares will be equal and thus fall through
+            // to below full blown item by item comparison.
 
             return lhs_->_items == rhs_->_items;
         }
