@@ -22,10 +22,19 @@ public:
 	virtual void visit(const ast::Rng& n_);
     virtual void visit(const ast::CharClassSymbol& n_);
 
-    NFA _result;
+    NFANode* startState() 
+    { 
+        return _result._s;
+    }
+
+    NFANode* acceptState() 
+    { 
+        return _result._f; 
+    }
 
 private:
     std::set<char> _charClassSet;
+    NFA            _result;
 };
 
 }

@@ -70,42 +70,47 @@ void DFAInfoBuilderVisitor::visit(const ast::Concat& n_)
 
     n_.rhs().accept(*this);
     DFAInfo* rhs = _dfaInfo;
-  
+
+    _dfaInfo = concat(lhs, rhs);
+}
+
+DFAInfo* DFAInfoBuilderVisitor::concat(const DFAInfo* lhs_, const DFAInfo* rhs_) const
+{
     // followPos calculates followPos of the subtrees, not of the current node.
-    for (DFAInfo* dfaInfo : lhs->_lastPos)
+    for (DFAInfo* dfaInfo : lhs_->_lastPos)
     {
-        dfaInfo->_followPos.insert(rhs->_firstPos.begin(), rhs->_firstPos.end());
+        dfaInfo->_followPos.insert(rhs_->_firstPos.begin(), rhs_->_firstPos.end());
     }
 
     auto n = new DFAInfo();
 
-    n->_isNullable = lhs->_isNullable && rhs->_isNullable;
+    n->_isNullable = lhs_->_isNullable && rhs_->_isNullable;
 
-    if (lhs->_isNullable)
+    if (lhs_->_isNullable)
     {
         std::set_union(
-            lhs->_firstPos.begin(), lhs->_firstPos.end(), 
-            rhs->_firstPos.begin(), rhs->_firstPos.end(), 
+            lhs_->_firstPos.begin(), lhs_->_firstPos.end(), 
+            rhs_->_firstPos.begin(), rhs_->_firstPos.end(), 
             std::inserter(n->_firstPos, n->_firstPos.begin()));
     }
     else
     {
-        n->_firstPos = lhs->_firstPos;
+        n->_firstPos = lhs_->_firstPos;
     }
 
-    if (rhs->_isNullable)
+    if (rhs_->_isNullable)
     {
         std::set_union(
-            lhs->_lastPos.begin(), lhs->_lastPos.end(), 
-            rhs->_lastPos.begin(), rhs->_lastPos.end(), 
+            lhs_->_lastPos.begin(), lhs_->_lastPos.end(), 
+            rhs_->_lastPos.begin(), rhs_->_lastPos.end(), 
             std::inserter(n->_lastPos, n->_lastPos.begin()));
     }
     else
     {
-        n->_lastPos = rhs->_lastPos;
+        n->_lastPos = rhs_->_lastPos;
     }
 
-    _dfaInfo = n;
+    return n;
 }
 
 void DFAInfoBuilderVisitor::visit(const ast::ZeroToMany& n_)
@@ -179,6 +184,21 @@ void DFAInfoBuilderVisitor::visit(const ast::Rng& n_)
 void DFAInfoBuilderVisitor::visit(const ast::CharClassSymbol& n_)
 {
     _charClassSet.insert(n_.lexeme());
+}
+
+DFAInfo* DFAInfoBuilderVisitor::startState() const
+{ 
+    return concat(_dfaInfo, acceptState());
+}
+
+DFAInfo* DFAInfoBuilderVisitor::acceptState() const
+{
+    static DFAInfo n;
+    n._isNullable = true;
+    n._firstPos.insert(&n);
+    n._lastPos.insert(&n);
+    n._lexeme = '#';
+    return &n;
 }
 
 };

@@ -8,6 +8,7 @@
 #include "DFAInfoBuilderVisitor.h"
 #include "DFAInfo.h"
 #include "DFABuilder.h"
+#include "DFADirectBuilder.h"
 #include <RegexLL1ParserLib/TableDrivenParser.h>
 #include <RegexLL1ParserLib/Parser.h>
 #include <SyntaxTreeLib/SyntaxNode.h>
@@ -36,10 +37,27 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     {
+
+        /*using namespace mws;
+        
         mws::NFABuilderVisitorV2 visitor;
 	    root->accept(visitor);
 
-        mws::DFANode* dfa = mws::convert(visitor._result._s);
+        auto s = visitor.startState();
+        auto a = visitor.acceptState();
+
+        DFANode* dfa = mws::convert(s);*/
+        
+
+        using namespace mws::direct;
+
+        mws::DFAInfoBuilderVisitor visitor;
+        root->accept(visitor);
+
+        auto s = visitor.startState();
+        auto a = visitor.acceptState();
+
+        DFANode* dfa = mws::direct::convert(s);
 
         const char* str1 = "abc@##^def";
         const char* str2 = "abcaabaaabaaababaaabbb";
@@ -48,24 +66,24 @@ int _tmain(int argc, _TCHAR* argv[])
         const char* str4 = "abcaabaaabaaabbabaaabbb";
         bool res = false;
         
-        res = match(dfa, visitor._result._f, str1);
+        res = match(dfa, a, str1);
         assert(res);
-        res = simulate(visitor._result, str1);
-        assert(res);
-
-        res = match(dfa, visitor._result._f, str2);
-        assert(res);
-        res = simulate(visitor._result, str2);
+        res = simulate(s, a, str1);
         assert(res);
 
-        res = match(dfa, visitor._result._f, str3);
+        res = match(dfa, a, str2);
+        assert(res);
+        res = simulate(s, a, str2);
+        assert(res);
+
+        res = match(dfa, a, str3);
         assert(!res);
-        res = simulate(visitor._result, str3);
+        res = simulate(s, a, str3);
         assert(!res);
 
-        res = match(dfa, visitor._result._f, str4);
+        res = match(dfa, a, str4);
         assert(!res);
-        res = simulate(visitor._result, str4);
+        res = simulate(s, a, str4);
         assert(!res);
     }
 

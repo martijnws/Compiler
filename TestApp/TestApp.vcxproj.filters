@@ -13,6 +13,7 @@
     <ClInclude Include="NFABuilderVisitorV2.h" />
     <ClInclude Include="DFAInfoBuilderVisitor.h" />
     <ClInclude Include="DFAInfo.h" />
+    <ClInclude Include="DFADirectBuilder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

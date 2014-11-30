@@ -22,10 +22,15 @@ public:
 	virtual void visit(const ast::Rng& n_);
     virtual void visit(const ast::CharClassSymbol& n_);
 
-    DFAInfo*       _dfaInfo;
+    DFAInfo* startState() const;
+    DFAInfo* acceptState() const;
+
+private:
+    DFAInfo* concat(const DFAInfo* lhs_, const DFAInfo* rhs_) const;
 
 private:
     std::set<char> _charClassSet;
+    DFAInfo*       _dfaInfo;
 };
 
 }

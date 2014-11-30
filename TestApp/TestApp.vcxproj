@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DFABuilder.h" />
+    <ClInclude Include="DFADirectBuilder.h" />
     <ClInclude Include="DFAInfoBuilderVisitor.h" />
     <ClInclude Include="DFAInfo.h" />
     <ClInclude Include="NFA.h" />

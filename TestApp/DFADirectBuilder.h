@@ -7,27 +7,27 @@
 #include <cassert>
 #include <memory>
 
-namespace mws {
+namespace mws { namespace direct {
 
 class DFANode
 {
 public:
-    using NFANodeSet = std::set<const NFANode*>;
+    using DFAInfoSet = std::set<const DFAInfo*>;
     using DFANodeMap = std::map<char, DFANode*>;
 
     DFANode() : _hash(0){}
 
-    void insert(const NFANode* nfaNode_)
+    void insert(const DFAInfo* item_)
     {
-        _nfaNodes.insert(nfaNode_);
+        _items.insert(item_);
     }
 
     void calculateHash()
     {
         // not a tested and proven hash (its rubbish!) but good enough for now
-        std::hash<const NFANode*> hash;
+        std::hash<const DFAInfo*> hash;
             
-        for (const NFANode* n : _nfaNodes)
+        for (const DFAInfo* n : _items)
         {
             _hash <<= 1;
             _hash += hash(n);
@@ -51,7 +51,7 @@ public:
     public:
         bool operator()(const DFANode* lhs_, const DFANode* rhs_) const
         {
-            if (lhs_->_nfaNodes.size() != rhs_->_nfaNodes.size())
+            if (lhs_->_items.size() != rhs_->_items.size())
             {
                 return false;
             }
@@ -65,49 +65,34 @@ public:
                 return false;
             }
 
-            return lhs_->_nfaNodes == rhs_->_nfaNodes;
+            return lhs_->_items == rhs_->_items;
         }
     };
 
     DFANodeMap  _transitionMap;
-    NFANodeSet  _nfaNodes;
+    DFAInfoSet  _items;
     std::size_t _hash;
 };
 
 using DFANodeSet = std::unordered_set<DFANode*, DFANode::Hash, DFANode::Pred>;
 
-void c_closure(const NFANode* n_, char c_, DFANode* d_)
+void c_closure(const DFAInfo* n_, char c_, DFANode* d_)
 {
     assert(c_ != NFA::E);
 
-    auto range = n_->_transitionMap.equal_range(c_);
-
-    for (auto itr = range.first; itr != range.second; ++itr)
+    if (n_->_lexeme == c_)
     {
-        const NFANode* n = itr->second;
-        d_->insert(n);
+        d_->_items.insert(n_->_followPos.begin(), n_->_followPos.end());
     }
 }
 
-void e_closure(const NFANode* n_, DFANode* d_)
+void e_closure(const DFAInfo* n_, DFANode* d_)
 {
-    auto range = n_->_transitionMap.equal_range(NFA::E);
-
-    for (auto itr = range.first; itr != range.second; ++itr)
-    {
-        const NFANode* n = itr->second;
-        d_->insert(n);
-        e_closure(n, d_);
-    }
+    
 }
 
 DFANode* e_closure(DFANode* d_)
 {
-    for (const NFANode* n : d_->_nfaNodes)
-    {
-        e_closure(n, d_);
-    }
-
     return d_;
 }
 
@@ -115,7 +100,7 @@ DFANode* move(DFANode* dSrc_, char c_)
 {
     DFANode* dDst = new DFANode();
 
-    for (const NFANode* n : dSrc_->_nfaNodes)
+    for (const DFAInfo* n : dSrc_->_items)
     {
         c_closure(n, c_, dDst);
     }
@@ -126,14 +111,12 @@ DFANode* move(DFANode* dSrc_, char c_)
 std::set<char> getTransitionCharSet(const DFANode* d_)
 {
     std::set<char> charSet;
-    for (const NFANode* n : d_->_nfaNodes)
+    for (const DFAInfo* n : d_->_items)
     {
-        for (auto kvpair : n->_transitionMap)
+        assert(n->_lexeme != NFA::E);
+        if (!n->_followPos.empty())
         {
-            if (kvpair.first != NFA::E)
-            {
-                charSet.insert(kvpair.first);
-            }
+            charSet.insert(n->_lexeme);
         }
     }
 
@@ -149,7 +132,7 @@ void convert(DFANode* dSrc_, DFANodeSet& dfaNodes_)
     {
         DFANode* dDst = e_closure(move(dSrc_, c));
         // this condition holds because we just checked each c has a transition for some n in d
-        assert(!dDst->_nfaNodes.empty());
+        assert(!dDst->_items.empty());
 
         dDst->calculateHash();
         auto res = dfaNodes_.insert(dDst);
@@ -167,11 +150,10 @@ void convert(DFANode* dSrc_, DFANodeSet& dfaNodes_)
     }
 }
 
-DFANode* convert(const NFANode* n_)
+DFANode* convert(const DFAInfo* n_)
 {
     DFANode* d = new DFANode();
-    d->insert(n_);
-    e_closure(d);
+    d->_items.insert(n_->_firstPos.begin(), n_->_firstPos.end());
 
     DFANodeSet dfaNodes;
     d->calculateHash();
@@ -181,7 +163,7 @@ DFANode* convert(const NFANode* n_)
     return d;
 }
 
-bool match(const DFANode* dfa_, const NFANode* nEnd_, const std::string& str_)
+bool match(const DFANode* dfa_, const DFAInfo* nEnd_, const std::string& str_)
 {
     const DFANode* d = dfa_;
 
@@ -196,22 +178,21 @@ bool match(const DFANode* dfa_, const NFANode* nEnd_, const std::string& str_)
         d = itr->second;
     }
 
-    return d->_nfaNodes.find(nEnd_) != d->_nfaNodes.end();
+    return d->_items.find(nEnd_) != d->_items.end();
 }
 
-bool simulate(const NFANode* nBeg_, const NFANode* nEnd_, const std::string& str_)
+bool simulate(const DFAInfo* nBeg_, const DFAInfo* nEnd_, const std::string& str_)
 {
     // start state
     std::unique_ptr<DFANode> d(new DFANode());
-    d->insert(nBeg_);
-    e_closure(d.get());
+    d->_items.insert(nBeg_->_firstPos.begin(), nBeg_->_firstPos.end());
 
     for (char c : str_)
     {
         d.reset(e_closure(move(d.get(), c)));
     }
 
-    return d->_nfaNodes.find(nEnd_) != d->_nfaNodes.end();
+    return d->_items.find(nEnd_) != d->_items.end();
 }
 
-}
+}} //NS mws::Direct
