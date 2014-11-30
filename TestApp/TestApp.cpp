@@ -6,9 +6,9 @@
 #include "NFABuilderVisitor.h"
 #include "NFABuilderVisitorV2.h"
 #include "DFAInfoBuilderVisitor.h"
-#include "DFAInfo.h"
 #include "DFABuilder.h"
-#include "DFADirectBuilder.h"
+#include "DFAFromFirstFollowPosConvTraits.h"
+#include "DFAFromNFAConvTraits.h"
 #include <RegexLL1ParserLib/TableDrivenParser.h>
 #include <RegexLL1ParserLib/Parser.h>
 #include <SyntaxTreeLib/SyntaxNode.h>
@@ -37,27 +37,20 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     {
+        //mws::NFABuilderVisitorV2 visitor;
 
-        /*using namespace mws;
+        //using DFANode = mws::DFANode<mws::NFANode>;
         
-        mws::NFABuilderVisitorV2 visitor;
-	    root->accept(visitor);
-
-        auto s = visitor.startState();
-        auto a = visitor.acceptState();
-
-        DFANode* dfa = mws::convert(s);*/
-        
-
-        using namespace mws::direct;
-
         mws::DFAInfoBuilderVisitor visitor;
+        
+        using DFANode = mws::DFANode<mws::DFAInfo>;
+
         root->accept(visitor);
 
         auto s = visitor.startState();
         auto a = visitor.acceptState();
 
-        DFANode* dfa = mws::direct::convert(s);
+        DFANode* dfa = mws::convert(s);
 
         const char* str1 = "abc@##^def";
         const char* str2 = "abcaabaaabaaababaaabbb";
