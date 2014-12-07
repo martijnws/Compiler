@@ -25,7 +25,7 @@ public:
 
         for (auto itr = range.first; itr != range.second; ++itr)
         {
-            const NFANode* n = itr->second;
+            auto n = itr->second;
             d_->insert(n);
         }
     }
@@ -36,7 +36,7 @@ public:
 
         for (auto itr = range.first; itr != range.second; ++itr)
         {
-            const NFANode* n = itr->second;
+            auto n = itr->second;
             d_->insert(n);
             e_closure(n, d_);
         }
@@ -44,7 +44,7 @@ public:
 
     static DFANode* e_closure(DFANode* d_)
     {
-        for (const NFANode* n : d_->_items)
+        for (auto n : d_->_items)
         {
             e_closure(n, d_);
         }
@@ -52,24 +52,12 @@ public:
         return d_;
     }
 
-    static DFANode* move(DFANode* dSrc_, char c_)
-    {
-        DFANode* dDst = new DFANode();
-
-        for (const NFANode* n : dSrc_->_items)
-        {
-            c_closure(n, c_, dDst);
-        }
-
-        return dDst;
-    }
-
     static std::set<char> getTransitionCharSet(const DFANode* d_)
     {
         std::set<char> charSet;
-        for (const NFANode* n : d_->_items)
+        for (auto n : d_->_items)
         {
-            for (auto kvpair : n->_transitionMap)
+            for (auto& kvpair : n->_transitionMap)
             {
                 if (kvpair.first != NFA::E)
                 {
@@ -83,7 +71,7 @@ public:
 
     static DFATraits<NFANode>::DFANode* createStartNode(const NFANode* n_)
     {
-        DFANode* d = new DFANode();
+        auto d = new DFANode();
         d->insert(n_);
         e_closure(d);
         return d;

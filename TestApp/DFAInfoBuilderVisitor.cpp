@@ -41,10 +41,10 @@ void DFAInfoBuilderVisitor::visit(const ast::Symbol& n_)
 void DFAInfoBuilderVisitor::visit(const ast::Choice& n_)
 {
     n_.lhs().accept(*this);
-    DFAInfo* lhs = _dfaInfo;
+    auto lhs = _dfaInfo;
 
     n_.rhs().accept(*this);
-    DFAInfo* rhs = _dfaInfo;
+    auto rhs = _dfaInfo;
   
     auto n = new DFAInfo();
 
@@ -66,10 +66,10 @@ void DFAInfoBuilderVisitor::visit(const ast::Choice& n_)
 void DFAInfoBuilderVisitor::visit(const ast::Concat& n_)
 {
 	n_.lhs().accept(*this);
-    DFAInfo* lhs = _dfaInfo;
+    auto lhs = _dfaInfo;
 
     n_.rhs().accept(*this);
-    DFAInfo* rhs = _dfaInfo;
+    auto rhs = _dfaInfo;
 
     _dfaInfo = concat(lhs, rhs);
 }
@@ -77,7 +77,7 @@ void DFAInfoBuilderVisitor::visit(const ast::Concat& n_)
 DFAInfo* DFAInfoBuilderVisitor::concat(const DFAInfo* lhs_, const DFAInfo* rhs_) const
 {
     // followPos calculates followPos of the subtrees, not of the current node.
-    for (DFAInfo* dfaInfo : lhs_->_lastPos)
+    for (auto dfaInfo : lhs_->_lastPos)
     {
         dfaInfo->_followPos.insert(rhs_->_firstPos.begin(), rhs_->_firstPos.end());
     }
@@ -116,10 +116,10 @@ DFAInfo* DFAInfoBuilderVisitor::concat(const DFAInfo* lhs_, const DFAInfo* rhs_)
 void DFAInfoBuilderVisitor::visit(const ast::ZeroToMany& n_)
 {
 	n_.opr().accept(*this);
-    DFAInfo* opr = _dfaInfo;
+    auto opr = _dfaInfo;
 
     // followPos calculates followPos of the subtrees, not of the current node.
-    for (DFAInfo* dfaInfo : opr->_lastPos)
+    for (auto dfaInfo : opr->_lastPos)
     {
         dfaInfo->_followPos.insert(opr->_firstPos.begin(), opr->_firstPos.end());
     }
@@ -144,7 +144,9 @@ void DFAInfoBuilderVisitor::visit(const ast::CharClass& n_)
 
     n->_isNullable = _charClassSet.empty();
 
-    for (char c : _charClassSet)
+    // TODO: inefficient. Large firstPos/lastPos sets result in large followPos sets
+    // which in turn lead to large DFANode item sets. In the end this will blow up the converion process to DFA 
+    for (auto c : _charClassSet)
     {
         ast::AcceptorImpl<ast::Symbol> symbol(c);
         visit(symbol);
@@ -174,7 +176,7 @@ void DFAInfoBuilderVisitor::visit(const ast::RngConcat& n_)
 
 void DFAInfoBuilderVisitor::visit(const ast::Rng& n_)
 {
-	for (char c = n_.lhsSymbol().lexeme(); c < n_.rhsSymbol().lexeme(); ++c)
+	for (auto c = n_.lhsSymbol().lexeme(); c < n_.rhsSymbol().lexeme(); ++c)
     {
         _charClassSet.insert(c);
     }

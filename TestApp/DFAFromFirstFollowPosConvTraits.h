@@ -40,7 +40,7 @@ public:
     static std::set<char> getTransitionCharSet(const DFANode* d_)
     {
         std::set<char> charSet;
-        for (const DFAInfo* n : d_->_items)
+        for (auto n : d_->_items)
         {
             assert(n->_lexeme != NFA::E);
             if (!n->_followPos.empty())
@@ -54,7 +54,7 @@ public:
 
     static DFATraits<DFAInfo>::DFANode* createStartNode(const DFAInfo* n_)
     {
-        DFANode* d = new DFANode();
+        auto d = new DFANode();
         d->_items.insert(n_->_firstPos.begin(), n_->_firstPos.end());
         return d;
     }

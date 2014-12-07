@@ -27,8 +27,8 @@ namespace mws {
 
 void NFABuilderVisitorV2::visit(const ast::Symbol& n_)
 {
-	NFANode* s = new NFANode();
-    NFANode* f = new NFANode();
+	auto s = new NFANode();
+    auto f = new NFANode();
 
     // start ->(e) final
     s->_transitionMap.insert(std::make_pair(n_.lexeme(), f));
@@ -39,13 +39,13 @@ void NFABuilderVisitorV2::visit(const ast::Symbol& n_)
 void NFABuilderVisitorV2::visit(const ast::Choice& n_)
 {
     n_.lhs().accept(*this);
-    NFA lhs = _result;
+    auto lhs = _result;
 
     n_.rhs().accept(*this);
-    NFA rhs = _result;
+    auto rhs = _result;
 
-    NFANode* s = new NFANode();
-    NFANode* f = new NFANode();
+    auto s = new NFANode();
+    auto f = new NFANode();
 
     // start ->(e) lhs.start -> lhs.final ->(e) final
     s->_transitionMap.insert(std::make_pair(NFA::E, lhs._s));
@@ -62,10 +62,10 @@ void NFABuilderVisitorV2::visit(const ast::Choice& n_)
 void NFABuilderVisitorV2::visit(const ast::Concat& n_)
 {
 	n_.lhs().accept(*this);
-    NFA lhs = _result;
+    auto lhs = _result;
 
     n_.rhs().accept(*this);
-    NFA rhs = _result;
+    auto rhs = _result;
 
     // lhs.start -> lhs.final -> rhs.final
     assert(lhs._f->_transitionMap.empty());
@@ -80,10 +80,10 @@ void NFABuilderVisitorV2::visit(const ast::Concat& n_)
 void NFABuilderVisitorV2::visit(const ast::ZeroToMany& n_)
 {
 	n_.opr().accept(*this);
-    NFA opr = _result;
+    auto opr = _result;
 
-    NFANode* s = new NFANode();
-    NFANode* f = new NFANode();
+    auto s = new NFANode();
+    auto f = new NFANode();
 
     // start ->(e) opr.start -> opr.final ->(e) final (1 repetition)
     s->_transitionMap.insert(std::make_pair(NFA::E, opr._s));
@@ -114,15 +114,15 @@ void NFABuilderVisitorV2::visit(const ast::CharClass& n_)
         return;
     }
 
-     NFANode* s = new NFANode();
-     NFANode* f = new NFANode();
+     auto s = new NFANode();
+     auto f = new NFANode();
 
-    for (char c : _charClassSet)
+    for (auto c : _charClassSet)
     {
         ast::AcceptorImpl<ast::Symbol> symbol(c);
         visit(symbol);
 
-        const NFA& opr = _result;
+        const auto& opr = _result;
 
         // start ->(e) lhs.start -> lhs.final ->(e) final
         s->_transitionMap.insert(std::make_pair(c, f));
@@ -150,7 +150,7 @@ void NFABuilderVisitorV2::visit(const ast::RngConcat& n_)
 
 void NFABuilderVisitorV2::visit(const ast::Rng& n_)
 {
-	for (char c = n_.lhsSymbol().lexeme(); c < n_.rhsSymbol().lexeme(); ++c)
+	for (auto c = n_.lhsSymbol().lexeme(); c < n_.rhsSymbol().lexeme(); ++c)
     {
         _charClassSet.insert(c);
     }
