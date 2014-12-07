@@ -87,6 +87,7 @@ public:
 			c = _buf.next();
 
 			Token::Type type = _map.type(c);
+            // only supported escape seq is '\\'
 			if (type == Token::Type::Symbol && c != '\\' || type == Token::Type::Eof)
 			{
 				throw common::Exception("invalid escape sequence");

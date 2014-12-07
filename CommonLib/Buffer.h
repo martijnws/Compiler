@@ -54,7 +54,7 @@ public:
 
 	void retract(std::size_t diff_)
 	{
-		if (diff_ > std::min(pos(), Size))
+		if (diff_ > std::min(pos() + 1, Size))
 			throw Exception("cannot retract this far back");
 
 		_pos -= diff_;

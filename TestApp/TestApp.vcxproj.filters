@@ -14,8 +14,9 @@
     <ClInclude Include="DFAInfoBuilderVisitor.h" />
     <ClInclude Include="DFANode.h" />
     <ClInclude Include="DFAFromNFAConvTraits.h" />
-    <ClInclude Include="DFAFromFirstFollowPosConvTraits.h" />
     <ClInclude Include="DFAInfo.h" />
+    <ClInclude Include="DFAFromFirstFollowPosConvTraits.h" />
+    <ClInclude Include="Lexer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -24,5 +25,6 @@
     <ClCompile Include="NFABuilderVisitor.cpp" />
     <ClCompile Include="NFABuilderVisitorV2.cpp" />
     <ClCompile Include="DFAInfoBuilderVisitor.cpp" />
+    <ClCompile Include="Lexer.cpp" />
   </ItemGroup>
 </Project>

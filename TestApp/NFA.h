@@ -9,7 +9,11 @@ class NFANode
 public:
     typedef std::unordered_multimap<char, NFANode*> Map;
 
-    Map _transitionMap;
+    NFANode() : _accept(false), _regex(0){}
+
+    Map         _transitionMap;
+    bool        _accept;
+    std::size_t _regex;
 };
 
 class NFA

@@ -29,6 +29,7 @@ public:
 
     NFANode* acceptState() 
     { 
+        _result._f->_accept = true;
         return _result._f; 
     }
 

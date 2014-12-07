@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "Lexer.h"
 #include "ToStringVisitor.h"
 #include "NFABuilderVisitor.h"
 #include "NFABuilderVisitorV2.h"
@@ -17,6 +18,17 @@
 int _tmain(int argc, _TCHAR* argv[])
 {
 	mws::td::LL1::init();
+
+    {
+        const char* text = "hello world; if bla    { continue; } else elsbla else1234 { bla 1234 break; }";
+        std::stringstream is(text, std::ios_base::in);
+
+        mws::Lexer lexer(is);
+        for (mws::Token t = lexer.next(); t._type != (std::size_t)-1; t = lexer.next())
+        {
+            std::cout << "lexeme = " << t._lexeme << ", type = " << lexer.regex(t._type) << std::endl;
+        }
+    }
 
     const char* regex = "abc[^a-zA-Z]*def|abc(a|ab)*ab*";
 	std::stringstream is(regex, std::ios_base::in);

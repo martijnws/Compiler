@@ -128,6 +128,8 @@ void NFABuilderVisitorV2::visit(const ast::CharClass& n_)
         s->_transitionMap.insert(std::make_pair(c, f));
     }
 
+    _charClassSet.clear();
+
     _result._s = s;
     _result._f = f;
 }
