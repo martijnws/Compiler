@@ -20,7 +20,6 @@
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="NFA.h" />
     <ClInclude Include="NFABuilderVisitor.h" />
-    <ClInclude Include="NFABuilderVisitorV2.h" />
     <ClInclude Include="RangeKey.h" />
     <ClInclude Include="ToStringVisitor.h" />
     <ClInclude Include="FABuilderVisitorBase.h" />
@@ -30,7 +29,6 @@
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="NFA.cpp" />
     <ClCompile Include="NFABuilderVisitor.cpp" />
-    <ClCompile Include="NFABuilderVisitorV2.cpp" />
     <ClCompile Include="ToStringVisitor.cpp" />
     <ClCompile Include="FABuilderVisitorBase.cpp" />
   </ItemGroup>

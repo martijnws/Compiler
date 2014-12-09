@@ -1,27 +1,6 @@
 #include "NFABuilderVisitor.h"
 #include <SyntaxTreeLib/SyntaxNode.h>
-#include <SyntaxTreeLib/SyntaxTreeBuilder.h>
-#include <algorithm>
-#include <iterator>
 #include <cassert>
-
-namespace {
-
-std::set<char> sigma()
-{
-    std::set<char> result;
-    // 255 is reserved for NFA::E
-    for (int c = 0; c < 255; ++c)
-    {
-        result.insert(static_cast<char>(c));
-    }
-
-    return result;
-}
-
-static const std::set<char> _sigma = sigma();
-
-}
 
 namespace mws {
 
@@ -99,8 +78,6 @@ void NFABuilderVisitor::visit(const ast::ZeroToMany& n_)
     _result._f = f;
 }
 
-// Very slow CharClass NFA. Due to long E paths, conversion to DFA (think e_closure, DFANode's with lots
-// of NFANode's with only E in and out edges) is very slow
 void NFABuilderVisitor::visit(const ast::CharClass& n_)
 {
     assert(_charClassSet.empty());
@@ -112,55 +89,18 @@ void NFABuilderVisitor::visit(const ast::CharClass& n_)
         return;
     }
 
-    // replace CharClass with Concatenation of Choice nodes
-    ast::SyntaxTreeBuilder astBuilder;
+     auto s = new NFANode();
+     auto f = new NFANode();
 
-    auto itr = _charClassSet.begin();
-    astBuilder.onSymbol(td::LL1::Token{td::LL1::Token::Symbol, *itr});
-    ++itr;
-
-    for ( ; itr != _charClassSet.end(); ++itr)
+    for (const auto& rk : _charClassSet)
     {
-        // push second argument
-        astBuilder.onSymbol(td::LL1::Token{td::LL1::Token::Symbol, *itr});
-        // pop 2 arguments, push back 1 choice argument
-        astBuilder.onChoice();
+        s->_transitionMap.insert(std::make_pair(rk, f));
     }
 
     _charClassSet.clear();
 
-    // continue NFA construction from temporarely created AST
-    ast::SyntaxNodePtr root(astBuilder.detach());
-    root->accept(*this);
-}
-
-void NFABuilderVisitor::visit(const ast::Negate& n_)
-{
-    n_.opr().accept(*this);
-
-    std::set<char> complement;
-    auto out = std::inserter(complement, complement.begin());
-    std::set_difference(_sigma.begin(), _sigma.end(), _charClassSet.begin(), _charClassSet.end(), out);
-    _charClassSet.swap(complement);
-}
-
-void NFABuilderVisitor::visit(const ast::RngConcat& n_)
-{
-	n_.lhs().accept(*this);
-    n_.rhs().accept(*this);
-}
-
-void NFABuilderVisitor::visit(const ast::Rng& n_)
-{
-	for (auto c = n_.lhsSymbol().lexeme(); c < n_.rhsSymbol().lexeme(); ++c)
-    {
-        _charClassSet.insert(c);
-    }
-}
-
-void NFABuilderVisitor::visit(const ast::CharClassSymbol& n_)
-{
-    _charClassSet.insert(n_.lexeme());
+    _result._s = s;
+    _result._f = f;
 }
 
 };

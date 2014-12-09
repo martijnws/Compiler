@@ -5,7 +5,6 @@
 #include <FA/Lexer.h>
 #include <FA/ToStringVisitor.h>
 #include <FA/NFABuilderVisitor.h>
-#include <FA/NFABuilderVisitorV2.h>
 #include <FA/DFAInfoBuilderVisitor.h>
 #include <FA/DFABuilder.h>
 #include <FA/DFAFromFirstFollowPosConvTraits.h>
@@ -49,7 +48,7 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     {
-        //mws::NFABuilderVisitorV2 visitor;
+        //mws::NFABuilderVisitor visitor;
         //using DFAItem = mws::NFANode;
         
         mws::DFAInfoBuilderVisitor visitor;

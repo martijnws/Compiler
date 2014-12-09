@@ -1,7 +1,7 @@
 #include "Lexer.h"
 
 #include "ToStringVisitor.h"
-#include "NFABuilderVisitorV2.h"
+#include "NFABuilderVisitor.h"
 #include "DFABuilder.h"
 #include "DFAFromNFAConvTraits.h"
 #include <RegexLL1ParserLib/Parser.h>
@@ -41,7 +41,7 @@ Lexer::Lexer(std::istream& is_)
 	    parser.parse();
         mws::ast::SyntaxNodePtr root(parser._astBuilder.detach());
   
-        mws::NFABuilderVisitorV2 visitor;
+        mws::NFABuilderVisitor visitor;
 
         root->accept(visitor);
 
