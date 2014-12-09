@@ -146,30 +146,17 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DFABuilder.h" />
-    <ClInclude Include="DFAFromFirstFollowPosConvTraits.h" />
-    <ClInclude Include="DFAFromNFAConvTraits.h" />
-    <ClInclude Include="DFAInfoBuilderVisitor.h" />
-    <ClInclude Include="DFAInfo.h" />
-    <ClInclude Include="DFANode.h" />
-    <ClInclude Include="Lexer.h" />
-    <ClInclude Include="NFA.h" />
-    <ClInclude Include="NFABuilderVisitor.h" />
-    <ClInclude Include="NFABuilderVisitorV2.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="ToStringVisitor.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DFAInfoBuilderVisitor.cpp" />
-    <ClCompile Include="Lexer.cpp" />
-    <ClCompile Include="NFABuilderVisitor.cpp" />
-    <ClCompile Include="NFABuilderVisitorV2.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="TestApp.cpp" />
-    <ClCompile Include="ToStringVisitor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FA\FA.vcxproj">
+      <Project>{d7bc63af-c89f-473c-ae15-fbf16e8dbb5b}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\RegexLL1ParserLib\RegexLL1ParserLib.vcxproj">
       <Project>{6704ef8a-bda5-40be-8007-d20652b9ef75}</Project>
     </ProjectReference>

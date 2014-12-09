@@ -2,14 +2,14 @@
 //
 
 #include "stdafx.h"
-#include "Lexer.h"
-#include "ToStringVisitor.h"
-#include "NFABuilderVisitor.h"
-#include "NFABuilderVisitorV2.h"
-#include "DFAInfoBuilderVisitor.h"
-#include "DFABuilder.h"
-#include "DFAFromFirstFollowPosConvTraits.h"
-#include "DFAFromNFAConvTraits.h"
+#include <FA/Lexer.h>
+#include <FA/ToStringVisitor.h>
+#include <FA/NFABuilderVisitor.h>
+#include <FA/NFABuilderVisitorV2.h>
+#include <FA/DFAInfoBuilderVisitor.h>
+#include <FA/DFABuilder.h>
+#include <FA/DFAFromFirstFollowPosConvTraits.h>
+#include <FA/DFAFromNFAConvTraits.h>
 #include <RegexLL1ParserLib/TableDrivenParser.h>
 #include <RegexLL1ParserLib/Parser.h>
 #include <SyntaxTreeLib/SyntaxNode.h>
@@ -49,19 +49,20 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     {
-        //mws::NFABuilderVisitorV2 visitor;
-
-        //using DFANode = mws::DFANode<mws::NFANode>;
+        mws::NFABuilderVisitorV2 visitor;
+        using DFAItem = mws::NFANode;
         
-        mws::DFAInfoBuilderVisitor visitor;
+        //mws::DFAInfoBuilderVisitor visitor;
+        //using DFAItem = mws::DFAInfo;
         
-        using DFANode = mws::DFANode<mws::DFAInfo>;
+        using DFANode = mws::DFANode<DFAItem>;
 
         root->accept(visitor);
 
         auto s = visitor.startState();
         auto a = visitor.acceptState();
 
+        mws::DFATraits<DFAItem>::preprocess(s);
         DFANode* dfa = mws::convert(s);
 
         const char* str1 = "abc@##^def";

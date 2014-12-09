@@ -17,5 +17,6 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="BufferTest.cpp" />
     <ClCompile Include="ParserTest.cpp" />
+    <ClCompile Include="FATest.cpp" />
   </ItemGroup>
 </Project>

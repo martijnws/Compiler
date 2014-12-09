@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegexLL1ParserLib", "RegexL
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestApp", "TestApp\TestApp.vcxproj", "{7A1EFD39-8DAE-4255-A7ED-A524DD528D9C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FA", "FA\FA.vcxproj", "{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -91,6 +93,18 @@ Global
 		{7A1EFD39-8DAE-4255-A7ED-A524DD528D9C}.Release|Win32.Build.0 = Release|Win32
 		{7A1EFD39-8DAE-4255-A7ED-A524DD528D9C}.Release|x64.ActiveCfg = Release|x64
 		{7A1EFD39-8DAE-4255-A7ED-A524DD528D9C}.Release|x64.Build.0 = Release|x64
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Debug|Win32.Build.0 = Debug|Win32
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Debug|x64.ActiveCfg = Debug|x64
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Debug|x64.Build.0 = Debug|x64
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Release|Win32.ActiveCfg = Release|Win32
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Release|Win32.Build.0 = Release|Win32
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Release|x64.ActiveCfg = Release|x64
+		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
