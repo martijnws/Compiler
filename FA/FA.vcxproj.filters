@@ -23,13 +23,14 @@
     <ClInclude Include="RangeKey.h" />
     <ClInclude Include="ToStringVisitor.h" />
     <ClInclude Include="FABuilderVisitorBase.h" />
+    <ClInclude Include="AlphabetVisitor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DFAInfoBuilderVisitor.cpp" />
     <ClCompile Include="Lexer.cpp" />
-    <ClCompile Include="NFA.cpp" />
     <ClCompile Include="NFABuilderVisitor.cpp" />
     <ClCompile Include="ToStringVisitor.cpp" />
     <ClCompile Include="FABuilderVisitorBase.cpp" />
+    <ClCompile Include="AlphabetVisitor.cpp" />
   </ItemGroup>
 </Project>

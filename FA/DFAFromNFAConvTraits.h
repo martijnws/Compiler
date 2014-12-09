@@ -58,7 +58,7 @@ public:
 
     static std::set<RangeKey, RangeKey::Less> getTransitionCharSet(const DFANode* d_)
     {
-        std::vector<RangeKey> rkVec;
+        std::set<RangeKey, RangeKey::Less> rkSet;
 
         for (const auto& n : d_->_items)
         {
@@ -69,12 +69,13 @@ public:
                 if (rk._l != NFA::E)
                 {
                     assert(rk._h != NFA::E);
-                    rkVec.push_back(rk);
+                    rkSet.insert(rk);
                 }
             }
         }
 
-        return getDisjointRangeSet(rkVec);
+        return rkSet;
+        //return getDisjointRangeSet(rkVec);
     }
 
     static DFATraits<NFANode>::DFANode* createStartNode(const NFANode* n_)
@@ -83,11 +84,6 @@ public:
         d->insert(n_);
         e_closure(d);
         return d;
-    }
-
-    static void preprocess(NFANode* n_)
-    {
-        traverse(n_, &mws::makeTransitionMapRangeKeysDisjoint);
     }
 };
 

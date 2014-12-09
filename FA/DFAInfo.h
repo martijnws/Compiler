@@ -20,6 +20,9 @@ public:
     bool     _isNullable;
     // represents transition.
     RangeKey _lexeme;
+
+    bool        _accept;
+    std::size_t _regex;
 };
 
 }

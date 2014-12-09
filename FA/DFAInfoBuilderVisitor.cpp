@@ -7,6 +7,13 @@
 
 namespace mws {
 
+DFAInfoBuilderVisitor::DFAInfoBuilderVisitor(const std::set<RangeKey, RangeKey::Less>& rkSet_)
+:
+    _rkSet(rkSet_)
+{
+
+}
+
 void DFAInfoBuilderVisitor::visit(const ast::Symbol& n_)
 {
     auto n = new DFAInfo();
@@ -128,8 +135,9 @@ void DFAInfoBuilderVisitor::visit(const ast::CharClass& n_)
 
     for (const auto& rk : _charClassSet)
     {
-        // TODO: implement properly
-        for (auto c = rk._l; c <= rk._h; ++c)
+        std::vector<RangeKey> rkVec = getDisjointRangeKeys(_rkSet, rk);
+
+        for (const auto& rk : rkVec)
         {
             auto n = new DFAInfo();
 
@@ -137,7 +145,7 @@ void DFAInfoBuilderVisitor::visit(const ast::CharClass& n_)
             n->_firstPos.insert(n);
             n->_lastPos.insert(n);
 
-            n->_lexeme = RangeKey(c, c);
+            n->_lexeme = rk;
        
             ncs->_firstPos.insert(n);
             ncs->_lastPos.insert(n);

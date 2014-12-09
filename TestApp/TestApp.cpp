@@ -6,6 +6,7 @@
 #include <FA/ToStringVisitor.h>
 #include <FA/NFABuilderVisitor.h>
 #include <FA/DFAInfoBuilderVisitor.h>
+#include <FA/AlphabetVisitor.h>
 #include <FA/DFABuilder.h>
 #include <FA/DFAFromFirstFollowPosConvTraits.h>
 #include <FA/DFAFromNFAConvTraits.h>
@@ -43,15 +44,13 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     {
-        mws::DFAInfoBuilderVisitor visitor;
-        root->accept(visitor);
-    }
+        mws::AlphabetVisitor alphabetVisitor;
+        root->accept(alphabetVisitor);
 
-    {
-        //mws::NFABuilderVisitor visitor;
+        //mws::NFABuilderVisitor visitor(mws::getDisjointRangeSet(alphabetVisitor._rkVec));
         //using DFAItem = mws::NFANode;
         
-        mws::DFAInfoBuilderVisitor visitor;
+        mws::DFAInfoBuilderVisitor visitor(mws::getDisjointRangeSet(alphabetVisitor._rkVec));;
         using DFAItem = mws::DFAInfo;
         
         using DFANode = mws::DFANode<DFAItem>;
@@ -61,7 +60,6 @@ int _tmain(int argc, _TCHAR* argv[])
         auto s = visitor.startState();
         auto a = visitor.acceptState();
 
-        mws::DFATraits<DFAItem>::preprocess(s);
         DFANode* dfa = mws::convert(s);
 
         const char* str1 = "abc@##^def";

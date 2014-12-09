@@ -21,7 +21,8 @@ public:
     {
         assert(rk_._l != NFA::E);
        
-        if (n_->_lexeme == rk_._l)
+        RangeKey::Less less;
+        if (!less(n_->_lexeme, rk_._l) && !less(rk_._l, n_->_lexeme))
         {
             assert(!n_->_followPos.empty());
             d_->_items.insert(n_->_followPos.begin(), n_->_followPos.end());
@@ -38,10 +39,8 @@ public:
         return d_;
     }
 
-    // TODO: replace set with vector. For now its an easy way to prevent duplicates
     static std::set<RangeKey, RangeKey::Less> getTransitionCharSet(const DFANode* d_)
     {
-        // TODO: optimize for ranges
         std::set<RangeKey, RangeKey::Less> rkSet;
         for (auto n : d_->_items)
         {
@@ -60,11 +59,6 @@ public:
         auto d = new DFANode();
         d->_items.insert(n_->_firstPos.begin(), n_->_firstPos.end());
         return d;
-    }
-
-    static void preprocess(DFAInfo* n_)
-    {
-    
     }
 };
 

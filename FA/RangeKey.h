@@ -62,6 +62,38 @@ public:
     Char _h;
 };
 
+inline std::vector<RangeKey> getDisjointRangeKeys(const std::set<RangeKey, RangeKey::Less>& rkSet_, const RangeKey& rk_)
+{
+    std::vector<RangeKey> rkVec;
+
+    const auto& rkSuper = rk_;
+
+    auto itr = rkSet_.find(rkSuper._l);
+    assert(itr != rkSet_.end());
+
+    Char l = itr->_l;
+    Char h = itr->_h;
+
+    for ( ; itr != rkSet_.end(); ++itr)
+    {
+        const auto& rkSub = *itr;
+        assert(rkSub._l >= rkSuper._l);
+            
+        if (rkSub._h > rkSuper._h)
+        {
+            break;
+        }
+
+        h = rkSub._h;
+        rkVec.push_back(rkSub);
+    }
+
+    assert(l == rkSuper._l);
+    assert(h == rkSuper._h);
+
+    return rkVec;
+}
+
 inline std::set<RangeKey, RangeKey::Less> getDisjointRangeSet(const std::vector<RangeKey>& rkVec_)
 {
     std::vector<std::pair<Char, Char>> rkSortVec;

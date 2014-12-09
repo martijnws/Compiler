@@ -142,6 +142,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AlphabetVisitor.h" />
     <ClInclude Include="Char.h" />
     <ClInclude Include="DFABuilder.h" />
     <ClInclude Include="DFAFromFirstFollowPosConvTraits.h" />
@@ -157,10 +158,10 @@
     <ClInclude Include="ToStringVisitor.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AlphabetVisitor.cpp" />
     <ClCompile Include="DFAInfoBuilderVisitor.cpp" />
     <ClCompile Include="FABuilderVisitorBase.cpp" />
     <ClCompile Include="Lexer.cpp" />
-    <ClCompile Include="NFA.cpp" />
     <ClCompile Include="NFABuilderVisitor.cpp" />
     <ClCompile Include="ToStringVisitor.cpp" />
   </ItemGroup>

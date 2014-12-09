@@ -2,6 +2,7 @@
 
 #include "ToStringVisitor.h"
 #include "NFABuilderVisitor.h"
+#include "AlphabetVisitor.h"
 #include "DFABuilder.h"
 #include "DFAFromNFAConvTraits.h"
 #include <RegexLL1ParserLib/Parser.h>
@@ -31,6 +32,9 @@ Lexer::Lexer(std::istream& is_)
 {
     auto nS = new NFANode();
     
+    std::vector<RangeKey> rkVec;
+    std::vector<mws::ast::SyntaxNode*> rootVec;
+
     for (std::size_t i = 0; i < sizeof(g_regexCol)/sizeof(char*); ++i)
     {
         auto regex = g_regexCol[i];
@@ -39,10 +43,22 @@ Lexer::Lexer(std::istream& is_)
 	    mws::td::LL1::Parser parser(is);
 
 	    parser.parse();
-        mws::ast::SyntaxNodePtr root(parser._astBuilder.detach());
+        mws::ast::SyntaxNode* root(parser._astBuilder.detach());
   
-        mws::NFABuilderVisitor visitor;
+        mws::AlphabetVisitor alphabetVisitor;
+        root->accept(alphabetVisitor);
+        rkVec.insert(rkVec.end(), alphabetVisitor._rkVec.begin(), alphabetVisitor._rkVec.end());
 
+        rootVec.push_back(root);
+    }
+
+    std::set<RangeKey, RangeKey::Less> rkSet = mws::getDisjointRangeSet(rkVec);
+
+    for (std::size_t i = 0; i < rootVec.size(); ++i)
+    {
+        mws::ast::SyntaxNodePtr root(rootVec[i]);
+
+        mws::NFABuilderVisitor visitor(rkSet);
         root->accept(visitor);
 
         std::unique_ptr<NFANode> s(visitor.startState());
@@ -52,7 +68,6 @@ Lexer::Lexer(std::istream& is_)
         nS->_transitionMap.insert(s->_transitionMap.begin(), s->_transitionMap.end());
     }
 
-    mws::DFATraits<NFANode>::preprocess(nS);
     _dfa = mws::convert(nS);
 }
    

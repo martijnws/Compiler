@@ -28,9 +28,4 @@ public:
     NFANode* _f;
 };
 
-
-void traverse(NFANode* n_, const std::function<void(NFANode*)>& func_);
-
-void makeTransitionMapRangeKeysDisjoint(NFANode* n_);
-
 } //mws

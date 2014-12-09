@@ -4,6 +4,13 @@
 
 namespace mws {
 
+NFABuilderVisitor::NFABuilderVisitor(const std::set<RangeKey, RangeKey::Less>& rkSet_)
+:
+    _rkSet(rkSet_)
+{
+    
+}
+    
 void NFABuilderVisitor::visit(const ast::Symbol& n_)
 {
 	auto s = new NFANode();
@@ -94,7 +101,12 @@ void NFABuilderVisitor::visit(const ast::CharClass& n_)
 
     for (const auto& rk : _charClassSet)
     {
-        s->_transitionMap.insert(std::make_pair(rk, f));
+        std::vector<RangeKey> rkVec = getDisjointRangeKeys(_rkSet, rk);
+
+        for (const auto& rk : rkVec)
+        {
+            s->_transitionMap.insert(std::make_pair(rk, f));
+        }
     }
 
     _charClassSet.clear();
