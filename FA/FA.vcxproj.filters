@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Char.h" />
+    <ClInclude Include="DFABuilder.h" />
+    <ClInclude Include="DFAFromFirstFollowPosConvTraits.h" />
+    <ClInclude Include="DFAFromNFAConvTraits.h" />
+    <ClInclude Include="DFAInfo.h" />
+    <ClInclude Include="DFAInfoBuilderVisitor.h" />
+    <ClInclude Include="DFANode.h" />
+    <ClInclude Include="Lexer.h" />
+    <ClInclude Include="NFA.h" />
+    <ClInclude Include="NFABuilderVisitor.h" />
+    <ClInclude Include="NFABuilderVisitorV2.h" />
+    <ClInclude Include="RangeKey.h" />
+    <ClInclude Include="ToStringVisitor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DFAInfoBuilderVisitor.cpp" />
+    <ClCompile Include="Lexer.cpp" />
+    <ClCompile Include="NFA.cpp" />
+    <ClCompile Include="NFABuilderVisitor.cpp" />
+    <ClCompile Include="NFABuilderVisitorV2.cpp" />
+    <ClCompile Include="ToStringVisitor.cpp" />
+  </ItemGroup>
+</Project>
