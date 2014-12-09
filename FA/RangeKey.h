@@ -101,6 +101,8 @@ inline std::set<RangeKey, RangeKey::Less> getDisjointRangeSet(const std::vector<
             --cOpenRange;
 
             // up to and including bound
+
+            // TODO: refactor to get better asserts
             assert(bound >= l - 1);
 
             if (l <= bound)

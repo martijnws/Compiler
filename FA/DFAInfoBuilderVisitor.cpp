@@ -5,24 +5,6 @@
 #include <iterator>
 #include <cassert>
 
-namespace {
-
-std::set<char> sigma()
-{
-    std::set<char> result;
-    // 255 is reserved for NFA::E
-    for (int c = 0; c < 255; ++c)
-    {
-        result.insert(static_cast<char>(c));
-    }
-
-    return result;
-}
-
-static const std::set<char> _sigma = sigma();
-
-}
-
 namespace mws {
 
 void DFAInfoBuilderVisitor::visit(const ast::Symbol& n_)
@@ -140,51 +122,29 @@ void DFAInfoBuilderVisitor::visit(const ast::CharClass& n_)
 
 	n_.opr().accept(*this);
     
-    auto n = new DFAInfo();
+    auto ncs = new DFAInfo();
 
-    n->_isNullable = _charClassSet.empty();
+    ncs->_isNullable = _charClassSet.empty();
 
-    // TODO: inefficient. Large firstPos/lastPos sets result in large followPos sets
-    // which in turn lead to large DFANode item sets. In the end this will blow up the converion process to DFA 
-    for (auto c : _charClassSet)
+    for (const auto& rk : _charClassSet)
     {
-        ast::AcceptorImpl<ast::Symbol> symbol(c);
-        visit(symbol);
+        // TODO: implement properly
+        for (auto c = rk._l; c <= rk._h; ++c)
+        {
+            auto n = new DFAInfo();
+
+            n->_isNullable = false;
+            n->_firstPos.insert(n);
+            n->_lastPos.insert(n);
+
+            n->_lexeme = RangeKey(c, c);
        
-        n->_firstPos.insert(_dfaInfo);
-        n->_lastPos.insert(_dfaInfo);
+            ncs->_firstPos.insert(n);
+            ncs->_lastPos.insert(n);
+        }
     }
 
-    _dfaInfo = n;
-}
-
-void DFAInfoBuilderVisitor::visit(const ast::Negate& n_)
-{
-    n_.opr().accept(*this);
-
-    std::set<char> complement;
-    auto out = std::inserter(complement, complement.begin());
-    std::set_difference(_sigma.begin(), _sigma.end(), _charClassSet.begin(), _charClassSet.end(), out);
-    _charClassSet.swap(complement);
-}
-
-void DFAInfoBuilderVisitor::visit(const ast::RngConcat& n_)
-{
-	n_.lhs().accept(*this);
-    n_.rhs().accept(*this);
-}
-
-void DFAInfoBuilderVisitor::visit(const ast::Rng& n_)
-{
-	for (auto c = n_.lhsSymbol().lexeme(); c < n_.rhsSymbol().lexeme(); ++c)
-    {
-        _charClassSet.insert(c);
-    }
-}
-
-void DFAInfoBuilderVisitor::visit(const ast::CharClassSymbol& n_)
-{
-    _charClassSet.insert(n_.lexeme());
+    _dfaInfo = ncs;
 }
 
 DFAInfo* DFAInfoBuilderVisitor::startState() const

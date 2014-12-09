@@ -20,8 +20,7 @@ public:
     static void c_closure(const DFAInfo* n_, const RangeKey& rk_, DFANode* d_)
     {
         assert(rk_._l != NFA::E);
-        assert(rk_._l == rk_._h);
-
+       
         if (n_->_lexeme == rk_._l)
         {
             assert(!n_->_followPos.empty());
@@ -46,10 +45,10 @@ public:
         std::set<RangeKey, RangeKey::Less> rkSet;
         for (auto n : d_->_items)
         {
-            assert(n->_lexeme != NFA::E);
+            assert(n->_lexeme._l != NFA::E);
             if (!n->_followPos.empty())
             {
-                rkSet.insert(RangeKey(n->_lexeme, n->_lexeme));
+                rkSet.insert(n->_lexeme);
             }
         }
 

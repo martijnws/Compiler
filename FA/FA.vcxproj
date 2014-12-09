@@ -149,6 +149,7 @@
     <ClInclude Include="DFAInfo.h" />
     <ClInclude Include="DFAInfoBuilderVisitor.h" />
     <ClInclude Include="DFANode.h" />
+    <ClInclude Include="FABuilderVisitorBase.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="NFA.h" />
     <ClInclude Include="NFABuilderVisitor.h" />
@@ -158,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DFAInfoBuilderVisitor.cpp" />
+    <ClCompile Include="FABuilderVisitorBase.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="NFA.cpp" />
     <ClCompile Include="NFABuilderVisitor.cpp" />

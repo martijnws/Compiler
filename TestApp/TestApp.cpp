@@ -49,11 +49,11 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     {
-        mws::NFABuilderVisitorV2 visitor;
-        using DFAItem = mws::NFANode;
+        //mws::NFABuilderVisitorV2 visitor;
+        //using DFAItem = mws::NFANode;
         
-        //mws::DFAInfoBuilderVisitor visitor;
-        //using DFAItem = mws::DFAInfo;
+        mws::DFAInfoBuilderVisitor visitor;
+        using DFAItem = mws::DFAInfo;
         
         using DFANode = mws::DFANode<DFAItem>;
 

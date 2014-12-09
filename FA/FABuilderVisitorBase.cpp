@@ -1,0 +1,64 @@
+#include "FABuilderVisitorBase.h"
+#include "NFA.h"
+#include <SyntaxTreeLib/SyntaxNode.h>
+#include <cassert>
+
+namespace mws {
+
+void FABuilderVisitorBase::visit(const ast::Negate& n_)
+{
+    n_.opr().accept(*this);
+
+    std::set<RangeKey, RangeKey::Less> complement;
+    Char l = 0;
+    // insert artificial upperbound so that complement up to (but not including) upperbound will be inserted in complement
+    _charClassSet.insert(NFA::E);
+    for (const auto& rk : _charClassSet)
+    {
+        if (rk._l > l)
+        {
+            auto res = complement.insert(RangeKey(l, rk._l - 1));
+            assert(res.second);
+        }
+
+        l = rk._h + 1;
+    }
+
+    _charClassSet.swap(complement);
+}
+
+void FABuilderVisitorBase::visit(const ast::RngConcat& n_)
+{
+	n_.lhs().accept(*this);
+    n_.rhs().accept(*this);
+}
+
+void FABuilderVisitorBase::visit(const ast::Rng& n_)
+{
+    RangeKey rkNew(n_.lhsSymbol().lexeme(), n_.rhsSymbol().lexeme());
+
+    std::vector<RangeKey> rkVec;
+    rkVec.push_back(rkNew);
+
+    // find all overlapping ranges (non disjoint sets are considered equal)
+    for (auto itr = _charClassSet.find(rkNew); itr != _charClassSet.end(); itr = _charClassSet.find(rkNew))
+    {
+        rkVec.push_back(*itr);
+        _charClassSet.erase(itr);
+    }
+
+    // re insert disjoint ranges
+    std::set<RangeKey, RangeKey::Less> rkSet = getDisjointRangeSet(rkVec);
+    for (const auto& rk : rkSet)
+    {
+        auto res = _charClassSet.insert(rk);
+        assert(res.second);
+    }
+}
+
+void FABuilderVisitorBase::visit(const ast::CharClassSymbol& n_)
+{
+    _charClassSet.insert(n_.lexeme());
+}
+
+};

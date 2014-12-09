@@ -13,13 +13,13 @@ public:
 
     using NodeSet = std::set<DFAInfo*>;
 
-    NodeSet _firstPos;
-    NodeSet _lastPos;
+    NodeSet  _firstPos;
+    NodeSet  _lastPos;
     // used to construct the next DFANode (set of DFAInfo items)
-    NodeSet _followPos;
-    bool    _isNullable;
+    NodeSet  _followPos;
+    bool     _isNullable;
     // represents transition.
-    Char    _lexeme;
+    RangeKey _lexeme;
 };
 
 }
