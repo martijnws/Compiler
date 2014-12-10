@@ -30,19 +30,10 @@ void NFABuilderVisitor::visit(const ast::Choice& n_)
     n_.rhs().accept(*this);
     auto rhs = _result;
 
-    auto s = new NFANode();
-    auto f = new NFANode();
+    lhs._s->_transitionMap.insert(std::make_pair(NFA::E, rhs._s));
+    rhs._f->_transitionMap.insert(std::make_pair(NFA::E, lhs._f));
 
-    // start ->(e) lhs.start -> lhs.final ->(e) final
-    s->_transitionMap.insert(std::make_pair(NFA::E, lhs._s));
-    lhs._f->_transitionMap.insert(std::make_pair(NFA::E, f));
-
-    // start ->(e) rhs.start -> rhs.final ->(e) final
-    s->_transitionMap.insert(std::make_pair(NFA::E, rhs._s));
-    rhs._f->_transitionMap.insert(std::make_pair(NFA::E, f));
-
-    _result._s = s;
-    _result._f = f;
+    _result = lhs;
 }
 
 void NFABuilderVisitor::visit(const ast::Concat& n_)
