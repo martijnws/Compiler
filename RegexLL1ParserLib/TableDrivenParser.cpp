@@ -162,10 +162,18 @@ NT("Concat",      { { n(N::Term), n(N::ConcatT) } }),
 NT("ConcatT",     { { n(N::Term, &H::onConcat), n(N::ConcatT) },
                     { empty } }),
 
-NT("Term",        { { n(N::Factor), n(N::ZeroToManyO) } }),
+NT("Term",        { { n(N::Factor), n(N::QuantifierO) } }),
 
-NT("ZeroToManyO", { { t(T::ZeroToMany, &H::onZeroToMany) },
+NT("QuantifierO", { { n(N::ZeroOrOne) },
+                    { n(N::ZeroToMany) },
+                    { n(N::OneToMany) },
                     { empty } }),
+
+NT("ZeroOrOne",   { { t(T::ZeroOrOne, &H::onZeroOrOne) } }),
+
+NT("ZeroToMany",  { { t(T::ZeroToMany, &H::onZeroToMany) } }),
+
+NT("OneToMany",   { { t(T::OneToMany, &H::onOneToMany) } }),
 
 NT("Factor",      { { t(T::Symbol, &H::onSymbol) },
                     { t(T::CharClassB, false), sgss<CharClassLexer>(N::CharClass, &H::onCharClass), t(T::CharClassE) },

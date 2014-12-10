@@ -17,7 +17,9 @@ public:
 	virtual void onEof();
 	virtual void onChoice();
 	virtual void onConcat();
+	virtual void onZeroOrOne();
 	virtual void onZeroToMany();
+    virtual void onOneToMany();
 	virtual void onSymbol(const td::LL1::Token& t_);
 	virtual void onCharClass();
 	virtual void onNegate();

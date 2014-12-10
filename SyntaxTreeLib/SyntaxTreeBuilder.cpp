@@ -51,9 +51,19 @@ void SyntaxTreeBuilder::onConcat()
 	onBinaryOp<Concat>(_stack);
 }
 
+void SyntaxTreeBuilder::onZeroOrOne()
+{
+	onUnaryOp<ZeroOrOne>(_stack);
+}
+
 void SyntaxTreeBuilder::onZeroToMany()
 {
 	onUnaryOp<ZeroToMany>(_stack);
+}
+
+void SyntaxTreeBuilder::onOneToMany()
+{
+	onUnaryOp<OneToMany>(_stack);
 }
 
 void SyntaxTreeBuilder::onSymbol(const td::LL1::Token& t_)

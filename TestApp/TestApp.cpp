@@ -20,7 +20,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	mws::td::LL1::init();
 
     {
-        const char* text = "hello world; if bla    { continue; } else elsbla else1234 { bla 1234 break; }";
+        const char* text = "hello world; if bla ___0_   { continue; } else elsbla else1234 { bla 1234 break; }";
         std::stringstream is(text, std::ios_base::in);
 
         mws::Lexer lexer(is);
@@ -47,11 +47,11 @@ int _tmain(int argc, _TCHAR* argv[])
         mws::AlphabetVisitor alphabetVisitor;
         root->accept(alphabetVisitor);
 
-        //mws::NFABuilderVisitor visitor(mws::getDisjointRangeSet(alphabetVisitor._rkVec));
-        //using DFAItem = mws::NFANode;
+        mws::NFABuilderVisitor visitor(mws::getDisjointRangeSet(alphabetVisitor._rkVec));
+        using DFAItem = mws::NFANode;
         
-        mws::DFAInfoBuilderVisitor visitor(mws::getDisjointRangeSet(alphabetVisitor._rkVec));;
-        using DFAItem = mws::DFAInfo;
+        //mws::DFAInfoBuilderVisitor visitor(mws::getDisjointRangeSet(alphabetVisitor._rkVec));;
+        //using DFAItem = mws::DFAInfo;
         
         using DFANode = mws::DFANode<DFAItem>;
 

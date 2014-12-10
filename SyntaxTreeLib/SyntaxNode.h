@@ -145,6 +145,18 @@ public:
 	}
 };
 
+class ZeroOrOne
+	:
+	public UnaryOp
+{
+public:
+	ZeroOrOne(const SyntaxNode* n_)
+		: UnaryOp(n_)
+	{
+	
+	}
+};
+
 class ZeroToMany
 	:
 	public UnaryOp
@@ -156,6 +168,19 @@ public:
 	
 	}
 };
+
+class OneToMany
+	:
+	public UnaryOp
+{
+public:
+	OneToMany(const SyntaxNode* n_)
+		: UnaryOp(n_)
+	{
+	
+	}
+};
+
 
 class CharClass
 	:

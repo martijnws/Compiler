@@ -22,7 +22,17 @@ void AlphabetVisitor::visit(const ast::Concat& n_)
 	n_.rhs().accept(*this);
 }
 
+void AlphabetVisitor::visit(const ast::ZeroOrOne& n_)
+{
+	n_.opr().accept(*this);
+}
+
 void AlphabetVisitor::visit(const ast::ZeroToMany& n_)
+{
+	n_.opr().accept(*this);
+}
+
+void AlphabetVisitor::visit(const ast::OneToMany& n_)
 {
 	n_.opr().accept(*this);
 }

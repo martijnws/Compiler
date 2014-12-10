@@ -10,7 +10,9 @@ public:
 	virtual void onEof() = 0;
 	virtual void onChoice() = 0;
 	virtual void onConcat() = 0;
+    virtual void onZeroOrOne() = 0;
 	virtual void onZeroToMany() = 0;
+    virtual void onOneToMany() = 0;
 	virtual void onSymbol(const Token& t_) = 0;
 	virtual void onCharClass() = 0;
 	virtual void onNegate() = 0;

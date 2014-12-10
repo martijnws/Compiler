@@ -13,14 +13,16 @@ namespace mws {
 
 const char* g_regexCol[] =
 {
-    "  *",
-    "[0-9][0-9]*",
+    "[ \t\n]+",
+    "[0-9]+",
     "if",
     "else",
     "break",
     "continue",
     "class",
-    "[a-zA-Z_][a-zA-Z0-9_]*",
+    // Note: let a = a-zA-Z0-9, b = _
+    // the pattern (a|b)*a(a|b)* reduces to b*a(a|b)*
+    "[a-zA-Z_]_*[a-zA-Z0-9][a-zA-Z0-9_]*",
     "{",
     "}",
     ";"
@@ -115,7 +117,6 @@ Token Lexer::next()
         if (n->_accept)
         {
             regex = std::min(regex, n->_regex);
-            //std::cout << "accept = " << this->regex(n->_regex) << std::endl;
         }
     }
 

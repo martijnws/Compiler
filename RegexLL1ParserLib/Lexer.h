@@ -17,7 +17,9 @@ public:
 		}
 
 		_map['|' ] = Token::Type::Choice;
+        _map['?' ] = Token::Type::ZeroOrOne;
 		_map['*' ] = Token::Type::ZeroToMany;
+        _map['+' ] = Token::Type::OneToMany;
 		_map['(' ] = Token::Type::SubExprB;
 		_map[')' ] = Token::Type::SubExprE;
 		_map['[' ] = Token::Type::CharClassB;
@@ -87,7 +89,7 @@ public:
 			c = _buf.next();
 
 			Token::Type type = _map.type(c);
-            // only supported escape seq is '\\'
+            // supported escape seq is '\\' or '\<operator>'
 			if (type == Token::Type::Symbol && c != '\\' || type == Token::Type::Eof)
 			{
 				throw common::Exception("invalid escape sequence");

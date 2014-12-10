@@ -73,7 +73,7 @@ struct Production
 	bool                             _derivesEmpty;
 };
 
-enum NonTerminal { Start, Choice, ChoiceT, Concat, ConcatT, Term, ZeroToManyO, Factor, CharClass, RngConcat, RngConcatT, Rng, RngT, Option };
+enum NonTerminal { Start, Choice, ChoiceT, Concat, ConcatT, Term, QuantifierO, ZeroOrOne, ZeroToMany, OneToMany, Factor, CharClass, RngConcat, RngConcatT, Rng, RngT, Option };
 
 GrammarSymbol n(uint32_t type_);
 

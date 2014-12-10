@@ -75,7 +75,6 @@ public:
         }
 
         return rkSet;
-        //return getDisjointRangeSet(rkVec);
     }
 
     static DFATraits<NFANode>::DFANode* createStartNode(const NFANode* n_)
