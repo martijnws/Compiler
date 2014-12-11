@@ -94,8 +94,20 @@ public:
     static DFATraits<NFANode>::DFANode* createStartNode(const NFANode* n_)
     {
         auto d = new DFANode();
-        d->insert(n_);
-        e_closure(d);
+
+        // only insert if n_ is important (has non-E transitions)
+        for (const auto& kvpair : n_->_transitionMap)
+        {
+            if (kvpair.first._l != NFA::E)
+            {
+                d->insert(n_);
+                break;
+            }
+        }
+
+        auto range = n_->_transitionMap.equal_range(NFA::E);
+        e_closure(range.first, range.second, d);
+
         return d;
     }
 };
