@@ -34,23 +34,37 @@ public:
         }
     }
 
-    static void e_closure(const NFANode* n_, DFANode* d_)
+    static std::size_t e_closure(NFANode::Map::const_iterator itr_, NFANode::Map::const_iterator end_, DFANode* d_)
     {
-        auto range = n_->_transitionMap.equal_range(NFA::E);
+        std::size_t count = 0;
 
-        for (auto itr = range.first; itr != range.second; ++itr)
+        for ( ; itr_ != end_; ++itr_)
         {
-            auto n = itr->second;
-            d_->insert(n);
-            e_closure(n, d_);
+            ++count;
+            auto n = itr_->second;
+
+            auto range = n->_transitionMap.equal_range(NFA::E);
+            
+            // Optimization: n is only inserted if it is an 'important' state. If n contains only E transitions
+            // it is dead wood which slows down processing
+
+            // size == 0: must include n because no out transitions indicate n is a final state
+            // size != E transition count: must include n because n contains non-E transitions (n is 'important')
+            if (n->_transitionMap.size() == 0 || e_closure(range.first, range.second, d_) != n->_transitionMap.size())
+            {
+                d_->insert(n);
+            }
         }
+
+        return count;
     }
 
     static DFANode* e_closure(DFANode* d_)
     {
         for (auto n : d_->_items)
         {
-            e_closure(n, d_);
+            auto range = n->_transitionMap.equal_range(NFA::E);
+            e_closure(range.first, range.second, d_);
         }
 
         return d_;
