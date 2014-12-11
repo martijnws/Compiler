@@ -8,6 +8,7 @@
 #include <FA/DFAInfoBuilderVisitor.h>
 #include <FA/AlphabetVisitor.h>
 #include <FA/DFABuilder.h>
+#include <FA/DFAMinimize.h>
 #include <FA/DFAFromFirstFollowPosConvTraits.h>
 #include <FA/DFAFromNFAConvTraits.h>
 #include <RegexLL1ParserLib/TableDrivenParser.h>
@@ -47,10 +48,12 @@ int _tmain(int argc, _TCHAR* argv[])
         mws::AlphabetVisitor alphabetVisitor;
         root->accept(alphabetVisitor);
 
-        mws::NFABuilderVisitor visitor(mws::getDisjointRangeSet(alphabetVisitor._rkVec));
+        std::set<mws::RangeKey, mws::RangeKey::Less> rkSet = mws::getDisjointRangeSet(alphabetVisitor._rkVec);
+
+        mws::NFABuilderVisitor visitor(rkSet);
         using DFAItem = mws::NFANode;
         
-        //mws::DFAInfoBuilderVisitor visitor(mws::getDisjointRangeSet(alphabetVisitor._rkVec));;
+        //mws::DFAInfoBuilderVisitor visitor(rkSet);
         //using DFAItem = mws::DFAInfo;
         
         using DFANode = mws::DFANode<DFAItem>;
@@ -61,6 +64,7 @@ int _tmain(int argc, _TCHAR* argv[])
         auto a = visitor.acceptState();
 
         DFANode* dfa = mws::convert(s);
+        mws::minimize(dfa, rkSet);
 
         const char* str1 = "abc@##^def";
         const char* str2 = "abcaabaaabaaababaaabbb";

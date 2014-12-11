@@ -149,6 +149,7 @@
     <ClInclude Include="DFAFromNFAConvTraits.h" />
     <ClInclude Include="DFAInfo.h" />
     <ClInclude Include="DFAInfoBuilderVisitor.h" />
+    <ClInclude Include="DFAMinimize.h" />
     <ClInclude Include="DFANode.h" />
     <ClInclude Include="FABuilderVisitorBase.h" />
     <ClInclude Include="Lexer.h" />

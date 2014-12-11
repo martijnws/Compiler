@@ -24,6 +24,7 @@
     <ClInclude Include="ToStringVisitor.h" />
     <ClInclude Include="FABuilderVisitorBase.h" />
     <ClInclude Include="AlphabetVisitor.h" />
+    <ClInclude Include="DFAMinimize.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DFAInfoBuilderVisitor.cpp" />

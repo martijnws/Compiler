@@ -4,6 +4,7 @@
 #include "NFABuilderVisitor.h"
 #include "AlphabetVisitor.h"
 #include "DFABuilder.h"
+#include "DFAMinimize.h"
 #include "DFAFromNFAConvTraits.h"
 #include <RegexLL1ParserLib/Parser.h>
 #include <SyntaxTreeLib/SyntaxNode.h>
@@ -71,6 +72,8 @@ Lexer::Lexer(std::istream& is_)
     }
 
     _dfa = mws::convert(nS);
+
+    mws::minimize(_dfa, rkSet);
 }
    
 const char* Lexer::regex(std::size_t type) const
