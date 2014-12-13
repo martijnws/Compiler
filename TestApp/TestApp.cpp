@@ -56,14 +56,15 @@ int _tmain(int argc, _TCHAR* argv[])
         //mws::DFAInfoBuilderVisitor visitor(rkSet);
         //using DFAItem = mws::DFAInfo;
         
-        using DFANode = mws::DFANode<DFAItem>;
+        //using DFANode = mws::DFANode<DFAItem>;
 
         root->accept(visitor);
 
         auto s = visitor.startState();
         auto a = visitor.acceptState();
 
-        DFANode* dfa = mws::convert(s);
+        mws::DFANode* dfa = mws::convert(s);
+        dfa->_regexID = a->_regexID;
         mws::minimize(dfa, rkSet);
 
         const char* str1 = "abc@##^def";

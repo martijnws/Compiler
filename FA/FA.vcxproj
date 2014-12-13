@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClCompile Include="AlphabetVisitor.cpp" />
     <ClCompile Include="DFAInfoBuilderVisitor.cpp" />
+    <ClCompile Include="DFAMinimize.cpp" />
     <ClCompile Include="FABuilderVisitorBase.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="NFABuilderVisitor.cpp" />

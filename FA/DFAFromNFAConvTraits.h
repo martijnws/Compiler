@@ -4,6 +4,7 @@
 #include "DFANode.h"
 #include <cassert>
 #include <set>
+#include <iterator>
 
 namespace mws {
 
@@ -15,9 +16,8 @@ class DFATraits<NFANode>
 {
 public:
     using Item = NFANode;
-    using DFANode = mws::DFANode<Item>;
-
-    static void c_closure(const NFANode* n_, const RangeKey& rk_, DFANode* d_)
+   
+    static void c_closure(const Item* n_, const RangeKey& rk_, std::set<const Item*>& itemSet_)
     {
         assert(rk_._l != NFA::E);
 
@@ -30,11 +30,11 @@ public:
             assert(rk_._l >= itr->first._l && rk_._h <= itr->first._h);
 
             auto n = itr->second;
-            d_->insert(n);
+            itemSet_.insert(n);
         }
     }
 
-    static std::size_t e_closure(NFANode::Map::const_iterator itr_, NFANode::Map::const_iterator end_, DFANode* d_)
+    static std::size_t e_closure(NFANode::Map::const_iterator itr_, NFANode::Map::const_iterator end_, std::set<const Item*>& itemSet_)
     {
         std::size_t count = 0;
 
@@ -50,31 +50,31 @@ public:
 
             // size == 0: must include n because no out transitions indicate n is a final state
             // size != E transition count: must include n because n contains non-E transitions (n is 'important')
-            if (n->_transitionMap.size() == 0 || e_closure(range.first, range.second, d_) != n->_transitionMap.size())
+            if (n->_transitionMap.size() == 0 || e_closure(range.first, range.second, itemSet_) != n->_transitionMap.size())
             {
-                d_->insert(n);
+                itemSet_.insert(n);
             }
         }
 
         return count;
     }
 
-    static DFANode* e_closure(DFANode* d_)
+    static std::set<const Item*> e_closure(std::set<const Item*>& itemSet_)
     {
-        for (auto n : d_->_items)
+        for (auto n : itemSet_)
         {
             auto range = n->_transitionMap.equal_range(NFA::E);
-            e_closure(range.first, range.second, d_);
+            e_closure(range.first, range.second, itemSet_);
         }
 
-        return d_;
+        return itemSet_;
     }
 
-    static std::set<RangeKey, RangeKey::Less> getTransitionCharSet(const DFANode* d_)
+    static std::set<RangeKey, RangeKey::Less> getTransitionCharSet(const std::set<const Item*>& itemSet_)
     {
         std::set<RangeKey, RangeKey::Less> rkSet;
 
-        for (const auto& n : d_->_items)
+        for (const auto& n : itemSet_)
         {
             for (const auto& kvpair : n->_transitionMap)
             {
@@ -91,24 +91,24 @@ public:
         return rkSet;
     }
 
-    static DFATraits<NFANode>::DFANode* createStartNode(const NFANode* n_)
+    static std::set<const Item*> createStartNode(const Item* n_)
     {
-        auto d = new DFANode();
+        std::set<const Item*> itemSet;
 
         // only insert if n_ is important (has non-E transitions)
         for (const auto& kvpair : n_->_transitionMap)
         {
             if (kvpair.first._l != NFA::E)
             {
-                d->insert(n_);
+                itemSet.insert(n_);
                 break;
             }
         }
 
         auto range = n_->_transitionMap.equal_range(NFA::E);
-        e_closure(range.first, range.second, d);
+        e_closure(range.first, range.second, itemSet);
 
-        return d;
+        return itemSet;
     }
 };
 

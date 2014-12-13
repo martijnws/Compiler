@@ -5,51 +5,63 @@
 #include <map>
 #include <cassert>
 #include <iostream>
+#include <memory>
 
 namespace mws {
 
-template<typename Item>
 class DFANode
 {
 public:
-    using ItemSet = std::set<const Item*>;
-    using DFANodeMap = std::map<RangeKey, DFANode*, RangeKey::Less>;
+    DFANode(std::size_t regexID_) : _regexID(regexID_){}
 
-    DFANode() : _hash(0){}
+    using Map = std::map<RangeKey, DFANode*, RangeKey::Less>;
 
-    void insert(const Item* item_)
+    bool accept() const
     {
-        _items.insert(item_);
+        return _regexID != -1;
     }
 
-    void calculateHash()
+    Map _transitionMap;
+    std::size_t _regexID;
+};
+
+template<typename Item>
+class ItemSet
+{
+    ItemSet() = delete;
+    ItemSet(const ItemSet<Item>&) = delete;
+    ItemSet<Item>& operator = (const ItemSet<Item>&) = delete;
+    ItemSet<Item>& operator = (ItemSet<Item>&&) = delete;
+
+public:
+    using Ptr = ItemSet<Item>*;
+    using Set = std::set<const Item*>;
+
+    ItemSet(std::set<const Item*>&& rhs_) : _items(std::move(rhs_))
     {
-        // not a tested and proven hash (its rubbish!) but good enough for now
-        std::hash<const Item*> hash;
-            
-        for (const Item* n : _items)
-        {
-            _hash <<= 1;
-            _hash += hash(n);
-            _hash >>= 1;
-        }
+        calculateHash();
+    }
+
+    inline bool empty() const
+    {
+        return _items.empty();
     }
 
     class Hash
     {
     public:
      
-        std::size_t operator()(const DFANode* d_) const
+        std::size_t operator()(const Ptr& itemSet_) const
         {
-            assert(d_->_hash != 0);
-            return d_->_hash;
+            assert(itemSet_->_hash != 0);
+            return itemSet_->_hash;
         }
     };
 
     class Pred
     {
     public:
-        bool operator()(const DFANode* lhs_, const DFANode* rhs_) const
+        bool operator()(const Ptr& lhs_, const Ptr& rhs_) const
         {
             if (lhs_->_items.size() != rhs_->_items.size())
             {
@@ -72,8 +84,24 @@ public:
         }
     };
 
-    DFANodeMap  _transitionMap;
-    ItemSet     _items;
+private:
+   void calculateHash()
+    {
+        _hash = 0;
+
+        // not a tested and proven hash (its rubbish!) but good enough for now
+        std::hash<const Item*> hash;
+            
+        for (const Item* n : _items)
+        {
+            _hash <<= 1;
+            _hash += hash(n);
+            _hash >>= 1;
+        }
+    }
+
+public:
+    Set         _items;
     std::size_t _hash;
 };
 

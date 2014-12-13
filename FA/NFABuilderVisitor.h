@@ -27,7 +27,7 @@ public:
 
     NFANode* acceptState() 
     { 
-        _result._f->_accept = true;
+        _result._f->_regexID = 0;
         return _result._f; 
     }
 

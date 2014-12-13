@@ -33,5 +33,6 @@
     <ClCompile Include="ToStringVisitor.cpp" />
     <ClCompile Include="FABuilderVisitorBase.cpp" />
     <ClCompile Include="AlphabetVisitor.cpp" />
+    <ClCompile Include="DFAMinimize.cpp" />
   </ItemGroup>
 </Project>

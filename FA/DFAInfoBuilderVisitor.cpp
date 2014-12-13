@@ -163,6 +163,7 @@ DFAInfo* DFAInfoBuilderVisitor::startState() const
 DFAInfo* DFAInfoBuilderVisitor::acceptState() const
 {
     static DFAInfo n;
+    n._regexID = 0;
     n._isNullable = true;
     n._firstPos.insert(&n);
     n._lastPos.insert(&n);

@@ -12,11 +12,15 @@ class NFANode
 public:
     using Map = std::multimap<RangeKey, NFANode*, RangeKey::Less>;
 
-    NFANode() : _accept(false), _regex(0){}
+    NFANode() : _regexID(-1){}
+
+    bool accept() const
+    {
+        return _regexID != -1;
+    }
 
     Map         _transitionMap;
-    bool        _accept;
-    std::size_t _regex;
+    std::size_t _regexID;
 };
 
 class NFA

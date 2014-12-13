@@ -65,8 +65,7 @@ Lexer::Lexer(std::istream& is_)
         root->accept(visitor);
 
         std::unique_ptr<NFANode> s(visitor.startState());
-        visitor.acceptState()->_accept = true;
-        visitor.acceptState()->_regex = i;
+        visitor.acceptState()->_regexID = i;
 
         nS->_transitionMap.insert(s->_transitionMap.begin(), s->_transitionMap.end());
     }
@@ -99,36 +98,27 @@ Token Lexer::next()
     }
 
     // restart dfa from beginning for each token
-    DFANode* dfa = _dfa;
+    DFANode* d = _dfa;
    
     for (auto c = _buf.next(); c != '\0'; c = _buf.next())
     {
-        auto itr = dfa->_transitionMap.find(c);
-        if (itr == dfa->_transitionMap.end())
+        auto itr = d->_transitionMap.find(c);
+        if (itr == d->_transitionMap.end())
         {
             _buf.retract(1);
             break;
         }
 
         t._lexeme += c;
-        dfa = itr->second;
+        d = itr->second;
     }
 
-    std::size_t regex = -1;
-    for (auto n : dfa->_items)
-    {
-        if (n->_accept)
-        {
-            regex = std::min(regex, n->_regex);
-        }
-    }
-
-    if (regex == (std::size_t)-1)
+    if (d->_regexID == -1)
     {
         throw common::Exception("Invalid Token");
     }
 
-    t._type = regex;
+    t._type = d->_regexID;
     return t;
 }
 

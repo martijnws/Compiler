@@ -2,71 +2,96 @@
 
 #include "NFA.h"
 #include "DFANode.h"
-#include <unordered_set>
+#include <unordered_map>
 #include <memory>
 
 namespace mws {
 
-template<typename Item>
-using DFANodeSet = std::unordered_set<DFANode<Item>*, typename DFANode<Item>::Hash, typename DFANode<Item>::Pred>;
 
 template<typename Item>
-DFANode<Item>* move(DFANode<Item>* dSrc_, const RangeKey& rk_)
+using DFANodeMap = std::unordered_map<typename ItemSet<Item>::Ptr, DFANode*, typename ItemSet<Item>::Hash, typename ItemSet<Item>::Pred>;
+
+template<typename Item>
+std::size_t getAcceptRegexID(const std::set<const Item*>& itemSet_)
 {
-    auto dDst = new DFANode<Item>();
-
-    for (const Item* n : dSrc_->_items)
+    std::size_t regexID = -1;
+    for (auto n : itemSet_)
     {
-        DFATraits<Item>::c_closure(n, rk_, dDst);
+        if (n->accept())
+        {
+            regexID = std::min(regexID, n->_regexID);
+        }
     }
 
-    return dDst;
+    return regexID;
 }
 
 template<typename Item>
-void convert(DFANode<Item>* dSrc_, DFANodeSet<Item>& dfaNodes_)
+std::set<const Item*> move(const std::set<const Item*>& srcItemSet_, const RangeKey& rk_)
+{
+    std::set<const Item*> dstItemSet;
+
+    for (const Item* n : srcItemSet_)
+    {
+        DFATraits<Item>::c_closure(n, rk_, dstItemSet);
+    }
+
+    return dstItemSet;
+}
+
+template<typename Item>
+void convert(DFANode* dSrc_, const std::set<const Item*> srcItemSet_, DFANodeMap<Item>& dfaNodes_)
 {
     // obtain all disjoint ranges for which dSrc contains outgoing transitions
-    std::set<RangeKey, RangeKey::Less> rkSet = DFATraits<Item>::getTransitionCharSet(dSrc_);
+    std::set<RangeKey, RangeKey::Less> rkSet = DFATraits<Item>::getTransitionCharSet(srcItemSet_);
 
     for (const auto& rk : rkSet)
     {
-        DFANode<Item>* dDst = DFATraits<Item>::e_closure(move<Item>(dSrc_, rk));
+        auto dstItemSet = new ItemSet<Item>(DFATraits<Item>::e_closure(move<Item>(srcItemSet_, rk)));
 
         // this condition holds because we just checked each c has a transition for some n in d
-        assert(!dDst->_items.empty());
+        assert(!dstItemSet->empty());
 
-        dDst->calculateHash();
-        auto res = dfaNodes_.insert(dDst);
-        // Ensure we link to DFANode in the map. This node will be different from dDst if an equivalent DFANode is already in the map
-        dSrc_->_transitionMap.insert(std::make_pair(rk, *res.first));
+        auto res = dfaNodes_.insert(std::make_pair(dstItemSet, nullptr));
+        // If we have an equivalent node in the map already, use it instead.
+        DFANode* dDst = res.first->second;
+        assert(res.second || dDst);
 
-        // There is an equivalent DFANode in the map already
-        if (!res.second)
+        if (res.second)
         {
-            delete dDst;
-            continue;
-        }
+            dDst = new DFANode(getAcceptRegexID(dstItemSet->_items));
+            res.first->second = dDst;
 
-        convert(dDst, dfaNodes_);
+            convert(dDst, dstItemSet->_items, dfaNodes_);
+        }
+       
+        assert(dDst);
+        dSrc_->_transitionMap.insert(std::make_pair(rk, dDst));
     }
 }
 
 template<typename Item>
-DFANode<Item>* convert(const Item* n_)
+DFANode* convert(const Item* n_)
 {
-    DFANode<Item>* d(DFATraits<Item>::createStartNode(n_));
+    auto itemSet = new ItemSet<Item>(DFATraits<Item>::createStartNode(n_));
 
-    DFANodeSet<Item> dfaNodes;
-    d->calculateHash();
-    dfaNodes.insert(d);
-    convert(d, dfaNodes);
+    auto d = new DFANode(getAcceptRegexID(itemSet->_items));
+
+    DFANodeMap<Item> dfaNodes;
+    dfaNodes.insert(std::make_pair(itemSet, d));
+    
+    convert(d, itemSet->_items, dfaNodes);
+
+    for (auto& kvpair : dfaNodes)
+    {
+        delete kvpair.first;
+    }
 
     return d;
 }
 
 template<typename Item>
-bool match(const DFANode<Item>* d_, const Item* nEnd_, const std::string& str_)
+bool match(const DFANode* d_, const Item* nAccept_, const std::string& str_)
 {
     for (char c : str_)
     {
@@ -79,20 +104,20 @@ bool match(const DFANode<Item>* d_, const Item* nEnd_, const std::string& str_)
         d_ = itr->second;
     }
 
-    return d_->_items.find(nEnd_) != d_->_items.end();
+    return d_->_regexID == nAccept_->_regexID;
 }
 
 template<typename Item>
-bool simulate(const Item* nBeg_, const Item* nEnd_, const std::string& str_)
+bool simulate(const Item* nBeg_, const Item* nAccept_, const std::string& str_)
 {
-    std::unique_ptr<DFANode<Item>> d(DFATraits<Item>::createStartNode(nBeg_));
+    std::set<const Item*> itemSet(DFATraits<Item>::createStartNode(nBeg_));
 
     for (char c : str_)
     {
-        d.reset(DFATraits<Item>::e_closure(move<Item>(d.get(), c)));
+        itemSet.swap(DFATraits<Item>::e_closure(move<Item>(itemSet, c)));
     }
 
-    return d->_items.find(nEnd_) != d->_items.end();
+    return itemSet.find(nAccept_) != itemSet.end();
 }
 
 }

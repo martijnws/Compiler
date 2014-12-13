@@ -17,8 +17,6 @@ public:
 class Lexer
 {
 public:
-    using DFANode = DFANode<NFANode>;
-
     Lexer(std::istream& is_);
    
     const char* regex(std::size_t type) const;

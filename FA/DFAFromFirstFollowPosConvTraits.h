@@ -15,9 +15,8 @@ class DFATraits<DFAInfo>
 { 
 public:
     using Item = DFAInfo;
-    using DFANode = mws::DFANode<Item>;
-   
-    static void c_closure(const DFAInfo* n_, const RangeKey& rk_, DFANode* d_)
+    
+    static void c_closure(const Item* n_, const RangeKey& rk_, std::set<const Item*>& itemSet_)
     {
         assert(rk_._l != NFA::E);
        
@@ -25,24 +24,24 @@ public:
         if (!less(n_->_lexeme, rk_._l) && !less(rk_._l, n_->_lexeme))
         {
             assert(!n_->_followPos.empty());
-            d_->_items.insert(n_->_followPos.begin(), n_->_followPos.end());
+            itemSet_.insert(n_->_followPos.begin(), n_->_followPos.end());
         }
     }
 
-    static void e_closure(const DFAInfo* n_, DFANode* d_)
+    static void e_closure(const Item* n_, std::set<const Item*>& itemSet_)
     {
     
     }
 
-    static DFATraits<DFAInfo>::DFANode* e_closure(DFANode* d_)
+    static std::set<const Item*> e_closure(std::set<const Item*>& itemSet_)
     {
-        return d_;
+        return itemSet_;
     }
 
-    static std::set<RangeKey, RangeKey::Less> getTransitionCharSet(const DFANode* d_)
+    static std::set<RangeKey, RangeKey::Less> getTransitionCharSet(const std::set<const Item*>& itemSet_)
     {
         std::set<RangeKey, RangeKey::Less> rkSet;
-        for (auto n : d_->_items)
+        for (auto n : itemSet_)
         {
             assert(n->_lexeme._l != NFA::E);
             if (!n->_followPos.empty())
@@ -54,11 +53,11 @@ public:
         return rkSet;
     }
 
-    static DFATraits<DFAInfo>::DFANode* createStartNode(const DFAInfo* n_)
+    static std::set<const Item*> createStartNode(const Item* n_)
     {
-        auto d = new DFANode();
-        d->_items.insert(n_->_firstPos.begin(), n_->_firstPos.end());
-        return d;
+        std::set<const Item*> itemSet;
+        itemSet.insert(n_->_firstPos.begin(), n_->_firstPos.end());
+        return itemSet;
     }
 };
 
