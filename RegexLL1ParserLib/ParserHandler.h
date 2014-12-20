@@ -9,16 +9,6 @@ class ParserHandler
     public grammar::Handler
 {
 public:
-    class Enum
-    {
-    public:
-        enum N { onEof, onChoice, onConcat, onZeroOrOne, onZeroToMany, onOneToMany, onCharClass, onNegate, onRngConcat, onRng };
-        enum T { onSymbol, onCharClassSymbol };
-    };
-
-	void onNonTerminal(uint8_t type_) override;
-	void onTerminal(uint8_t type_, const grammar::Token& t_) override;
-
     virtual void onEof() = 0;
 	virtual void onChoice() = 0;
 	virtual void onConcat() = 0;
@@ -31,9 +21,6 @@ public:
     virtual void onRngConcat() = 0;
 	virtual void onRng() = 0;
     virtual void onCharClassSymbol(const grammar::Token& t_) = 0;
-
-private:
-    
 };
 
 }}}

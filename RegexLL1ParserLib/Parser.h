@@ -31,6 +31,7 @@ namespace mws { namespace td { namespace LL1 {
 class Parser
 {
 public:
+    
 	Parser(std::istream& is_)
 		: _buf(is_), _cur({ grammar::Token::None, 0 })
 

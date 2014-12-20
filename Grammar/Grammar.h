@@ -20,7 +20,6 @@ using Parse      = std::function<void (Handler&, const Grammar&, const GrammarSy
 using Action     = std::function<void (Handler&, const Token&, TokenStore&)>;
 
 
-
 class GrammarSymbol
 {
 public:
@@ -35,6 +34,7 @@ public:
 	Action  _action;
     Parse   _parse;
 };
+
 
 class Production
 {
@@ -131,28 +131,28 @@ inline GrammarSymbol n(uint32_t type_, Action action_, Parse parse_)
 }
 
 
-Action
-inline an(uint8_t gsType_)
+template<typename H>
+Action inline a(void (H::*action_)())
 {
-    return [gsType_](Handler& h_, const Token& t_, TokenStore& store_) { h_.onNonTerminal(gsType_); };
+    return [action_](Handler& h_, const Token& t_, TokenStore& store_) { (static_cast<H&>(h_).*action_)(); };
 }
 
-Action 
-inline at(uint8_t gsType_)
+template<typename H>
+Action inline a(void (H::*action_)(const Token& t_))
 {
-    return [gsType_](Handler& h_, const Token& t_, TokenStore& store_) { h_.onTerminal(gsType_, t_); };
+    return [action_](Handler& h_, const Token& t_, TokenStore& store_) { (static_cast<H&>(h_).*action_)(t_); };
 }
 
-Action
-inline a_set(uint8_t index_)
+
+Action inline a_set(uint8_t index_)
 {
-    return [index_](Handler& h_, const Token& t_, TokenStore& store_) { h_.put(index_, t_); };
+    return [index_](Handler& h_, const Token& t_, TokenStore& store_) { store_.put(index_, t_); };
 }
 
-Action
-inline a_get(uint8_t gsType_, uint8_t index_)
+template<typename H>
+Action inline a_get(void (H::*action_)(const Token& t_), uint8_t index_)
 {
-    return [gsType_, index_](Handler& h_, const Token& t_, TokenStore& store_) { h_.onTerminal(gsType_, h_.get(index_)); };
+    return [action_, index_](Handler& h_, const Token& t_, TokenStore& store_) { (static_cast<H&>(h_).*action_)(store_.get(index_)); };
 }
 
 }}

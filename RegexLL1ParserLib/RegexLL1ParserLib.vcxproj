@@ -149,7 +149,6 @@
     <ClInclude Include="Token.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ParserHandler.cpp" />
     <ClCompile Include="ParserTable.cpp" />
     <ClCompile Include="Grammar.cpp" />
   </ItemGroup>

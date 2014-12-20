@@ -24,6 +24,5 @@
   <ItemGroup>
     <ClCompile Include="ParserTable.cpp" />
     <ClCompile Include="Grammar.cpp" />
-    <ClCompile Include="ParserHandler.cpp" />
   </ItemGroup>
 </Project>

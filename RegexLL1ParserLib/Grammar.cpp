@@ -15,7 +15,7 @@ using namespace grammar;
 
 using T = Token::Enum;
 using N = NonTerminal;
-using H = ParserHandler::Enum;
+using H = ParserHandler;
 
 template<typename P>
 grammar::Parse parse()
@@ -39,12 +39,12 @@ grammar::Grammar& getGrammar()
 
     NT("Choice",      { { n(N::Concat), n(N::ChoiceT) } }),
 
-    NT("ChoiceT",     { { t(T::Choice), n(N::Concat, an(H::N::onChoice)), n(N::ChoiceT) },
+    NT("ChoiceT",     { { t(T::Choice), n(N::Concat, a(&H::onChoice)), n(N::ChoiceT) },
                         { e() } }),
 
     NT("Concat",      { { n(N::Term), n(N::ConcatT) } }),
 
-    NT("ConcatT",     { { n(N::Term, an(H::N::onConcat)), n(N::ConcatT) },
+    NT("ConcatT",     { { n(N::Term, a(&H::onConcat)), n(N::ConcatT) },
                         { e() } }),
 
     NT("Term",        { { n(N::Factor), n(N::QuantifierO) } }),
@@ -54,32 +54,32 @@ grammar::Grammar& getGrammar()
                         { n(N::OneToMany) },
                         { e() } }),
 
-    NT("ZeroOrOne",   { { t(T::ZeroOrOne, an(H::N::onZeroOrOne)) } }),
+    NT("ZeroOrOne",   { { t(T::ZeroOrOne, a(&H::onZeroOrOne)) } }),
 
-    NT("ZeroToMany",  { { t(T::ZeroToMany, an(H::N::onZeroToMany)) } }),
+    NT("ZeroToMany",  { { t(T::ZeroToMany, a(&H::onZeroToMany)) } }),
 
-    NT("OneToMany",   { { t(T::OneToMany, an(H::N::onOneToMany)) } }),
+    NT("OneToMany",   { { t(T::OneToMany, a(&H::onOneToMany)) } }),
 
-    NT("Factor",      { { t(T::Symbol, at(H::T::onSymbol)) },
-                        { t(T::CharClassB, false), n(N::CharClass, an(H::N::onCharClass), parse<ParserDriver<CharClassLexer>>()), t(T::CharClassE) },
+    NT("Factor",      { { t(T::Symbol, a(&H::onSymbol)) },
+                        { t(T::CharClassB, false), n(N::CharClass, a(&H::onCharClass), parse<ParserDriver<CharClassLexer>>()), t(T::CharClassE) },
                         { t(T::SubExprB), n(N::Choice), t(T::SubExprE) } }),
 
     NT("CharClass",   { { n(N::RngConcat) },
                         { n(N::CharClassNeg) } }),
 
-    NT("CharClassNeg",  { { t(T::CharClassNeg), n(N::RngConcat, an(H::N::onNegate)) } }),
+    NT("CharClassNeg",  { { t(T::CharClassNeg), n(N::RngConcat, a(&H::onNegate)) } }),
 
     NT("RngConcat",     { { n(N::Rng), n(N::RngConcatT) } }),
                     
-    NT("RngConcatT",    { { n(N::Rng, an(H::N::onRngConcat)), n(N::RngConcatT) },
+    NT("RngConcatT",    { { n(N::Rng, a(&H::onRngConcat)), n(N::RngConcatT) },
                         { e() } }),
 
     NT("Rng",         { { n(N::Option), n(N::RngT) } }),
 
-    NT("RngT",        { { t(T::RngSep), n(N::Option, an(H::N::onRng)) },
+    NT("RngT",        { { t(T::RngSep), n(N::Option, a(&H::onRng)) },
                         { e() } }),
 
-    NT("Option",      { { t(T::Symbol, at(H::T::onCharClassSymbol)) } }),
+    NT("Option",      { { t(T::Symbol, a(&H::onCharClassSymbol)) } }),
 
     };
 
