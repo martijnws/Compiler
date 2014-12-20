@@ -1,7 +1,8 @@
 #pragma once
 
-#include "RegexParser.h"
-#include "TableDrivenParser.h"
+#include "ParserDriver.h"
+#include "ParserTable.h"
+#include "Grammar.h"
 #include <CommonLib/Buffer.h>
 #include <SyntaxTreeLib/SyntaxTreeBuilder.h>
 #include <iostream>
@@ -27,13 +28,11 @@
 
 namespace mws { namespace td { namespace LL1 {
 
-using Buf = common::Buffer<256>;
-
 class Parser
 {
 public:
 	Parser(std::istream& is_)
-		: _buf(is_), _cur({ Token::Type::None, '\0' })
+		: _buf(is_), _cur({ grammar::Token::None, 0 })
 
 	{
 	
@@ -42,12 +41,14 @@ public:
 	//TODO: make void and handle exception in caller (fix unittests appropriately)
 	bool parse()
 	{
+        static grammar::Grammar& g = getGrammar();
+        static ParserTable parserTable(g, LL1::Token::Enum::Max);
+
 		try
 		{
-			//RegexParser<Buf> parser(_buf, _cur, _astBuilder);
-			ParserDriver<RegexLexer> parser(_buf, _cur, _astBuilder);
+			ParserDriver<RegexLexer> parser(_buf, _cur);
 
-			parser.parse();
+			parser.parse(_astBuilder, g);
 			return true;
 		}
 		catch(const common::Exception& e)
@@ -57,8 +58,8 @@ public:
 		}
 	}
 
-	Buf   _buf;
-	Token _cur;
+	common::Buffer _buf;
+	grammar::Token _cur;
 	ast::SyntaxTreeBuilder _astBuilder;
 };
 

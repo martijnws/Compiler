@@ -24,9 +24,9 @@ public:
     Token next();
 
 private:
-    common::Buffer<256> _buf;
-    DFANode*            _dfa;
-    bool                _eof;
+    common::Buffer _buf;
+    DFANode*       _dfa;
+    bool           _eof;
 };
 
 }

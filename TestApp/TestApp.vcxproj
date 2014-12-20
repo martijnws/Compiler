@@ -157,6 +157,9 @@
     <ProjectReference Include="..\FA\FA.vcxproj">
       <Project>{d7bc63af-c89f-473c-ae15-fbf16e8dbb5b}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Grammar\Grammar.vcxproj">
+      <Project>{1ac8c95b-c925-442e-8bad-04cc0d98a7f9}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\RegexLL1ParserLib\RegexLL1ParserLib.vcxproj">
       <Project>{6704ef8a-bda5-40be-8007-d20652b9ef75}</Project>
     </ProjectReference>

@@ -20,12 +20,12 @@ public:
 	virtual void onZeroOrOne();
 	virtual void onZeroToMany();
     virtual void onOneToMany();
-	virtual void onSymbol(const td::LL1::Token& t_);
+	virtual void onSymbol(const grammar::Token& t_);
 	virtual void onCharClass();
 	virtual void onNegate();
     virtual void onRngConcat();
 	virtual void onRng();
-    virtual void onCharClassSymbol(const td::LL1::Token& t_);
+    virtual void onCharClassSymbol(const grammar::Token& t_);
 
 	SyntaxNode* detach()
 	{

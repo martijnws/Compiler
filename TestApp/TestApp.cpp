@@ -11,15 +11,12 @@
 #include <FA/DFAMinimize.h>
 #include <FA/DFAFromFirstFollowPosConvTraits.h>
 #include <FA/DFAFromNFAConvTraits.h>
-#include <RegexLL1ParserLib/TableDrivenParser.h>
 #include <RegexLL1ParserLib/Parser.h>
 #include <SyntaxTreeLib/SyntaxNode.h>
 #include <sstream>
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	mws::td::LL1::init();
-
     {
         const char* text = "hello world; if bla ___0_   { continue; } else elsbla else1234 { bla 1234 break; }";
         std::stringstream is(text, std::ios_base::in);
@@ -64,7 +61,6 @@ int _tmain(int argc, _TCHAR* argv[])
         auto a = visitor.acceptState();
 
         mws::DFANode* dfa = mws::convert(s);
-        dfa->_regexID = a->_regexID;
         mws::minimize(dfa, rkSet);
 
         const char* str1 = "abc@##^def";

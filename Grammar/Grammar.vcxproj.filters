@@ -10,9 +10,15 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Buffer.h" />
-    <ClInclude Include="Exception.h" />
-    <ClInclude Include="Util.h" />
-    <ClInclude Include="Matrix.h" />
+    <ClInclude Include="TokenStore.h" />
+    <ClInclude Include="Token.h" />
+    <ClInclude Include="Grammar.h" />
+    <ClInclude Include="First.h" />
+    <ClInclude Include="Follow.h" />
+    <ClInclude Include="Handler.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="First.cpp" />
+    <ClCompile Include="Follow.cpp" />
   </ItemGroup>
 </Project>

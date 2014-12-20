@@ -66,7 +66,7 @@ void SyntaxTreeBuilder::onOneToMany()
 	onUnaryOp<OneToMany>(_stack);
 }
 
-void SyntaxTreeBuilder::onSymbol(const td::LL1::Token& t_)
+void SyntaxTreeBuilder::onSymbol(const grammar::Token& t_)
 {
 	push(_stack, new AcceptorImpl<Symbol>(t_._lexeme));
 }
@@ -91,7 +91,7 @@ void SyntaxTreeBuilder::onRng()
 	onBinaryOp<Rng>(_stack);
 }
 
-void SyntaxTreeBuilder::onCharClassSymbol(const td::LL1::Token& t_)
+void SyntaxTreeBuilder::onCharClassSymbol(const grammar::Token& t_)
 {
 	push(_stack, new AcceptorImpl<CharClassSymbol>(t_._lexeme));
 }

@@ -13,13 +13,17 @@
     <ClInclude Include="CharClassParser.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="Parser.h" />
-    <ClInclude Include="ParserHandler.h" />
     <ClInclude Include="ParserState.h" />
     <ClInclude Include="RegexParser.h" />
+    <ClInclude Include="ParserHandler.h" />
     <ClInclude Include="Token.h" />
-    <ClInclude Include="TableDrivenParser.h" />
+    <ClInclude Include="ParserDriver.h" />
+    <ClInclude Include="ParserTable.h" />
+    <ClInclude Include="Grammar.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TableDrivenParser.cpp" />
+    <ClCompile Include="ParserTable.cpp" />
+    <ClCompile Include="Grammar.cpp" />
+    <ClCompile Include="ParserHandler.cpp" />
   </ItemGroup>
 </Project>

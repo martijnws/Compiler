@@ -8,10 +8,10 @@
 namespace mws { namespace common {
 
 template<std::size_t Size>
-class Buffer
+class BufferT
 {
 public:
-	Buffer(std::istream& is_)
+	BufferT(std::istream& is_)
 		:
 		_is(is_), _pos(-1), _posReload(0)
 	{
@@ -78,5 +78,7 @@ private:
 	std::size_t _pos;
 	std::size_t _posReload;
 };
+
+using Buffer = BufferT<4096>;
 
 }}

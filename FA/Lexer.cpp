@@ -1,6 +1,5 @@
 #include "Lexer.h"
 
-#include "ToStringVisitor.h"
 #include "NFABuilderVisitor.h"
 #include "AlphabetVisitor.h"
 #include "DFABuilder.h"

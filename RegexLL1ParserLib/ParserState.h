@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Token.h"
+#include <Grammar/Token.h>
 #include <cassert>
 
 namespace mws { namespace td { namespace LL1 {
@@ -9,7 +9,8 @@ template<typename BufferT, typename LexerT>
 class ParserState
 {
 public:
-	ParserState(BufferT& buf_, Token& cur_)
+ 
+	ParserState(BufferT& buf_, grammar::Token& cur_)
 		: _buf(buf_), _cur(cur_), _lexer(buf_)
 	{
 		
@@ -28,10 +29,10 @@ public:
 
 	bool eof() const
 	{
-		return _cur._type == Token::Type::Eof;
+		return _cur._type == grammar::Token::Eof;
 	}
 
-	Token& cur() const
+	grammar::Token& cur() const
 	{
 		return _cur;
 	}
@@ -41,12 +42,12 @@ public:
 		return _buf;
 	}
 
-    void m(Token::Type type_)
+    void m(grammar::Token::Type type_)
 	{
         m(type_, true);
     }
 
-	void m(Token::Type type_, bool fetchNext_)
+	void m(grammar::Token::Type type_, bool fetchNext_)
 	{
 		if (eof() || _cur._type != type_)
 		{
@@ -60,9 +61,9 @@ public:
 	}
 
 private:
-	BufferT& _buf;
-	Token&   _cur;
-	LexerT   _lexer;
+	BufferT&        _buf;
+	grammar::Token& _cur;
+	LexerT          _lexer;
 };
 
 }}}

@@ -1,16 +1,12 @@
 #pragma once
 
+#include <Grammar/Token.h>
+
 namespace mws { namespace td { namespace LL1 {
 
-struct Token
+struct Token : public grammar::Token 
 {
-	enum Type 
-	{
-		None, Symbol, Choice, ZeroOrOne, ZeroToMany, OneToMany, SubExprB, SubExprE, CharClassB, CharClassE, CharClassNeg, RngSep, Eof
-	};
-
-	Type _type;
-	char _lexeme;
+	enum Enum { Eof = grammar::Token::Eof, Symbol, Choice, ZeroOrOne, ZeroToMany, OneToMany, SubExprB, SubExprE, CharClassB, CharClassE, CharClassNeg, RngSep, Max };
 };
 
 }}}

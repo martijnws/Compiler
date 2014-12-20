@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestApp", "TestApp\TestApp.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FA", "FA\FA.vcxproj", "{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Grammar", "Grammar\Grammar.vcxproj", "{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -105,6 +107,18 @@ Global
 		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Release|Win32.Build.0 = Release|Win32
 		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Release|x64.ActiveCfg = Release|x64
 		{D7BC63AF-C89F-473C-AE15-FBF16E8DBB5B}.Release|x64.Build.0 = Release|x64
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Debug|Win32.Build.0 = Debug|Win32
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Debug|x64.ActiveCfg = Debug|x64
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Debug|x64.Build.0 = Debug|x64
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Release|Win32.ActiveCfg = Release|Win32
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Release|Win32.Build.0 = Release|Win32
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Release|x64.ActiveCfg = Release|x64
+		{1AC8C95B-C925-442E-8BAD-04CC0D98A7F9}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

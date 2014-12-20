@@ -9,22 +9,23 @@ namespace mws { namespace td { namespace LL1 {
 class RegexTokenTypeMap
 {
 public:
+   
 	RegexTokenTypeMap()
 	{
 		for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token); ++i)
 		{
-			_map[i] = Token::Type::Symbol;
+			_map[i] = Token::Enum::Symbol;
 		}
 
-		_map['|' ] = Token::Type::Choice;
-        _map['?' ] = Token::Type::ZeroOrOne;
-		_map['*' ] = Token::Type::ZeroToMany;
-        _map['+' ] = Token::Type::OneToMany;
-		_map['(' ] = Token::Type::SubExprB;
-		_map[')' ] = Token::Type::SubExprE;
-		_map['[' ] = Token::Type::CharClassB;
-		_map[']' ] = Token::Type::CharClassE;
-		_map['\0'] = Token::Type::Eof;
+		_map['|' ] = Token::Enum::Choice;
+        _map['?' ] = Token::Enum::ZeroOrOne;
+		_map['*' ] = Token::Enum::ZeroToMany;
+        _map['+' ] = Token::Enum::OneToMany;
+		_map['(' ] = Token::Enum::SubExprB;
+		_map[')' ] = Token::Enum::SubExprE;
+		_map['[' ] = Token::Enum::CharClassB;
+		_map[']' ] = Token::Enum::CharClassE;
+		_map['\0'] = Token::Enum::Eof;
 	}
 
 	Token::Type type(char c_) const
@@ -39,17 +40,18 @@ private:
 class CharClassTokenTypeMap
 {
 public:
+    
 	CharClassTokenTypeMap()
 	{
 		for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token); ++i)
 		{
-			_map[i] = Token::Type::Symbol;
+			_map[i] = Token::Enum::Symbol;
 		}
 
-		_map['^' ] = Token::Type::CharClassNeg;
-		_map['-' ] = Token::Type::RngSep;
-		_map[']' ] = Token::Type::CharClassE;
-		_map['\0'] = Token::Type::Eof;
+		_map['^' ] = Token::Enum::CharClassNeg;
+		_map['-' ] = Token::Enum::RngSep;
+		_map[']' ] = Token::Enum::CharClassE;
+		_map['\0'] = Token::Enum::Eof;
 	}
 
 	Token::Type type(char c_) const
@@ -65,6 +67,7 @@ template<typename DerivedT, typename BufferT, typename TokenTypeMapT>
 class Lexer
 {
 public:
+   
 	Lexer(BufferT& buf_)
 		:
 		_buf(buf_), _lookBehind(2)
@@ -72,16 +75,16 @@ public:
 		
 	}
 
-	Token next()
+	grammar::Token next()
 	{
-		char c = _buf.next();
+		auto c = _buf.next();
 
-		Token t = { Token::Type::None, c };
+		grammar::Token t = { Token::None, c };
 
 		if (c != '\\')
 		{
 			t._type = _map.type(c);
-			DerivedT& derived = static_cast<DerivedT&>(*this);
+			auto& derived = static_cast<DerivedT&>(*this);
 			derived.postProcess(t);
 		}
 		else
@@ -90,13 +93,13 @@ public:
 
 			Token::Type type = _map.type(c);
             // supported escape seq is '\\' or '\<operator>'
-			if (type == Token::Type::Symbol && c != '\\' || type == Token::Type::Eof)
+			if (type == Token::Enum::Symbol && c != '\\' || type == Token::Enum::Eof)
 			{
 				throw common::Exception("invalid escape sequence");
 			}
 			else
 			{
-				t._type = Token::Type::Symbol;
+				t._type = Token::Enum::Symbol;
 			}
 		}
 
@@ -127,7 +130,7 @@ public:
 		
 	}
 
-	void postProcess(Token& t_)
+	void postProcess(grammar::Token& t_)
 	{
 		
 	}
@@ -145,31 +148,31 @@ public:
 		
 	}
 
-	void postProcess(Token& t_)
+	void postProcess(grammar::Token& t_)
 	{
 		//Handle context dependencies of RngSep::lexeme
 
-		if (t_._type == Token::Type::RngSep)
+		if (t_._type == Token::Enum::RngSep)
 		{
 			//peek 1 char ahead
 			char c = _buf.next();
 			_buf.retract(1);
 
-			if (_map.type(c) == Token::Type::CharClassE // -]
+			if (_map.type(c) == Token::Enum::CharClassE // -]
 				||
 				_lookBehind.size() == 0 // [-
 				||
-				_lookBehind.size() == 1 && _lookBehind.back() == Token::Type::CharClassNeg) // [^-
+				_lookBehind.size() == 1 && _lookBehind.back() == Token::Enum::CharClassNeg) // [^-
 			{
-				t_._type = Token::Type::Symbol;
+				t_._type = Token::Enum::Symbol;
 			}
 		}
 		else 
-		if (t_._type == Token::Type::CharClassNeg)
+		if (t_._type == Token::Enum::CharClassNeg)
 		{
 			if (_lookBehind.size() > 0) // [...^
 			{
-				t_._type = Token::Type::Symbol;
+				t_._type = Token::Enum::Symbol;
 			}
 		}
 	}
