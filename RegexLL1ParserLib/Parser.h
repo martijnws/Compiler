@@ -2,7 +2,9 @@
 
 #include "ParserDriver.h"
 #include "ParserTable.h"
-#include "Grammar.h"
+#include <RegexGrammar/Grammar.h>
+#include <RegexGrammar/ParserID.h>
+#include <RegexLexer/Lexer.h>
 #include <CommonLib/Buffer.h>
 #include <SyntaxTreeLib/SyntaxTreeBuilder.h>
 #include <iostream>
@@ -42,14 +44,19 @@ public:
 	//TODO: make void and handle exception in caller (fix unittests appropriately)
 	bool parse()
 	{
-        static grammar::Grammar& g = getGrammar();
-        static ParserTable parserTable(g, LL1::Token::Enum::Max);
+        static grammar::Grammar& g = regex::getGrammar();
+        static ParserTable parserTable(g, regex::Token::Enum::Max);
+
+        // sub parser setup
+        std::vector<std::pair<IParser*, bool>> ccSubParserCol;
+        ParserDriver<regex::CharClassLexer> ccParser(_astBuilder, g, parserTable, ccSubParserCol);
 
 		try
 		{
-			ParserDriver<RegexLexer> parser(_buf, _cur);
+            std::vector<std::pair<IParser*, bool>> reSubParserCol = { std::make_pair(&ccParser, true) };
+			ParserDriver<regex::RegexLexer> parser(_astBuilder, g, parserTable, reSubParserCol);
 
-			parser.parse(_astBuilder, g);
+			parser.parse(_buf, _cur);
 			return true;
 		}
 		catch(const common::Exception& e)

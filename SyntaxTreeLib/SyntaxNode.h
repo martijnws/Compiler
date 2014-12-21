@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Visitor.h"
-#include <RegexLL1ParserLib/Token.h>
+#include <Grammar/Token.h>
 #include <memory>
 
 namespace mws { namespace ast {

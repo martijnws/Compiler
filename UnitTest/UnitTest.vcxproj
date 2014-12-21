@@ -169,6 +169,9 @@
     <ProjectReference Include="..\Grammar\Grammar.vcxproj">
       <Project>{1ac8c95b-c925-442e-8bad-04cc0d98a7f9}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\RegexGrammar\RegexGrammar.vcxproj">
+      <Project>{42a40911-9335-468a-98a8-f6bc646deb16}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\RegexLL1ParserLib\RegexLL1ParserLib.vcxproj">
       <Project>{6704ef8a-bda5-40be-8007-d20652b9ef75}</Project>
     </ProjectReference>

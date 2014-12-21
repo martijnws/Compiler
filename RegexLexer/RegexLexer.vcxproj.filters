@@ -10,15 +10,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CharClassParser.h" />
-    <ClInclude Include="Parser.h" />
-    <ClInclude Include="ParserState.h" />
-    <ClInclude Include="RegexParser.h" />
-    <ClInclude Include="ParserDriver.h" />
-    <ClInclude Include="ParserTable.h" />
-    <ClInclude Include="IParser.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="ParserTable.cpp" />
+    <ClInclude Include="Lexer.h" />
+    <ClInclude Include="Token.h" />
   </ItemGroup>
 </Project>

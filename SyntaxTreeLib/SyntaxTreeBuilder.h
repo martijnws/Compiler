@@ -1,7 +1,6 @@
 #pragma once
 
-#include <RegexLL1ParserLib/Token.h>
-#include <RegexLL1ParserLib/ParserHandler.h>
+#include <RegexGrammar/ParserHandler.h>
 #include <stack>
 #include <cassert>
 
@@ -11,21 +10,21 @@ class SyntaxNode;
 
 class SyntaxTreeBuilder
 	:
-	public td::LL1::ParserHandler
+	public regex::ParserHandler
 {
 public:
-	virtual void onEof();
-	virtual void onChoice();
-	virtual void onConcat();
-	virtual void onZeroOrOne();
-	virtual void onZeroToMany();
-    virtual void onOneToMany();
-	virtual void onSymbol(const grammar::Token& t_);
-	virtual void onCharClass();
-	virtual void onNegate();
-    virtual void onRngConcat();
-	virtual void onRng();
-    virtual void onCharClassSymbol(const grammar::Token& t_);
+	void onEof() override;
+	void onChoice() override;
+	void onConcat() override;
+	void onZeroOrOne() override;
+	void onZeroToMany() override;
+    void onOneToMany() override;
+	void onSymbol(const grammar::Token& t_) override;
+	void onCharClass() override;
+	void onNegate() override;
+    void onRngConcat() override;
+	void onRng() override;
+    void onCharClassSymbol(const grammar::Token& t_) override;
 
 	SyntaxNode* detach()
 	{

@@ -1,13 +1,13 @@
 #include "Grammar.h"
 #include "ParserHandler.h"
-#include "ParserDriver.h"
-#include "CharClassParser.h"
+#include "ParserID.h"
 #include <Grammar/Grammar.h>
 #include <Grammar/First.h>
 #include <Grammar/Follow.h>
+#include <RegexLexer/Token.h>
 #include <functional>
 
-namespace mws { namespace td { namespace LL1 {
+namespace mws { namespace regex {
 
 enum NonTerminal { Start, Choice, ChoiceT, Concat, ConcatT, Term, QuantifierO, ZeroOrOne, ZeroToMany, OneToMany, Factor, CharClass, CharClassNeg, RngConcat, RngConcatT, Rng, RngT, Option };
 
@@ -16,17 +16,6 @@ using namespace grammar;
 using T = Token::Enum;
 using N = NonTerminal;
 using H = ParserHandler;
-
-template<typename P>
-grammar::Parse parse()
-{
-    return [](grammar::Handler& h_, const grammar::Grammar& grammar_, const GrammarSymbol& startSymbol_, common::Buffer& buf_, grammar::Token& t_)
-    {
-        P parser(buf_, t_);
-
-        parser.parse(h_, grammar_, startSymbol_);
-    };
-}
 
 grammar::Grammar& getGrammar()
 {
@@ -61,7 +50,7 @@ grammar::Grammar& getGrammar()
     NT("OneToMany",   { { t(T::OneToMany, a(&H::onOneToMany)) } }),
 
     NT("Factor",      { { t(T::Symbol, a(&H::onSymbol)) },
-                        { t(T::CharClassB, false), n(N::CharClass, a(&H::onCharClass), parse<ParserDriver<CharClassLexer>>()), t(T::CharClassE) },
+                        { t(T::CharClassB, false), n(N::CharClass, a(&H::onCharClass), ParserID::CharClassParser), t(T::CharClassE) },
                         { t(T::SubExprB), n(N::Choice), t(T::SubExprE) } }),
 
     NT("CharClass",   { { n(N::RngConcat) },
@@ -94,4 +83,4 @@ grammar::Grammar& getGrammar()
     return g;
 }
 
-}}}
+}}

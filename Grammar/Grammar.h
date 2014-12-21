@@ -13,26 +13,23 @@ namespace mws { namespace grammar {
 class NT;
 using Grammar = std::vector<NT>;
 
-class GrammarSymbol;
-
-using Parse      = std::function<void (Handler&, const Grammar&, const GrammarSymbol&, common::Buffer&, Token&)>;
-
 using Action     = std::function<void (Handler&, const Token&, TokenStore&)>;
-
 
 class GrammarSymbol
 {
 public:
+    static const uint8_t InvalidParserID = -1;
+
     bool isSubGrammarStartSymbol() const
     {
-        return !!_parse;
+        return _subGrammarParserID != InvalidParserID;
     }
 
 	bool    _isTerminal;
     bool    _fetchNext;
 	uint8_t _type;
+    uint8_t _subGrammarParserID;
 	Action  _action;
-    Parse   _parse;
 };
 
 
@@ -102,32 +99,32 @@ inline Action no_op()
 
 inline GrammarSymbol t(uint32_t type_)
 { 
-    return { true, true, type_, no_op(), Parse() }; 
+    return { true, true, type_, GrammarSymbol::InvalidParserID, no_op()  }; 
 }
 
 inline GrammarSymbol t(uint32_t type_, bool fetchNext_)
 { 
-    return { true, fetchNext_, type_, no_op(), Parse() }; 
+    return { true, fetchNext_, type_, GrammarSymbol::InvalidParserID, no_op() }; 
 }
 
 inline GrammarSymbol t(uint32_t type_, Action action_) 
 { 
-    return { true, true, type_, action_, Parse() }; 
+    return { true, true, type_, GrammarSymbol::InvalidParserID, action_ }; 
 }
 
 inline GrammarSymbol n(uint32_t type_)
 { 
-    return { false, true, type_, no_op(), Parse() }; 
+    return { false, true, type_, GrammarSymbol::InvalidParserID, no_op() }; 
 }
 
 inline GrammarSymbol n(uint32_t type_, Action action_) 
 { 
-    return { false, true, type_, action_, Parse() }; 
+    return { false, true, type_, GrammarSymbol::InvalidParserID, action_ }; 
 }
 
-inline GrammarSymbol n(uint32_t type_, Action action_, Parse parse_)
+inline GrammarSymbol n(uint32_t type_, Action action_, uint8_t parserID_)
 {
-	return { false, true, type_, action_, parse_};
+	return { false, true, type_, parserID_, action_ };
 }
 
 

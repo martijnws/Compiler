@@ -2,7 +2,13 @@
 
 #include <Grammar/Handler.h>
 
-namespace mws { namespace td { namespace LL1 {
+namespace mws { namespace grammar {
+
+struct Token;
+
+}}
+
+namespace mws { namespace regex {
 
 class ParserHandler
 :
@@ -23,4 +29,4 @@ public:
     virtual void onCharClassSymbol(const grammar::Token& t_) = 0;
 };
 
-}}}
+}}

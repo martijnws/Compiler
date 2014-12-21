@@ -4,7 +4,7 @@
 #include <CommonLib/Buffer.h>
 #include <boost/circular_buffer.hpp>
 
-namespace mws { namespace td { namespace LL1 {
+namespace mws { namespace regex {
 
 class RegexTokenTypeMap
 {
@@ -178,4 +178,4 @@ public:
 	}
 };
 
-}}}
+}}
