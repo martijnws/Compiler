@@ -6,6 +6,6 @@ namespace mws {
 
 class DFANode;
 
-void minimize(DFANode* d_, const std::set<RangeKey, RangeKey::Less>& rkSet_);
+void minimize(DFANode* d_, const std::set<RangeKey>& rkSet_);
 
 }

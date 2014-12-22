@@ -19,7 +19,7 @@ public:
     virtual void visit(const ast::CharClassSymbol& n_);
 
 protected:
-    std::set<RangeKey, RangeKey::Less> _charClassSet;
+    std::set<RangeKey> _charClassSet;
 };
 
 }

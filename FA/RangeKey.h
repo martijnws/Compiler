@@ -30,39 +30,25 @@ public:
         return lhs_._l == rhs_._l && lhs_._h == rhs_._h;
     }
 
-    RangeKey intersection(const RangeKey& rhs_)
+   /* RangeKey intersection(const RangeKey& rhs_)
     {
         return RangeKey(std::max(_l, rhs_._l), std::min(_h, rhs_._h));
     }
-
-    //class Equals
-    //{
-    //public:
-    //    bool operator () (const RangeKey& lhs_, const RangeKey& rhs_) const
-    //    {
-    //        // equal if one is subset of other
-    //        return !(lhs_._l < rhs_._l && lhs_._h < rhs_._h || rhs_._l < lhs_._l && rhs_._h < lhs_._h);
-    //    }
-    //};
-
-    class Less
+*/
+    friend bool operator < (const RangeKey& lhs_, const RangeKey& rhs_)
     {
-    public:
-        bool operator () (const RangeKey& lhs_, const RangeKey& rhs_) const
-        {
-            // equality as !(a < b || b < a) is not transitive! For example b == a-z, a-z == c, but b != c
-            // However, if we ensure that every pair of RangeKeys is either equal (their _l and _h members are both equal)
-            // or non overlapping then transitivity of equality holds for those elements. Furthermore under these conditions
-            // we have a proper weak order (<=)
-            return lhs_._h < rhs_._l;
-        }
-    };
+        // equality as !(a < b || b < a) is not transitive! For example b == a-z, a-z == c, but b != c
+        // However, if we ensure that every pair of RangeKeys is either equal (their _l and _h members are both equal)
+        // or non overlapping then transitivity of equality holds for those elements. Furthermore under these conditions
+        // we have a proper weak order (<=)
+        return lhs_._h < rhs_._l;
+    }
 
     Char _l;
     Char _h;
 };
 
-inline std::vector<RangeKey> getDisjointRangeKeys(const std::set<RangeKey, RangeKey::Less>& rkSet_, const RangeKey& rk_)
+inline std::vector<RangeKey> getDisjointRangeKeys(const std::set<RangeKey>& rkSet_, const RangeKey& rk_)
 {
     std::vector<RangeKey> rkVec;
 
@@ -94,7 +80,7 @@ inline std::vector<RangeKey> getDisjointRangeKeys(const std::set<RangeKey, Range
     return rkVec;
 }
 
-inline std::set<RangeKey, RangeKey::Less> getDisjointRangeSet(const std::vector<RangeKey>& rkVec_)
+inline std::set<RangeKey> getDisjointRangeSet(const std::vector<RangeKey>& rkVec_)
 {
     std::vector<std::pair<Char, Char>> rkSortVec;
     for (const auto& rk : rkVec_)
@@ -109,7 +95,7 @@ inline std::set<RangeKey, RangeKey::Less> getDisjointRangeSet(const std::vector<
     });
 
     std::size_t cOpenRange = 0;
-    std::set<RangeKey, RangeKey::Less> rkSet;
+    std::set<RangeKey> rkSet;
     Char l = 0;
 
     for (const auto& kvpair : rkSortVec)

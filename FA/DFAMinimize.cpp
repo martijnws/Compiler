@@ -54,7 +54,7 @@ std::list<std::list<DFANode*>> getInitialClassList(DFANode* d_, std::map<DFANode
     return classList;
 }
 
-void minimize(DFANode* d_, const std::set<RangeKey, RangeKey::Less>& rkSet_)
+void minimize(DFANode* d_, const std::set<RangeKey>& rkSet_)
 {
     std::map<DFANode*, DFANode*> classRepresentativeMap;
 

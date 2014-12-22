@@ -4,7 +4,7 @@
 
 namespace mws {
 
-NFABuilderVisitor::NFABuilderVisitor(const std::set<RangeKey, RangeKey::Less>& rkSet_)
+NFABuilderVisitor::NFABuilderVisitor(const std::set<RangeKey>& rkSet_)
 :
     _rkSet(rkSet_)
 {

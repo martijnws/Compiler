@@ -17,8 +17,12 @@
     <ClInclude Include="ParserDriver.h" />
     <ClInclude Include="ParserTable.h" />
     <ClInclude Include="IParser.h" />
+    <ClInclude Include="SLRParserTable.h" />
+    <ClInclude Include="SLRParserDriver.h" />
+    <ClInclude Include="LR0State.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParserTable.cpp" />
+    <ClCompile Include="SLRParserTable.cpp" />
   </ItemGroup>
 </Project>

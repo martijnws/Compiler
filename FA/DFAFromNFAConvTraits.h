@@ -70,9 +70,9 @@ public:
         return itemSet_;
     }
 
-    static std::set<RangeKey, RangeKey::Less> getTransitionCharSet(const std::set<const Item*>& itemSet_)
+    static std::set<RangeKey> getTransitionCharSet(const std::set<const Item*>& itemSet_)
     {
-        std::set<RangeKey, RangeKey::Less> rkSet;
+        std::set<RangeKey> rkSet;
 
         for (const auto& n : itemSet_)
         {

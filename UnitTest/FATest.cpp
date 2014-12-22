@@ -19,7 +19,7 @@ TEST_F(DisjointSetTest, makeDisjointSet1)
 	rkVec.push_back(RangeKey('a', 'a'));
     rkVec.push_back(RangeKey('a', 'a'));
 
-    std::set<RangeKey, RangeKey::Less> rkSet = getDisjointRangeSet(rkVec);
+    std::set<RangeKey> rkSet = getDisjointRangeSet(rkVec);
 
     ASSERT_EQ(rkSet.size(), 1);
     auto itr = rkSet.begin();
@@ -33,7 +33,7 @@ TEST_F(DisjointSetTest, makeDisjointSet2)
 	rkVec.push_back(RangeKey(NFA::E, NFA::E));
     rkVec.push_back(RangeKey(NFA::E, NFA::E));
 
-    std::set<RangeKey, RangeKey::Less> rkSet = getDisjointRangeSet(rkVec);
+    std::set<RangeKey> rkSet = getDisjointRangeSet(rkVec);
 
     ASSERT_EQ(rkSet.size(), 1);
     auto itr = rkSet.begin();
@@ -47,7 +47,7 @@ TEST_F(DisjointSetTest, makeDisjointSet3)
 	rkVec.push_back(RangeKey('a', 'g'));
     rkVec.push_back(RangeKey('d', 'z'));
 
-    std::set<RangeKey, RangeKey::Less> rkSet = getDisjointRangeSet(rkVec);
+    std::set<RangeKey> rkSet = getDisjointRangeSet(rkVec);
 
     ASSERT_EQ(rkSet.size(), 3);
     auto itr = rkSet.begin();
@@ -65,7 +65,7 @@ TEST_F(DisjointSetTest, makeDisjointSet4)
 	rkVec.push_back(RangeKey('a', 'z'));
     rkVec.push_back(RangeKey('f', 'f'));
 
-    std::set<RangeKey, RangeKey::Less> rkSet = getDisjointRangeSet(rkVec);
+    std::set<RangeKey> rkSet = getDisjointRangeSet(rkVec);
 
     ASSERT_EQ(rkSet.size(), 3);
     auto itr = rkSet.begin();
@@ -84,7 +84,7 @@ TEST_F(DisjointSetTest, makeDisjointSet5)
     rkVec.push_back(RangeKey(91, 96));
     rkVec.push_back(RangeKey(123, 254));
 
-    std::set<RangeKey, RangeKey::Less> rkSet = getDisjointRangeSet(rkVec);
+    std::set<RangeKey> rkSet = getDisjointRangeSet(rkVec);
 
     ASSERT_EQ(rkSet.size(), 3);
     auto itr = rkSet.begin();

@@ -54,7 +54,7 @@ Lexer::Lexer(std::istream& is_)
         rootVec.push_back(root);
     }
 
-    std::set<RangeKey, RangeKey::Less> rkSet = mws::getDisjointRangeSet(rkVec);
+    std::set<RangeKey> rkSet = mws::getDisjointRangeSet(rkVec);
 
     for (std::size_t i = 0; i < rootVec.size(); ++i)
     {

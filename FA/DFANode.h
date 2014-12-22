@@ -14,7 +14,7 @@ class DFANode
 public:
     DFANode(std::size_t regexID_) : _regexID(regexID_){}
 
-    using Map = std::map<RangeKey, DFANode*, RangeKey::Less>;
+    using Map = std::map<RangeKey, DFANode*>;
 
     bool accept() const
     {
@@ -25,19 +25,24 @@ public:
     std::size_t _regexID;
 };
 
-template<typename Item>
+template<typename Item, typename HashT = std::hash<Item>>
 class ItemSet
 {
+    using _ItemSet = ItemSet<Item, HashT>;
+
     ItemSet() = delete;
-    ItemSet(const ItemSet<Item>&) = delete;
-    ItemSet<Item>& operator = (const ItemSet<Item>&) = delete;
-    ItemSet<Item>& operator = (ItemSet<Item>&&) = delete;
+    ItemSet(const _ItemSet&) = delete;
+    _ItemSet& operator = (const _ItemSet&) = delete;
+    _ItemSet& operator = (_ItemSet&&) = delete;
+
+    friend class Hash;
 
 public:
-    using Ptr = ItemSet<Item>*;
-    using Set = std::set<const Item*>;
+    using Ptr = _ItemSet*;
+    using Set = std::set<Item>;
 
-    ItemSet(std::set<const Item*>&& rhs_) : _items(std::move(rhs_))
+    // only way to construct ItemSet. This garantuees a hash will be calculated
+    ItemSet(Set&& rhs_) : _items(std::move(rhs_))
     {
         calculateHash();
     }
@@ -53,7 +58,6 @@ public:
      
         std::size_t operator()(const Ptr& itemSet_) const
         {
-            assert(itemSet_->_hash != 0);
             return itemSet_->_hash;
         }
     };
@@ -90,9 +94,9 @@ private:
         _hash = 0;
 
         // not a tested and proven hash (its rubbish!) but good enough for now
-        std::hash<const Item*> hash;
+        HashT hash;
             
-        for (const Item* n : _items)
+        for (const auto& n : _items)
         {
             _hash <<= 1;
             _hash += hash(n);
@@ -100,9 +104,10 @@ private:
         }
     }
 
+    std::size_t _hash;
+
 public:
     Set         _items;
-    std::size_t _hash;
 };
 
 }

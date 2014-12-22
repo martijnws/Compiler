@@ -22,7 +22,7 @@ std::tuple<mws::DFANode*, Item*, Item*> buildDFA(mws::ast::SyntaxNode* root_)
     mws::AlphabetVisitor alphabetVisitor;
     root->accept(alphabetVisitor);
 
-    std::set<mws::RangeKey, mws::RangeKey::Less> rkSet = mws::getDisjointRangeSet(alphabetVisitor._rkVec);
+    std::set<mws::RangeKey> rkSet = mws::getDisjointRangeSet(alphabetVisitor._rkVec);
 
     mws::NFABuilderVisitor visitor(rkSet);
     root->accept(visitor);
@@ -139,7 +139,8 @@ TEST_F(ParserBasicExprTest, parseSubExpr)
 
 TEST_F(ParserBasicExprTest, parseComplexExpr)
 {
-	std::stringstream is(R"R(aaabba(aa|b)*([a-z\-A-Z]|xyz)*bb|optional)R", std::ios_base::in);
+	//std::stringstream is(R"R(aaabba(aa|b)*([a-z\-A-Z]|xyz)*bb|optional)R", std::ios_base::in);
+    std::stringstream is(R"R(aaabba(aa|b)*(x|xyz)*bb|optional)R", std::ios_base::in);
 	Parser parser(is);
 
 	EXPECT_TRUE(parser.parse());

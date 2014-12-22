@@ -9,7 +9,7 @@ namespace mws {
 
 
 template<typename Item>
-using DFANodeMap = std::unordered_map<typename ItemSet<Item>::Ptr, DFANode*, typename ItemSet<Item>::Hash, typename ItemSet<Item>::Pred>;
+using DFANodeMap = std::unordered_map<typename ItemSet<const Item*>::Ptr, DFANode*, typename ItemSet<const Item*>::Hash, typename ItemSet<const Item*>::Pred>;
 
 template<typename Item>
 std::size_t getAcceptRegexID(const std::set<const Item*>& itemSet_)
@@ -43,11 +43,11 @@ template<typename Item>
 void convert(DFANode* dSrc_, const std::set<const Item*> srcItemSet_, DFANodeMap<Item>& dfaNodes_)
 {
     // obtain all disjoint ranges for which dSrc contains outgoing transitions
-    std::set<RangeKey, RangeKey::Less> rkSet = DFATraits<Item>::getTransitionCharSet(srcItemSet_);
+    std::set<RangeKey> rkSet = DFATraits<Item>::getTransitionCharSet(srcItemSet_);
 
     for (const auto& rk : rkSet)
     {
-        auto dstItemSet = new ItemSet<Item>(DFATraits<Item>::e_closure(move<Item>(srcItemSet_, rk)));
+        auto dstItemSet = new ItemSet<const Item*>(DFATraits<Item>::e_closure(move<Item>(srcItemSet_, rk)));
 
         // this condition holds because we just checked each c has a transition for some n in d
         assert(!dstItemSet->empty());
@@ -73,7 +73,7 @@ void convert(DFANode* dSrc_, const std::set<const Item*> srcItemSet_, DFANodeMap
 template<typename Item>
 DFANode* convert(const Item* n_)
 {
-    auto itemSet = new ItemSet<Item>(DFATraits<Item>::createStartNode(n_));
+    auto itemSet = new ItemSet<const Item*>(DFATraits<Item>::createStartNode(n_));
 
     auto d = new DFANode(getAcceptRegexID(itemSet->_items));
 

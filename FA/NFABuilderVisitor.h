@@ -10,7 +10,7 @@ class NFABuilderVisitor
 	public FABuilderVisitorBase
 {
 public:
-    NFABuilderVisitor(const std::set<RangeKey, RangeKey::Less>& rkSet_);
+    NFABuilderVisitor(const std::set<RangeKey>& rkSet_);
 
 	virtual void visit(const ast::Symbol& n_);
 	virtual void visit(const ast::Choice& n_);
@@ -33,7 +33,7 @@ public:
 
 private:
     NFA _result;
-    std::set<RangeKey, RangeKey::Less> _rkSet;
+    std::set<RangeKey> _rkSet;
 };
 
 }

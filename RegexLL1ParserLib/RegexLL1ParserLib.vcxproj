@@ -139,14 +139,18 @@
   <ItemGroup>
     <ClInclude Include="CharClassParser.h" />
     <ClInclude Include="IParser.h" />
+    <ClInclude Include="LR0State.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="ParserDriver.h" />
     <ClInclude Include="ParserState.h" />
     <ClInclude Include="ParserTable.h" />
     <ClInclude Include="RegexParser.h" />
+    <ClInclude Include="SLRParserDriver.h" />
+    <ClInclude Include="SLRParserTable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParserTable.cpp" />
+    <ClCompile Include="SLRParserTable.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

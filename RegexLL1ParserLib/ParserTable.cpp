@@ -8,37 +8,11 @@ namespace mws { namespace td { namespace LL1 {
 
 static const uint8_t E = -1;
 
-using ParserTableMap = std::unordered_map<const grammar::Grammar*, const ParserTable*>;
-
-static ParserTableMap& getMap()
-{
-    static ParserTableMap grammarMap;
-    return grammarMap;
-}
-
-const ParserTable& ParserTable::Cache::get(const grammar::Grammar* grammar_)
-{
-    auto& grammarMap = getMap();
-
-    auto itr = grammarMap.find(grammar_);
-    assert(itr != grammarMap.end());
-    return *itr->second;
-}
-
-void ParserTable::Cache::put(const grammar::Grammar* grammar_, const ParserTable* pt_)
-{
-    auto& grammarMap = getMap();
-
-    auto res = grammarMap.insert(std::make_pair(grammar_, pt_));
-}
-
 ParserTable::ParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_)
 :
     _table(grammar_.size(), cTerminal_, E)
 {
 	build(grammar_, cTerminal_);
-
-    Cache::put(&grammar_, this);
 }
 
 void ParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)

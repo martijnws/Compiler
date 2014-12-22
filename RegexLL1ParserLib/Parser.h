@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ParserDriver.h"
-#include "ParserTable.h"
+#include "SLRParserDriver.h"
 #include <RegexGrammar/Grammar.h>
 #include <RegexGrammar/ParserID.h>
 #include <RegexLexer/Lexer.h>
@@ -53,10 +53,15 @@ public:
 
 		try
 		{
-            std::vector<std::pair<IParser*, bool>> reSubParserCol = { std::make_pair(&ccParser, true) };
+            // TODO: remove
+            static SLRParserTable slrParserTable(g, regex::Token::Enum::Max);
+            SLRParserDriver<regex::RegexLexer> slr_ccParser(_astBuilder, g, slrParserTable, ccSubParserCol);
+            slr_ccParser.parse(_buf, _cur);
+
+            /*std::vector<std::pair<IParser*, bool>> reSubParserCol = { std::make_pair(&ccParser, true) };
 			ParserDriver<regex::RegexLexer> parser(_astBuilder, g, parserTable, reSubParserCol);
 
-			parser.parse(_buf, _cur);
+			parser.parse(_buf, _cur);*/
 			return true;
 		}
 		catch(const common::Exception& e)

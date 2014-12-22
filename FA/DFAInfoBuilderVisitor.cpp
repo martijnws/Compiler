@@ -7,7 +7,7 @@
 
 namespace mws {
 
-DFAInfoBuilderVisitor::DFAInfoBuilderVisitor(const std::set<RangeKey, RangeKey::Less>& rkSet_)
+DFAInfoBuilderVisitor::DFAInfoBuilderVisitor(const std::set<RangeKey>& rkSet_)
 :
     _rkSet(rkSet_)
 {

@@ -9,7 +9,7 @@ void FABuilderVisitorBase::visit(const ast::Negate& n_)
 {
     n_.opr().accept(*this);
 
-    std::set<RangeKey, RangeKey::Less> complement;
+    std::set<RangeKey> complement;
     Char l = 0;
     // insert artificial upperbound so that complement up to (but not including) upperbound will be inserted in complement
     _charClassSet.insert(NFA::E);
@@ -48,7 +48,7 @@ void FABuilderVisitorBase::visit(const ast::Rng& n_)
     }
 
     // re insert disjoint ranges
-    std::set<RangeKey, RangeKey::Less> rkSet = getDisjointRangeSet(rkVec);
+    std::set<RangeKey> rkSet = getDisjointRangeSet(rkVec);
     for (const auto& rk : rkSet)
     {
         auto res = _charClassSet.insert(rk);

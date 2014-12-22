@@ -20,8 +20,7 @@ public:
     {
         assert(rk_._l != NFA::E);
        
-        RangeKey::Less less;
-        if (!less(n_->_lexeme, rk_._l) && !less(rk_._l, n_->_lexeme))
+        if (!(n_->_lexeme < rk_) && !(rk_ < n_->_lexeme))
         {
             assert(!n_->_followPos.empty());
             itemSet_.insert(n_->_followPos.begin(), n_->_followPos.end());
@@ -38,9 +37,9 @@ public:
         return itemSet_;
     }
 
-    static std::set<RangeKey, RangeKey::Less> getTransitionCharSet(const std::set<const Item*>& itemSet_)
+    static std::set<RangeKey> getTransitionCharSet(const std::set<const Item*>& itemSet_)
     {
-        std::set<RangeKey, RangeKey::Less> rkSet;
+        std::set<RangeKey> rkSet;
         for (auto n : itemSet_)
         {
             assert(n->_lexeme._l != NFA::E);

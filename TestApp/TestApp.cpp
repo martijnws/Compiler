@@ -45,7 +45,7 @@ int _tmain(int argc, _TCHAR* argv[])
         mws::AlphabetVisitor alphabetVisitor;
         root->accept(alphabetVisitor);
 
-        std::set<mws::RangeKey, mws::RangeKey::Less> rkSet = mws::getDisjointRangeSet(alphabetVisitor._rkVec);
+        std::set<mws::RangeKey> rkSet = mws::getDisjointRangeSet(alphabetVisitor._rkVec);
 
         mws::NFABuilderVisitor visitor(rkSet);
         using DFAItem = mws::NFANode;

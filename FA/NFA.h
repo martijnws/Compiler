@@ -10,7 +10,7 @@ namespace mws {
 class NFANode
 {
 public:
-    using Map = std::multimap<RangeKey, NFANode*, RangeKey::Less>;
+    using Map = std::multimap<RangeKey, NFANode*>;
 
     NFANode() : _regexID(-1){}
 

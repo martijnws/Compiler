@@ -11,7 +11,7 @@ class DFAInfoBuilderVisitor
 	public FABuilderVisitorBase
 {
 public:
-    DFAInfoBuilderVisitor(const std::set<RangeKey, RangeKey::Less>& rkSet_);
+    DFAInfoBuilderVisitor(const std::set<RangeKey>& rkSet_);
 
 	virtual void visit(const ast::Symbol& n_);
 	virtual void visit(const ast::Choice& n_);
@@ -27,7 +27,7 @@ private:
 
 private:
     DFAInfo* _dfaInfo;
-    std::set<RangeKey, RangeKey::Less> _rkSet;
+    std::set<RangeKey> _rkSet;
 };
 
 }
