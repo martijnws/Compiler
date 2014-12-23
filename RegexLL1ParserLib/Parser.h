@@ -3,7 +3,6 @@
 #include "ParserDriver.h"
 #include "SLRParserDriver.h"
 #include <RegexGrammar/Grammar.h>
-#include <RegexGrammar/ParserID.h>
 #include <RegexLexer/Lexer.h>
 #include <CommonLib/Buffer.h>
 #include <SyntaxTreeLib/SyntaxTreeBuilder.h>
@@ -44,22 +43,35 @@ public:
 	//TODO: make void and handle exception in caller (fix unittests appropriately)
 	bool parse()
 	{
-        static grammar::Grammar& g = regex::getGrammar();
-        static ParserTable parserTable(g, regex::Token::Enum::Max);
+        static grammar::Grammar& gRE = regex::getRegexGrammar();
+        static grammar::Grammar& gCC = regex::getCharClassGrammar();
 
-        // sub parser setup
-        std::vector<std::pair<IParser*, bool>> ccSubParserCol;
-        ParserDriver<regex::CharClassLexer> ccParser(_astBuilder, g, parserTable, ccSubParserCol);
+        static ParserTable parserTableRE(gRE, regex::Token::Enum::Max);
+        static ParserTable parserTableCC(gCC, regex::Token::Enum::Max);
+
+        static SLRParserTable slrParserTableRE(gRE, regex::Token::Enum::Max);
+        static SLRParserTable slrParserTableCC(gCC, regex::Token::Enum::Max);
 
 		try
 		{
             // TODO: remove
-            static SLRParserTable slrParserTable(g, regex::Token::Enum::Max);
-            SLRParserDriver<regex::RegexLexer> slr_ccParser(_astBuilder, g, slrParserTable, ccSubParserCol);
+            // sub parser setup
+            SubParserMap ccSubParserCol;
+            SLRParserDriver<regex::CharClassLexer> ccParser(_astBuilder, gCC, slrParserTableCC, ccSubParserCol);
+
+            SubParserMap reSubParserCol;
+            reSubParserCol.insert(std::make_pair(regex::Token::Enum::CharClassB, &ccParser));
+            SLRParserDriver<regex::RegexLexer> slr_ccParser(_astBuilder, gRE, slrParserTableRE, reSubParserCol);
+
             slr_ccParser.parse(_buf, _cur);
 
-            /*std::vector<std::pair<IParser*, bool>> reSubParserCol = { std::make_pair(&ccParser, true) };
-			ParserDriver<regex::RegexLexer> parser(_astBuilder, g, parserTable, reSubParserCol);
+             // sub parser setup
+            /*SubParserMap ccSubParserCol;
+            ParserDriver<regex::CharClassLexer> ccParser(_astBuilder, gCC, parserTableCC, ccSubParserCol);
+
+            SubParserMap reSubParserCol;
+            reSubParserCol.insert(std::make_pair(regex::Token::Enum::CharClassB, &ccParser));
+			ParserDriver<regex::RegexLexer> parser(_astBuilder, gRE, parserTableRE, reSubParserCol);
 
 			parser.parse(_buf, _cur);*/
 			return true;

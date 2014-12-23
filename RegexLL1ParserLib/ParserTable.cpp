@@ -3,6 +3,7 @@
 #include <CommonLib/Exception.h>
 #include <algorithm>
 #include <unordered_map>
+#include <iostream>
 
 namespace mws { namespace td { namespace LL1 {
 
@@ -59,6 +60,18 @@ const grammar::Production& ParserTable::expand(const grammar::Grammar& grammar_,
 	{
 		throw common::Exception("Parser error: no production found");
 	}
+
+    /*std::cout << "expand: " << grammar_[nt_]._name << " :=";
+
+    const auto& prod = grammar_[nt_]._prodList[index];
+    for (const auto& gs : prod._gsList)
+    {
+        if (!gs._isTerminal)
+            std::cout << " " << grammar_[gs._type]._name;
+        else
+            std::cout << " '" << (int)gs._type << "'";
+    }
+    std::cout << std::endl;*/
 
 	return grammar_[nt_]._prodList[index];
 }

@@ -4,6 +4,11 @@
 
 namespace mws { namespace regex {
 
-grammar::Grammar& getGrammar();
+enum ReNonTerminal { Start, Choice, ChoiceT, Concat, ConcatT, Term, QuantifierO, ZeroOrOne, ZeroToMany, OneToMany, Factor };
+
+enum CCNonTerminal { CharClass, CharClassNeg, RngConcat, RngConcatT, Rng, RngT, Option };
+
+grammar::Grammar& getRegexGrammar();
+grammar::Grammar& getCharClassGrammar();
 
 }}

@@ -160,7 +160,7 @@ std::set<LR0Item> move(const std::set<LR0Item>& srcItemSet_, const GrammarSymbol
 
 void convert(LR0State* dSrc_, const std::set<LR0Item>& srcItemSet_, LR0StateMap& states_, const grammar::Grammar& grammar_)
 {
-    print(srcItemSet_, grammar_);
+    //print(srcItemSet_, grammar_);
 
     // obtain all disjoint ranges for which dSrc contains outgoing transitions
     auto gsSet = getTransitionCharSet(srcItemSet_, grammar_);
@@ -184,7 +184,7 @@ void convert(LR0State* dSrc_, const std::set<LR0Item>& srcItemSet_, LR0StateMap&
 
             res.first->second = dDst;
 
-            printTransition(gs, grammar_);
+            //printTransition(gs, grammar_);
 
             convert(dDst, dstItemSet->_items, states_, grammar_);
         }

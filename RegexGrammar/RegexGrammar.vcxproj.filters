@@ -15,6 +15,5 @@
   <ItemGroup>
     <ClInclude Include="Grammar.h" />
     <ClInclude Include="ParserHandler.h" />
-    <ClInclude Include="ParserID.h" />
   </ItemGroup>
 </Project>

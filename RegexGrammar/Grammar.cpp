@@ -1,6 +1,5 @@
 #include "Grammar.h"
 #include "ParserHandler.h"
-#include "ParserID.h"
 #include <Grammar/Grammar.h>
 #include <Grammar/First.h>
 #include <Grammar/Follow.h>
@@ -9,16 +8,14 @@
 
 namespace mws { namespace regex {
 
-enum NonTerminal { Start, Choice, ChoiceT, Concat, ConcatT, Term, QuantifierO, ZeroOrOne, ZeroToMany, OneToMany, Factor, CharClass, CharClassNeg, RngConcat, RngConcatT, Rng, RngT, Option };
-
 using namespace grammar;
 
 using T = Token::Enum;
-using N = NonTerminal;
 using H = ParserHandler;
 
-grammar::Grammar& getGrammar()
+grammar::Grammar& getRegexGrammar()
 {
+    using N = ReNonTerminal;
     using e = Production;
 
     static grammar::Grammar g = { 
@@ -50,8 +47,27 @@ grammar::Grammar& getGrammar()
     NT("OneToMany",   { { t(T::OneToMany, a(&H::onOneToMany)) } }),
 
     NT("Factor",      { { t(T::Symbol, a(&H::onSymbol)) },
-                        { t(T::CharClassB, false), n(N::CharClass, a(&H::onCharClass), ParserID::CharClassParser), t(T::CharClassE) },
-                        { t(T::SubExprB), n(N::Choice), t(T::SubExprE) } }),
+                        { t(T::CharClassB), /*n(CCNonTerminal::CharClass),*/ t(T::CharClassE, a(&H::onCharClass)) },
+                        { t(T::SubExprB), n(N::Choice), t(T::SubExprE) } })
+    };
+
+    static bool init = false;
+    if (!init)
+    {
+        grammar::first(g);
+	    grammar::follow(g);
+        init = true;
+    }
+
+    return g;
+}
+
+grammar::Grammar& getCharClassGrammar()
+{
+    using N = CCNonTerminal;
+    using e = Production;
+
+    static grammar::Grammar g = { 
 
     NT("CharClass",   { { n(N::RngConcat) },
                         { n(N::CharClassNeg) } }),
@@ -76,7 +92,7 @@ grammar::Grammar& getGrammar()
     if (!init)
     {
         grammar::first(g);
-	    grammar::follow(g);
+	    grammar::follow(g, T::CharClassE);
         init = true;
     }
 

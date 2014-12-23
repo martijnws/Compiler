@@ -74,15 +74,19 @@ void follow(grammar::Grammar& grammar_, uint8_t nttHead_, grammar::Production& p
 	}
 }
 
+void follow(Grammar& grammar_)
+{
+    follow(grammar_, Token::Eof);
+}
 
-void follow(grammar::Grammar& grammar_)
+void follow(grammar::Grammar& grammar_, const grammar::Token::Type& tokEof_)
 {
 	std::cout << "Follow:" << std::endl;
 
     Context ctx(grammar_.size());
 
 	auto& ntStart = grammar_[0];
-	ntStart._follow.insert(grammar::Token::Eof);
+	ntStart._follow.insert(tokEof_);
 
 	// first pass: add first sets
 	for (auto i = 0; i < grammar_.size(); ++i)

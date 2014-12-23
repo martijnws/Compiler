@@ -40,7 +40,7 @@ private:
 class CharClassTokenTypeMap
 {
 public:
-    
+    static const grammar::Token::Type Eof = Token::Enum::CharClassE;
 	CharClassTokenTypeMap()
 	{
 		for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token); ++i)
@@ -50,8 +50,8 @@ public:
 
 		_map['^' ] = Token::Enum::CharClassNeg;
 		_map['-' ] = Token::Enum::RngSep;
-		_map[']' ] = Token::Enum::CharClassE;
-		_map['\0'] = Token::Enum::Eof;
+		_map[']' ] = Eof;
+		_map['\0'] = Eof;
 	}
 
 	Token::Type type(char c_) const

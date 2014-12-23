@@ -13,7 +13,7 @@ class ParserDriver
     public IParser
 {
 public:
-	ParserDriver(grammar::Handler& h_, const grammar::Grammar& grammar_, const ParserTable& parserTable_, const std::vector<std::pair<IParser*, bool>>& subParserCol_)
+	ParserDriver(grammar::Handler& h_, const grammar::Grammar& grammar_, const ParserTable& parserTable_, const SubParserMap& subParserCol_)
     :
         _h(h_), 
         _grammar(grammar_), 
@@ -23,26 +23,17 @@ public:
 		
 	}
 
-    void parse(common::Buffer& buf_, grammar::Token& cur_);
-    void parse(const grammar::GrammarSymbol& startSymbol_, common::Buffer& buf_, grammar::Token& cur_) override;
+    void parse(common::Buffer& buf_, grammar::Token& cur_) override;
 
 private:
-    grammar::Handler&                             _h;
-    const grammar::Grammar&                       _grammar;
-    const ParserTable&                            _parserTable;
-    const std::vector<std::pair<IParser*, bool>>& _subParserCol;
+    grammar::Handler&       _h;
+    const grammar::Grammar& _grammar;
+    const ParserTable&      _parserTable;
+    const SubParserMap&     _subParserCol;
 };
 
 template< template<typename> class LexerT>
 void ParserDriver<LexerT>::parse(common::Buffer& buf_, grammar::Token& cur_)
-{
-    // type = 0 indicates this GrammarSymbol is an instance of NT at grammar[0]. That is, it is an instance of Start
-    grammar::GrammarSymbol startSymbol = grammar::n(0);
-    parse(startSymbol, buf_, cur_);
-}
-
-template< template<typename> class LexerT>
-void ParserDriver<LexerT>::parse(const grammar::GrammarSymbol& startSymbol_, common::Buffer& buf_, grammar::Token& cur_)
 {
     ParserState<common::Buffer, LexerT<common::Buffer>> st(buf_, cur_);
     st.init();
@@ -51,57 +42,44 @@ void ParserDriver<LexerT>::parse(const grammar::GrammarSymbol& startSymbol_, com
 
 	grammar::TokenStore store;
 
+    // type = 0 indicates this GrammarSymbol is an instance of NT at grammar[0]. That is, it is an instance of Start
+    grammar::GrammarSymbol startSymbol = grammar::n(0);
 	std::vector<GSEntry> stack;
-	stack.push_back(std::make_pair(startSymbol_, false));
+	stack.push_back(std::make_pair(startSymbol, false));
 
 	while (!stack.empty())
 	{
-		auto& entry = stack.back();
-		const auto& gs = entry.first;
-
         // copy by value since later on st.cur() will change
         const auto tokCur = st.cur();
 
-        if (gs.isSubGrammarStartSymbol())
-        {
-            assert(gs._subGrammarParserID < _subParserCol.size());
-            const auto& parserInfo = _subParserCol[gs._subGrammarParserID];
-            // Different parser same Grammar?
-            if (parserInfo.second)
-            {
-                // in sub parse, this startSymbol becomes the toplevel startsymbol.
-                grammar::GrammarSymbol startSymbol(gs);
-                // To prevent infinite recursion.
-                startSymbol._subGrammarParserID = grammar::GrammarSymbol::InvalidParserID;
-                assert(!startSymbol.isSubGrammarStartSymbol());
-
-                parserInfo.first->parse(startSymbol, st.buf(), st.cur());
-            }
-            // Different Parser, different Grammar
-            else
-            {
-                grammar::GrammarSymbol startSymbol = grammar::n(0);
-
-                parserInfo.first->parse(startSymbol, st.buf(), st.cur());
-            }
-
-            // Do not execute action. It is already executed in sub parse
-			stack.pop_back();
-			continue;
-        }
+        auto& entry = stack.back();
+	    const auto& gs = entry.first;
 
 		if (gs._isTerminal)
 		{
-			// match
-			st.m(static_cast<grammar::Token::Type>(gs._type), gs._fetchNext);
-            // mark entry as expanded
-		    entry.second = true;
+            //std::cout << "match Terminal: " << tokCur._lexeme << std::endl;
 
+            auto itr = _subParserCol.find(gs._type);
+            const bool isSGSS = itr != _subParserCol.end();
+			// match
+			st.m(gs._type, !isSGSS);
+           
+            gs._action(_h, tokCur, store);
+			stack.pop_back();
+          
+            if (isSGSS)
+            {
+                const auto& parser = itr->second;
+                parser->parse(st.buf(), st.cur());
+            }
+
+			continue;
 		}
 
 		// is entry expanded?
 		if (entry.second)
 		{
+            //std::cout << "Pop NonTerminal " << _grammar[gs._type]._name << std::endl;
 			gs._action(_h, tokCur, store);
 			stack.pop_back();
 			continue;

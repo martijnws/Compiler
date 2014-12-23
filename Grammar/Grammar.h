@@ -18,17 +18,8 @@ using Action     = std::function<void (Handler&, const Token&, TokenStore&)>;
 class GrammarSymbol
 {
 public:
-    static const uint8_t InvalidParserID = -1;
-
-    bool isSubGrammarStartSymbol() const
-    {
-        return _subGrammarParserID != InvalidParserID;
-    }
-
 	bool    _isTerminal;
-    bool    _fetchNext;
 	uint8_t _type;
-    uint8_t _subGrammarParserID;
 	Action  _action;
 };
 
@@ -99,33 +90,24 @@ inline Action no_op()
 
 inline GrammarSymbol t(uint32_t type_)
 { 
-    return { true, true, type_, GrammarSymbol::InvalidParserID, no_op()  }; 
-}
-
-inline GrammarSymbol t(uint32_t type_, bool fetchNext_)
-{ 
-    return { true, fetchNext_, type_, GrammarSymbol::InvalidParserID, no_op() }; 
+    return { true, type_, no_op()  }; 
 }
 
 inline GrammarSymbol t(uint32_t type_, Action action_) 
 { 
-    return { true, true, type_, GrammarSymbol::InvalidParserID, action_ }; 
+    return { true, type_, action_ }; 
 }
 
 inline GrammarSymbol n(uint32_t type_)
 { 
-    return { false, true, type_, GrammarSymbol::InvalidParserID, no_op() }; 
+    return { false, type_, no_op() }; 
 }
 
 inline GrammarSymbol n(uint32_t type_, Action action_) 
 { 
-    return { false, true, type_, GrammarSymbol::InvalidParserID, action_ }; 
+    return { false, type_, action_ }; 
 }
 
-inline GrammarSymbol n(uint32_t type_, Action action_, uint8_t parserID_)
-{
-	return { false, true, type_, parserID_, action_ };
-}
 
 
 template<typename H>

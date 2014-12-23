@@ -13,7 +13,7 @@ class SLRParserDriver
     public IParser
 {
 public:
-	SLRParserDriver(grammar::Handler& h_, const grammar::Grammar& grammar_, const SLRParserTable& parserTable_, const std::vector<std::pair<IParser*, bool>>& subParserCol_)
+	SLRParserDriver(grammar::Handler& h_, const grammar::Grammar& grammar_, const SLRParserTable& parserTable_, const SubParserMap& subParserCol_)
     :
         _h(h_), 
         _grammar(grammar_), 
@@ -23,26 +23,17 @@ public:
 		
 	}
 
-    void parse(common::Buffer& buf_, grammar::Token& cur_);
-    void parse(const grammar::GrammarSymbol& startSymbol_, common::Buffer& buf_, grammar::Token& cur_) override;
+    void parse(common::Buffer& buf_, grammar::Token& cur_) override;
 
 private:
-    grammar::Handler&                             _h;
-    const grammar::Grammar&                       _grammar;
-    const SLRParserTable&                         _parserTable;
-    const std::vector<std::pair<IParser*, bool>>& _subParserCol;
+    grammar::Handler&       _h;
+    const grammar::Grammar& _grammar;
+    const SLRParserTable&   _parserTable;
+    const SubParserMap&     _subParserCol;
 };
 
 template< template<typename> class LexerT>
 void SLRParserDriver<LexerT>::parse(common::Buffer& buf_, grammar::Token& cur_)
-{
-    // type = 0 indicates this GrammarSymbol is an instance of NT at grammar[0]. That is, it is an instance of Start
-    grammar::GrammarSymbol startSymbol = grammar::n(0);
-    parse(startSymbol, buf_, cur_);
-}
-
-template< template<typename> class LexerT>
-void SLRParserDriver<LexerT>::parse(const grammar::GrammarSymbol& startSymbol_, common::Buffer& buf_, grammar::Token& cur_)
 {
     ParserState<common::Buffer, LexerT<common::Buffer>> st(buf_, cur_);
     st.init();
@@ -66,12 +57,22 @@ void SLRParserDriver<LexerT>::parse(const grammar::GrammarSymbol& startSymbol_, 
         if (itr != state->_transitionMap.end())
         {
             lastTerminal = st.cur();
-            std::cout << "Shift: lexeme=" << lastTerminal._lexeme << std::endl; 
+            //std::cout << "Shift: lexeme=" << lastTerminal._lexeme << std::endl; 
             // Shift
             state = itr->second;
             stack.push(state);
 
-            st.next();
+            auto itr = _subParserCol.find(lastTerminal._type);
+            if (itr != _subParserCol.end())
+            {
+                const auto& parser = itr->second;
+                parser->parse(st.buf(), st.cur());
+            }
+            else
+            {
+                st.next();
+            }
+            
             continue;
         }
 
@@ -79,15 +80,13 @@ void SLRParserDriver<LexerT>::parse(const grammar::GrammarSymbol& startSymbol_, 
         bool reduce = false;
         for (const auto& item : *state->_itemSet)
         {
-            assert(item._nt < _grammar.size());
             const auto& nt = _grammar[item._nt];
-            assert(item._prod < nt._prodList.size());
             const auto& prod = nt._prodList[item._prod];
 
             // Reduce (dot to the right, curTok in head.follow)
             if (prod._gsList.size() == item._dot && nt._follow.find(t._type) != nt._follow.end())
             {
-                std::cout << "Reduce: " << nt._name << " := ";
+                //std::cout << "Reduce: " << nt._name << " := ";
 
                 // tracing back the path through the LR0 DFA by prod.size steps
                 assert(stack.size() >= prod._gsList.size());
@@ -95,8 +94,9 @@ void SLRParserDriver<LexerT>::parse(const grammar::GrammarSymbol& startSymbol_, 
                 {
                     // actions are executed from left to right
                     const auto& gs = prod._gsList[i];
-                    print(gs, _grammar);
-                    std::cout << " ";
+
+                    //print(gs, _grammar);
+                    //std::cout << " ";
 
                     // lastTerminal is only going to be accurate if Symbol/ID tokens have a dedicated production
                     gs._action(_h, lastTerminal, store);
@@ -104,7 +104,7 @@ void SLRParserDriver<LexerT>::parse(const grammar::GrammarSymbol& startSymbol_, 
                     // states (corresponding to GrammarSymbols of production) are popped right to left
                     stack.pop();
                 }
-                std::cout << std::endl;
+                //std::cout << std::endl;
 
                 done = item._nt == 0;
                 if (!done)
