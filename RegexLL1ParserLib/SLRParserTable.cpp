@@ -328,7 +328,7 @@ void SLRParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
                 // Shift takes precedence over Reduce
                 if (_actionTable[state->_label][t]._action == Action::Shift)
                 {
-                    continue;
+                    throw mws::common::Exception("Shift/Reduce conflict");
                 }
 
                 Entry entry;
