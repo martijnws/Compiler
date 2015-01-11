@@ -40,10 +40,9 @@ void SLRParserDriver<LexerT>::parse(common::Buffer& buf_, grammar::Token& cur_)
 
     grammar::TokenStore store;
 
-    std::stack<const LR0State*> stack;
-
-    auto state = _parserTable.start();
-    stack.push(state);
+    std::stack<uint8_t> stack;
+    //std::cout << "stack.psh: " << (int)_parserTable.start()->_label << std::endl;
+    stack.push(_parserTable.start()->_label);
 
     // remember last terminal
     grammar::Token lastTerminal;
@@ -52,40 +51,35 @@ void SLRParserDriver<LexerT>::parse(common::Buffer& buf_, grammar::Token& cur_)
     {
         GrammarSymbol t = { st.cur()._type, true };
 
-        auto itr = state->_transitionMap.find(t);
-        // Shift possible?
-        if (itr != state->_transitionMap.end())
+        const auto entry = _parserTable.action(stack.top(), t._type);
+        switch(entry._action)
         {
-            lastTerminal = st.cur();
-            //std::cout << "Shift: lexeme=" << lastTerminal._lexeme << std::endl; 
-            // Shift
-            state = itr->second;
-            stack.push(state);
-
-            auto itr = _subParserCol.find(lastTerminal._type);
-            if (itr != _subParserCol.end())
+            case SLRParserTable::Action::Shift:
             {
-                const auto& parser = itr->second;
-                parser->parse(st.buf(), st.cur());
+                lastTerminal = st.cur();
+                //std::cout << "Shift: lexeme=" << lastTerminal._lexeme << std::endl; 
+                // Shift
+                //std::cout << "stack.psh: " << (int)entry._state << std::endl;
+                stack.push(entry._state);
+
+                auto itr = _subParserCol.find(lastTerminal._type);
+                if (itr != _subParserCol.end())
+                {
+                    const auto& parser = itr->second;
+                    parser->parse(st.buf(), st.cur());
+                }
+                else
+                {
+                    st.next();
+                }
+
+                break;
             }
-            else
+            case SLRParserTable::Action::Reduce:
             {
-                st.next();
-            }
-            
-            continue;
-        }
+                const auto& nt = _grammar[entry._prod._head];
+                const auto& prod = nt._prodList[entry._prod._body];
 
-        // Reduction possible?
-        bool reduce = false;
-        for (const auto& item : *state->_itemSet)
-        {
-            const auto& nt = _grammar[item._nt];
-            const auto& prod = nt._prodList[item._prod];
-
-            // Reduce (dot to the right, curTok in head.follow)
-            if (prod._gsList.size() == item._dot && nt._follow.find(t._type) != nt._follow.end())
-            {
                 //std::cout << "Reduce: " << nt._name << " := ";
 
                 // tracing back the path through the LR0 DFA by prod.size steps
@@ -106,33 +100,31 @@ void SLRParserDriver<LexerT>::parse(common::Buffer& buf_, grammar::Token& cur_)
                 }
                 //std::cout << std::endl;
 
-                done = item._nt == 0;
-                if (!done)
-                {
-                    state = stack.top();
-                    GrammarSymbol gs = { item._nt, false };
-                    auto itr = state->_transitionMap.find(gs);
-                    assert(itr != state->_transitionMap.end());
+                //uint8_t state = _parserTable.goTo(stack.top(), entry._prod._head);
+                //std::cout << "stack.psh: " << (int)state << std::endl;
+                stack.push(_parserTable.goTo(stack.top(), entry._prod._head));
 
-                    // Shift NonTerminal just reduced
-                    state = itr->second;
-                    stack.push(state);
-                }
-
-                reduce = true;
                 break;
             }
-        }
-
-        if (!reduce)
-        {
-            throw common::Exception("SLRParser error: No valid action from state");
+            case SLRParserTable::Action::Accept:
+            {
+                //std::cout << "Accept:" << std::endl;;
+                //Token::Eof does not work because subGrammars may have different 'Eof' tokens
+                //assert(t._type == grammar::Token::Eof);
+                done = true;
+                break;
+            }
+            case SLRParserTable::Action::Error:
+            {
+                throw common::Exception("SLRParser error: No valid action from state");
+            }
+            default:
+            {
+                throw common::Exception("SLRParser error: Unknown action");
+            }
         }
     }
-
-
 	//assert(st.eof());
 }
-
 
 }}}

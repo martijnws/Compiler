@@ -82,6 +82,7 @@ public:
 
     Map                _transitionMap;
     std::set<LR0Item>* _itemSet;
+    uint8_t            _label;
 };
 
 

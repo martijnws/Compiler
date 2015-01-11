@@ -48,10 +48,27 @@ public:
         std::fill(_elements, _elements + cr_ * cc_, v_);
     }
 
+    void init(std::size_t cr_, std::size_t cc_, const T& v_)
+    {
+        _elements = new T[cr_ * cc_]; _cr = cr_; _cc = cc_;
+
+        std::fill(_elements, _elements + cr_ * cc_, v_);
+    }
+
     Row operator [](std::size_t r_) const
     {
         assert(r_ < _cr);
         return Row(&_elements[r_ * _cc]);
+    }
+
+    std::size_t rowCount() const
+    {
+        return _cr;
+    }
+
+    std::size_t colCount() const
+    {
+        return _cc;
     }
 
 private:
