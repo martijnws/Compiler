@@ -56,6 +56,7 @@ public:
 		{
             // TODO: remove
             // sub parser setup
+			/*
             SubParserMap ccSubParserCol;
             SLRParserDriver<regex::CharClassLexer> ccParser(_astBuilder, gCC, slrParserTableCC, ccSubParserCol);
 
@@ -64,16 +65,16 @@ public:
             SLRParserDriver<regex::RegexLexer> slr_ccParser(_astBuilder, gRE, slrParserTableRE, reSubParserCol);
 
             slr_ccParser.parse(_buf, _cur);
-
+			*/
              // sub parser setup
-            /*SubParserMap ccSubParserCol;
+            SubParserMap ccSubParserCol;
             ParserDriver<regex::CharClassLexer> ccParser(_astBuilder, gCC, parserTableCC, ccSubParserCol);
 
             SubParserMap reSubParserCol;
             reSubParserCol.insert(std::make_pair(regex::Token::Enum::CharClassB, &ccParser));
 			ParserDriver<regex::RegexLexer> parser(_astBuilder, gRE, parserTableRE, reSubParserCol);
 
-			parser.parse(_buf, _cur);*/
+			parser.parse(_buf, _cur);
 			return true;
 		}
 		catch(const common::Exception& e)

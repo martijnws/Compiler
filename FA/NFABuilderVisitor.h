@@ -1,13 +1,13 @@
 #pragma once
 
-#include "FABuilderVisitorBase.h"
+#include "CharClassVisitor.h"
 #include "NFA.h"
 
 namespace mws {
 
 class NFABuilderVisitor
 	:
-	public FABuilderVisitorBase
+	public ast::Visitor
 {
 public:
     NFABuilderVisitor(const std::set<RangeKey>& rkSet_);
@@ -33,7 +33,7 @@ public:
 
 private:
     NFA _result;
-    std::set<RangeKey> _rkSet;
+    const std::set<RangeKey> _rkSet;
 };
 
 }

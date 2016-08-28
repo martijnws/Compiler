@@ -30,6 +30,8 @@ void NFABuilderVisitor::visit(const ast::Choice& n_)
     n_.rhs().accept(*this);
     auto rhs = _result;
 
+	// TODO: verify the stronger assertion that all nfas have have empty transitionMaps for their final state.
+
     // E transition from rhs.f into lhs.final should not open the door to E transition back loop
     assert(lhs._f->_transitionMap.find(NFA::E) == lhs._f->_transitionMap.end());
 
@@ -122,19 +124,19 @@ void NFABuilderVisitor::visit(const ast::OneToMany& n_)
 
 void NFABuilderVisitor::visit(const ast::CharClass& n_)
 {
-    assert(_charClassSet.empty());
+	CharClassVisitor ccv;
 
-	n_.opr().accept(*this);
+	n_.opr().accept(ccv);
 
-    if (_charClassSet.empty())
+    if (ccv._charClassSet.empty())
     {
         return;
     }
 
-     auto s = new NFANode();
-     auto f = new NFANode();
+    auto s = new NFANode();
+    auto f = new NFANode();
 
-    for (const auto& rk : _charClassSet)
+    for (const auto& rk : ccv._charClassSet)
     {
         std::vector<RangeKey> rkVec = getDisjointRangeKeys(_rkSet, rk);
 
@@ -143,8 +145,6 @@ void NFABuilderVisitor::visit(const ast::CharClass& n_)
             s->_transitionMap.insert(std::make_pair(rk, f));
         }
     }
-
-    _charClassSet.clear();
 
     _result._s = s;
     _result._f = f;

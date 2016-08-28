@@ -22,17 +22,17 @@
     <ClInclude Include="NFABuilderVisitor.h" />
     <ClInclude Include="RangeKey.h" />
     <ClInclude Include="ToStringVisitor.h" />
-    <ClInclude Include="FABuilderVisitorBase.h" />
     <ClInclude Include="AlphabetVisitor.h" />
     <ClInclude Include="DFAMinimize.h" />
+    <ClInclude Include="CharClassVisitor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DFAInfoBuilderVisitor.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="NFABuilderVisitor.cpp" />
     <ClCompile Include="ToStringVisitor.cpp" />
-    <ClCompile Include="FABuilderVisitorBase.cpp" />
     <ClCompile Include="AlphabetVisitor.cpp" />
     <ClCompile Include="DFAMinimize.cpp" />
+    <ClCompile Include="CharClassVisitor.cpp" />
   </ItemGroup>
 </Project>

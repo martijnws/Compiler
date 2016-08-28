@@ -34,13 +34,20 @@ public:
         
     }
 
+	Production(const Production& rhs_)
+		:
+		_gsList(rhs_._gsList), _first(rhs_._first), _derivesEmpty(rhs_._derivesEmpty)
+	{
+
+	}
+/*
     Production(Production&& rhs_) 
     : 
         _gsList(std::move(rhs_._gsList)), _first(std::move(rhs_._first)), _derivesEmpty(rhs_._derivesEmpty)
     {
     
     }
-
+*/
 	Production(const std::initializer_list<GrammarSymbol>& gsList_)
 	: 
         _gsList(gsList_.begin(), gsList_.end()), _derivesEmpty(gsList_.size() > 0)
@@ -88,22 +95,22 @@ inline Action no_op()
 }
 
 
-inline GrammarSymbol t(uint32_t type_)
+inline GrammarSymbol t(uint8_t type_)
 { 
     return { true, type_, no_op()  }; 
 }
 
-inline GrammarSymbol t(uint32_t type_, Action action_) 
+inline GrammarSymbol t(uint8_t type_, Action action_) 
 { 
     return { true, type_, action_ }; 
 }
 
-inline GrammarSymbol n(uint32_t type_)
+inline GrammarSymbol n(uint8_t type_)
 { 
     return { false, type_, no_op() }; 
 }
 
-inline GrammarSymbol n(uint32_t type_, Action action_) 
+inline GrammarSymbol n(uint8_t type_, Action action_) 
 { 
     return { false, type_, action_ }; 
 }

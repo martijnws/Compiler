@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FABuilderVisitorBase.h"
+#include "CharClassVisitor.h"
 
 namespace mws {
 
@@ -8,7 +8,7 @@ class DFAInfo;
 
 class DFAInfoBuilderVisitor 
 	:
-	public FABuilderVisitorBase
+	public ast::Visitor
 {
 public:
     DFAInfoBuilderVisitor(const std::set<RangeKey>& rkSet_);
@@ -27,7 +27,7 @@ private:
 
 private:
     DFAInfo* _dfaInfo;
-    std::set<RangeKey> _rkSet;
+    const std::set<RangeKey> _rkSet;
 };
 
 }

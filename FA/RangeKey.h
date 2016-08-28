@@ -54,6 +54,7 @@ inline std::vector<RangeKey> getDisjointRangeKeys(const std::set<RangeKey>& rkSe
 
     const auto& rkSuper = rk_;
 
+	// The keys in rkSet are disjoint. A lookup in this set will find the unique rk that contains rkSuper._l
     auto itr = rkSet_.find(rkSuper._l);
     assert(itr != rkSet_.end());
 
@@ -82,6 +83,11 @@ inline std::vector<RangeKey> getDisjointRangeKeys(const std::set<RangeKey>& rkSe
 
 inline std::set<RangeKey> getDisjointRangeSet(const std::vector<RangeKey>& rkVec_)
 {
+	// step 1: find all bounds (h or l) and sort them.
+	// step 2: determine if a range exists between 2 bounds or not.
+	// The l = '0' marker and ' h = '1' marker tell us when a range opens ('0')
+	// or a range closes ('1'). If open ranges - closed ranges > 0 then we are in a range,
+	// otherwise we are in an open gap
     std::vector<std::pair<Char, Char>> rkSortVec;
     for (const auto& rk : rkVec_)
     {

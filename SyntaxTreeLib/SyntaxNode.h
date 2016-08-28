@@ -49,13 +49,25 @@ protected:
 	SyntaxNode() = default;
 };
 
-class Symbol
+class Leaf
 	:
 	public SyntaxNode
 {
 public:
+	Leaf(const Leaf&) = delete;
+	Leaf& operator = (const Leaf&) = delete;
+
+protected:
+	Leaf() = default;
+};
+
+class Symbol
+	:
+	public Leaf
+{
+public:
 	Symbol(char l_)
-		: SyntaxNode(), _l(l_)
+		: Leaf(), _l(l_)
 	{
 	
 	}

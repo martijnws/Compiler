@@ -113,7 +113,7 @@ void DFAInfoBuilderVisitor::visit(const ast::ZeroToMany& n_)
         dfaInfo->_followPos.insert(opr->_firstPos.begin(), opr->_firstPos.end());
     }
 
-    auto n = new DFAInfo();
+    auto n = _dfaInfo; //new DFAInfo();
 
     n->_isNullable = true;
 
@@ -125,15 +125,15 @@ void DFAInfoBuilderVisitor::visit(const ast::ZeroToMany& n_)
 
 void DFAInfoBuilderVisitor::visit(const ast::CharClass& n_)
 {
-    assert(_charClassSet.empty());
+	CharClassVisitor ccv;
 
-	n_.opr().accept(*this);
+	n_.opr().accept(ccv);
     
     auto ncs = new DFAInfo();
 
-    ncs->_isNullable = _charClassSet.empty();
+    ncs->_isNullable = ccv._charClassSet.empty();
 
-    for (const auto& rk : _charClassSet)
+    for (const auto& rk : ccv._charClassSet)
     {
         std::vector<RangeKey> rkVec = getDisjointRangeKeys(_rkSet, rk);
 
