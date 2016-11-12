@@ -5,13 +5,14 @@
 
 namespace mws { namespace td { namespace LL1 {
 
-template<typename BufferT, typename LexerT>
+template<typename LexerT>
 class ParserState
 {
 public:
  
-	ParserState(BufferT& buf_, grammar::Token& cur_)
-		: _buf(buf_), _cur(cur_), _lexer(buf_)
+	ParserState(LexerT& lexer_, grammar::Token& cur_)
+	: 
+		_lexer(lexer_), _cur(cur_)
 	{
 		
 	}
@@ -37,11 +38,6 @@ public:
 		return _cur;
 	}
 
-	BufferT& buf()
-	{
-		return _buf;
-	}
-
     void m(grammar::Token::Type type_)
 	{
         m(type_, true);
@@ -61,9 +57,8 @@ public:
 	}
 
 private:
-	BufferT&        _buf;
+	LexerT&         _lexer;
 	grammar::Token& _cur;
-	LexerT          _lexer;
 };
 
 }}}

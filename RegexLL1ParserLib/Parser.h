@@ -67,14 +67,19 @@ public:
             slr_ccParser.parse(_buf, _cur);
 			*/
              // sub parser setup
+			using CCLexer = regex::CharClassLexer<common::Buffer>;
+			using RELexer = regex::RegexLexer<common::Buffer>;
+
             SubParserMap ccSubParserCol;
-            ParserDriver<regex::CharClassLexer> ccParser(_astBuilder, gCC, parserTableCC, ccSubParserCol);
+			CCLexer ccLexer(_buf);
+			ParserDriver<CCLexer> ccParser(ccLexer, _astBuilder, gCC, parserTableCC, ccSubParserCol);
 
             SubParserMap reSubParserCol;
+			RELexer reLexer(_buf);
             reSubParserCol.insert(std::make_pair(regex::Token::Enum::CharClassB, &ccParser));
-			ParserDriver<regex::RegexLexer> parser(_astBuilder, gRE, parserTableRE, reSubParserCol);
+			ParserDriver<RELexer> reParser(reLexer, _astBuilder, gRE, parserTableRE, reSubParserCol);
 
-			parser.parse(_buf, _cur);
+			reParser.parse(_cur);
 			return true;
 		}
 		catch(const common::Exception& e)

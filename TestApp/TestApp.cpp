@@ -17,12 +17,14 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	const auto* regex = "a";
+	/*
+	const auto* regex = "[a-z]";
 	std::stringstream is(regex, std::ios::in);
 	mws::td::LL1::Parser parser(is);
 	parser.parse();
 	auto root = parser._astBuilder.detach();
-	/*
+	*/
+	
     {
         const char* text = "hello world; if bla ___0_   { continue; } else elsbla else1234 { bla 1234 break; }";
         std::stringstream is(text, std::ios_base::in);
@@ -96,7 +98,7 @@ int _tmain(int argc, _TCHAR* argv[])
         res = simulate(s, a, str4);
         assert(!res);
     }
-*/
+
 	return 0;
 }
 

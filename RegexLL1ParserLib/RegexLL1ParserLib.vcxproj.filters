@@ -5,21 +5,28 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="obsolete">
+      <UniqueIdentifier>{76fc44e8-63d9-4b7f-9a4a-1dd069fd7ba9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CharClassParser.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="ParserState.h" />
-    <ClInclude Include="RegexParser.h" />
     <ClInclude Include="ParserDriver.h" />
     <ClInclude Include="ParserTable.h" />
     <ClInclude Include="IParser.h" />
     <ClInclude Include="SLRParserTable.h" />
     <ClInclude Include="SLRParserDriver.h" />
     <ClInclude Include="LR0State.h" />
+    <ClInclude Include="RegexParser.h">
+      <Filter>obsolete</Filter>
+    </ClInclude>
+    <ClInclude Include="CharClassParser.h">
+      <Filter>obsolete</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParserTable.cpp" />
