@@ -12,9 +12,9 @@ struct IDWriteTextFormat;
 class Canvas
 {
 public:
-	Canvas(ID2D1RenderTarget& rt_, const D2D1::Matrix3x2F& mtxTransform_, const D2D1::Matrix3x2F& mtxScale_)
+	Canvas(ID2D1RenderTarget& rt_, const D2D1::Matrix3x2F& mtxTransform_, const D2D1::Matrix3x2F& mtxScale_, const D2D1::Matrix3x2F& mtxRotate_)
 	:
-		_rt(rt_), _mtxScale(mtxScale_)
+		_rt(rt_), _mtxScale(mtxScale_), _mtxRotate(mtxRotate_), _mtxScaleRotate(mtxScale_ * mtxRotate_)
 	{
 		// Note: To extract scale matrix from mtxTransform you need to do a Singular Value Decomposition.
 		// For now, just pass in scale matrix separately
@@ -24,8 +24,8 @@ public:
 
 	void drawRectangle(const D2D1_RECT_F& rect_, ID2D1SolidColorBrush* brush_)
 	{
-		auto lt = _mtxScale.TransformPoint(D2D1::Point2F(rect_.left, rect_.top));
-		auto rb = _mtxScale.TransformPoint(D2D1::Point2F(rect_.right, rect_.bottom));
+		auto lt = _mtxScaleRotate.TransformPoint(D2D1::Point2F(rect_.left, rect_.top));
+		auto rb = _mtxScaleRotate.TransformPoint(D2D1::Point2F(rect_.right, rect_.bottom));
 		auto rect = D2D1::RectF(lt.x, lt.y, rb.x, rb.y);	
 
 		_rt.DrawRectangle(rect, brush_);
@@ -33,7 +33,7 @@ public:
 
 	void drawEllipse(const D2D1_ELLIPSE& ellipse_, ID2D1SolidColorBrush* brush_)
 	{
-		auto center = _mtxScale.TransformPoint(ellipse_.point);
+		auto center = _mtxScaleRotate.TransformPoint(ellipse_.point);
 		auto radius = _mtxScale.TransformPoint(D2D1::Point2F(ellipse_.radiusX, ellipse_.radiusY));
 
 		auto ellipse = D2D1::Ellipse(center, radius.x, radius.y);
@@ -42,7 +42,7 @@ public:
 
 	void fillEllipse(const D2D1_ELLIPSE& ellipse_, ID2D1SolidColorBrush* brush_)
 	{
-		auto center = _mtxScale.TransformPoint(ellipse_.point);
+		auto center = _mtxScaleRotate.TransformPoint(ellipse_.point);
 		auto radius = _mtxScale.TransformPoint(D2D1::Point2F(ellipse_.radiusX, ellipse_.radiusY));
 
 		auto ellipse = D2D1::Ellipse(center, radius.x, radius.y);
@@ -51,16 +51,16 @@ public:
 
 	void drawLine(const D2D1_POINT_2F& ptBeg_, const D2D1_POINT_2F& ptEnd_, ID2D1SolidColorBrush* brush_)
 	{
-		auto ptBeg = _mtxScale.TransformPoint(ptBeg_);
-		auto ptEnd = _mtxScale.TransformPoint(ptEnd_);
+		auto ptBeg = _mtxScaleRotate.TransformPoint(ptBeg_);
+		auto ptEnd = _mtxScaleRotate.TransformPoint(ptEnd_);
 
 		_rt.DrawLine(ptBeg, ptEnd, brush_);
 	}
 
 	void drawText(const wchar_t* text_, uint32_t len_, IDWriteTextFormat* pTextFormat, const D2D1_RECT_F& rect_, ID2D1SolidColorBrush* brush_)
 	{
-		auto lt = _mtxScale.TransformPoint(D2D1::Point2F(rect_.left, rect_.top));
-		auto rb = _mtxScale.TransformPoint(D2D1::Point2F(rect_.right, rect_.bottom));
+		auto lt = _mtxScaleRotate.TransformPoint(D2D1::Point2F(rect_.left, rect_.top));
+		auto rb = _mtxScaleRotate.TransformPoint(D2D1::Point2F(rect_.right, rect_.bottom));
 		auto rect = D2D1::RectF(lt.x, lt.y, rb.x, rb.y);	
 
 		_rt.DrawText(text_, len_, pTextFormat, rect, brush_);
@@ -68,8 +68,8 @@ public:
 
 	void drawCurveArrow(const D2D1_POINT_2F& ptBeg_, const D2D1_POINT_2F& ptEnd_, ID2D1SolidColorBrush* brush_, ID2D1Factory* pD2D1Factory_)
 	{
-		auto ptBeg = _mtxScale.TransformPoint(ptBeg_);
-		auto ptEnd = _mtxScale.TransformPoint(ptEnd_);
+		auto ptBeg = _mtxScaleRotate.TransformPoint(ptBeg_);
+		auto ptEnd = _mtxScaleRotate.TransformPoint(ptEnd_);
 
 		D2D1::Matrix3x2F mtxTransform;
 		_rt.GetTransform(&mtxTransform);
@@ -120,8 +120,10 @@ public:
         spGeoSink->BeginFigure(ptBeg, D2D1_FIGURE_BEGIN::D2D1_FIGURE_BEGIN_HOLLOW);
 
         spGeoSink->AddArc(
-            D2D1::ArcSegment(ptEnd, D2D1::SizeF(radiusX, radiusY), theta, D2D1_SWEEP_DIRECTION_CLOCKWISE, D2D1_ARC_SIZE_SMALL)
-		);            
+            D2D1::ArcSegment(ptEnd, 
+				D2D1::SizeF(static_cast<float>(radiusX), static_cast<float>(radiusY)), 
+				static_cast<float>(theta), D2D1_SWEEP_DIRECTION_CLOCKWISE, D2D1_ARC_SIZE_SMALL
+		));            
 
         spGeoSink->EndFigure(D2D1_FIGURE_END::D2D1_FIGURE_END_OPEN);
 	    hr = spGeoSink->Close();
@@ -133,6 +135,8 @@ public:
 private:
 	ID2D1RenderTarget&      _rt;
 	const D2D1::Matrix3x2F& _mtxScale;
+	const D2D1::Matrix3x2F& _mtxRotate;
+	const D2D1::Matrix3x2F  _mtxScaleRotate;
 };
 
 

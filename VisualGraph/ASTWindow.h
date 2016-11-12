@@ -25,7 +25,7 @@ public:
 
     ASTWindow(d2d::System& system_, mws::ast::SyntaxNode* astRoot_)
 	:
-		m_d2dSystem(system_), m_renderTarget(system_), m_astRoot(astRoot_)
+		m_d2dSystem(system_), m_astRoot(astRoot_)
     {
     
     }
@@ -42,6 +42,7 @@ private:
 	LRESULT OnMsg(const WmCommand& msg);
    
 	void Draw(ID2D1RenderTarget& rt);
+	void drawLabel(Canvas& canvas_, const std::wstring& label_, const D2D1_POINT_2F& ptBeg_, const D2D1_POINT_2F& ptEnd_, ID2D1SolidColorBrush* brush_);
 	void drawGraphESet(Canvas& canvas_, const DrawInfoNode& n_, std::set<const DrawInfoNode*>& visitSet_);
 	void drawGraphVSet(Canvas& canvas_, const DrawInfoNode& n_, std::set<const DrawInfoNode*>& visitSet_);
 
@@ -50,6 +51,7 @@ private:
 	d2d::System&                 m_d2dSystem;
 	RenderTarget                 m_renderTarget;
 	ComPtr<IDWriteTextFormat>    m_spTextFormat;
+	ComPtr<IDWriteTextFormat>    m_spTextFormatSmall;
 	ComPtr<ID2D1SolidColorBrush> m_spBrushBlue;
 	ComPtr<ID2D1SolidColorBrush> m_spBrushWhite;
 	mws::ast::SyntaxNodePtr      m_astRoot;

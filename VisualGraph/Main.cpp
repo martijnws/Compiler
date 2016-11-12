@@ -33,9 +33,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	int retval = 0;
 	try
 	{
-		const auto* expr = "[1-9][0-9]*.?[0-9]*";
+		//const auto* expr = "[1-9][0-9]*.?[0-9]*";
 		//const auto* expr = "a";
-		//const auto* expr = "a|b";
+		const auto* expr = "a|b";
 		std::stringstream is(expr, std::ios::in);
 		// build the regex syntax tree
 		mws::td::LL1::Parser parser(is);

@@ -34,5 +34,6 @@
     <ClCompile Include="AlphabetVisitor.cpp" />
     <ClCompile Include="DFAMinimize.cpp" />
     <ClCompile Include="CharClassVisitor.cpp" />
+    <ClCompile Include="RangeKey.cpp" />
   </ItemGroup>
 </Project>

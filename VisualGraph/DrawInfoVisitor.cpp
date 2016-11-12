@@ -69,7 +69,10 @@ void DrawInfoNFANodeVisitor::visit(const mws::NFANode* n_)
 	auto newChildCount = 0;
 	for (const auto& pair : n_->_transitionMap)
 	{
+		const auto& rk = pair.first;
+		const auto label = rk.toString();
 		auto child = pair.second;
+
 		auto itr = m_visitMap.find(child);
 		if (itr == m_visitMap.end())
 		{
@@ -82,11 +85,11 @@ void DrawInfoNFANodeVisitor::visit(const mws::NFANode* n_)
 			xR = std::max(xR, m_subTree->xCenter());
 			width += m_subTree->width();
 			
-			dn->add(m_subTree);
+			dn->add(m_subTree, label);
 		}
 		else
 		{
-			dn->add(itr->second);
+			dn->add(itr->second, label);
 		}
 	}
 

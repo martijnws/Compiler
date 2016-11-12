@@ -44,6 +44,8 @@ public:
         return lhs_._h < rhs_._l;
     }
 
+	std::wstring toString() const;
+
     Char _l;
     Char _h;
 };

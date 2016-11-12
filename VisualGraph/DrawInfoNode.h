@@ -9,6 +9,8 @@
 class DrawInfoNode
 {
 public:
+	using EdgeLabelVertexPair = std::pair<std::wstring, const DrawInfoNode*>;
+
 	DrawInfoNode() = default;
 
 	DrawInfoNode(uint32_t depth_, float width_, float xCenter_, float yCenter_)
@@ -43,12 +45,12 @@ public:
 		return m_yCenter;
 	}
 
-	void add(const DrawInfoNode* child_)
+	void add(const DrawInfoNode* child_, const std::wstring& label_ = L"")
 	{
-		m_childVec.push_back(child_);
+		m_childVec.push_back(std::make_pair(label_, child_));
 	}
 
-	void add(const std::vector<const DrawInfoNode*>& childVec_)
+	void add(const std::vector<EdgeLabelVertexPair>& childVec_)
 	{
 		m_childVec.insert(m_childVec.end(), childVec_.begin(), childVec_.end());
 	}
@@ -65,7 +67,7 @@ private:
 	float    m_width = 0;
 	float    m_xCenter = 0;
 	float    m_yCenter = 0;
-	std::vector<const DrawInfoNode*> m_childVec;
+	std::vector<EdgeLabelVertexPair> m_childVec;
 };
 
 class DrawInfoSyntaxNode

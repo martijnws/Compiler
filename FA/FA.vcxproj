@@ -165,6 +165,7 @@
     <ClCompile Include="CharClassVisitor.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="NFABuilderVisitor.cpp" />
+    <ClCompile Include="RangeKey.cpp" />
     <ClCompile Include="ToStringVisitor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
