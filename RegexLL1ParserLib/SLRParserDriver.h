@@ -7,14 +7,15 @@
 
 namespace mws { namespace td { namespace LL1 {
 
-template< template<typename> class LexerT>
+template<typename LexerT>
 class SLRParserDriver
 :
     public IParser
 {
 public:
-	SLRParserDriver(grammar::Handler& h_, const grammar::Grammar& grammar_, const SLRParserTable& parserTable_, const SubParserMap& subParserCol_)
+	SLRParserDriver(LexerT& lexer_, grammar::Handler& h_, const grammar::Grammar& grammar_, const SLRParserTable& parserTable_, const SubParserMap& subParserCol_)
     :
+		_lexer(lexer_),
         _h(h_), 
         _grammar(grammar_), 
         _parserTable(parserTable_), 
@@ -23,19 +24,20 @@ public:
 		
 	}
 
-    void parse(common::Buffer& buf_, grammar::Token& cur_) override;
+    void parse(grammar::Token& cur_) override;
 
 private:
+	LexerT&                 _lexer;
     grammar::Handler&       _h;
     const grammar::Grammar& _grammar;
     const SLRParserTable&   _parserTable;
     const SubParserMap&     _subParserCol;
 };
 
-template< template<typename> class LexerT>
-void SLRParserDriver<LexerT>::parse(common::Buffer& buf_, grammar::Token& cur_)
+template<typename LexerT>
+void SLRParserDriver<LexerT>::parse(grammar::Token& cur_)
 {
-    ParserState<common::Buffer, LexerT<common::Buffer>> st(buf_, cur_);
+    ParserState<LexerT> st(_lexer, cur_);
     st.init();
 
     grammar::TokenStore store;
@@ -66,7 +68,7 @@ void SLRParserDriver<LexerT>::parse(common::Buffer& buf_, grammar::Token& cur_)
                 if (itr != _subParserCol.end())
                 {
                     const auto& parser = itr->second;
-                    parser->parse(st.buf(), st.cur());
+                    parser->parse(st.cur());
                 }
                 else
                 {
