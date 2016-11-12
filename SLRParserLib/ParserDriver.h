@@ -1,19 +1,19 @@
 #pragma once
 
-#include "ParserState.h"
-#include "SLRParserTable.h"
-#include "IParser.h"
+#include "ParserTable.h"
+#include <ParserLib/ParserState.h>
+#include <ParserLib/IParser.h>
 #include <Grammar/Grammar.h>
 
-namespace mws { namespace td { namespace LL1 {
+namespace mws { namespace td { namespace SLR {
 
 template<typename LexerT>
-class SLRParserDriver
+class ParserDriver
 :
     public IParser
 {
 public:
-	SLRParserDriver(LexerT& lexer_, grammar::Handler& h_, const grammar::Grammar& grammar_, const SLRParserTable& parserTable_, const SubParserMap& subParserCol_)
+	ParserDriver(LexerT& lexer_, grammar::Handler& h_, const grammar::Grammar& grammar_, const ParserTable& parserTable_, const SubParserMap& subParserCol_)
     :
 		_lexer(lexer_),
         _h(h_), 
@@ -30,12 +30,12 @@ private:
 	LexerT&                 _lexer;
     grammar::Handler&       _h;
     const grammar::Grammar& _grammar;
-    const SLRParserTable&   _parserTable;
+    const ParserTable&   _parserTable;
     const SubParserMap&     _subParserCol;
 };
 
 template<typename LexerT>
-void SLRParserDriver<LexerT>::parse(grammar::Token& cur_)
+void ParserDriver<LexerT>::parse(grammar::Token& cur_)
 {
     ParserState<LexerT> st(_lexer, cur_);
     st.init();
@@ -56,7 +56,7 @@ void SLRParserDriver<LexerT>::parse(grammar::Token& cur_)
         const auto entry = _parserTable.action(stack.top(), t._type);
         switch(entry._action)
         {
-            case SLRParserTable::Action::Shift:
+            case ParserTable::Action::Shift:
             {
                 lastTerminal = st.cur();
                 //std::cout << "Shift: lexeme=" << lastTerminal._lexeme << std::endl; 
@@ -77,7 +77,7 @@ void SLRParserDriver<LexerT>::parse(grammar::Token& cur_)
 
                 break;
             }
-            case SLRParserTable::Action::Reduce:
+            case ParserTable::Action::Reduce:
             {
                 const auto& nt = _grammar[entry._prod._head];
                 const auto& prod = nt._prodList[entry._prod._body];
@@ -108,7 +108,7 @@ void SLRParserDriver<LexerT>::parse(grammar::Token& cur_)
 
                 break;
             }
-            case SLRParserTable::Action::Accept:
+            case ParserTable::Action::Accept:
             {
                 //std::cout << "Accept:" << std::endl;;
                 //Token::Eof does not work because subGrammars may have different 'Eof' tokens
@@ -116,7 +116,7 @@ void SLRParserDriver<LexerT>::parse(grammar::Token& cur_)
                 done = true;
                 break;
             }
-            case SLRParserTable::Action::Error:
+            case ParserTable::Action::Error:
             {
                 throw common::Exception("SLRParser error: No valid action from state");
             }

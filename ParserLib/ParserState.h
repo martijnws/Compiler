@@ -3,7 +3,7 @@
 #include <Grammar/Token.h>
 #include <cassert>
 
-namespace mws { namespace td { namespace LL1 {
+namespace mws { namespace td {
 
 template<typename LexerT>
 class ParserState
@@ -61,4 +61,4 @@ private:
 	grammar::Token& _cur;
 };
 
-}}}
+}}

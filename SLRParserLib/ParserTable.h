@@ -4,9 +4,9 @@
 #include <Grammar/Grammar.h>
 #include <CommonLib/Matrix.h>
 
-namespace mws { namespace td { namespace LL1 {
+namespace mws { namespace td { namespace SLR {
 
-class SLRParserTable
+class ParserTable
 {
 public:
     enum Action { Shift, Reduce, Accept, Error };
@@ -25,7 +25,7 @@ public:
         };
     };
 
-    SLRParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_);
+    ParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_);
 
     Entry   action(uint8_t state_, uint8_t t_) const;
     uint8_t goTo(uint8_t state_, uint8_t nt_) const;

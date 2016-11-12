@@ -5,7 +5,8 @@
 #include "DFABuilder.h"
 #include "DFAMinimize.h"
 #include "DFAFromNFAConvTraits.h"
-#include <RegexLL1ParserLib/Parser.h>
+#include <LL1RegexParser/RegexParser.h>
+#include <SLRRegexParser/RegexParser.h>
 #include <SyntaxTreeLib/SyntaxNode.h>
 #include <sstream>
 
@@ -42,7 +43,7 @@ Lexer::Lexer(std::istream& is_)
         auto regex = g_regexCol[i];
 
         std::stringstream is(regex, std::ios_base::in);
-	    mws::td::LL1::Parser parser(is);
+	    mws::td::LL1::RegexParser parser(is);
 
 	    parser.parse();
         mws::ast::SyntaxNode* root(parser._astBuilder.detach());

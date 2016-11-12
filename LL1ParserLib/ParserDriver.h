@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ParserState.h"
 #include "ParserTable.h"
-#include "IParser.h"
+#include <ParserLib/ParserState.h>
+#include <ParserLib/IParser.h>
 #include <Grammar/Grammar.h>
 
 namespace mws { namespace td { namespace LL1 {

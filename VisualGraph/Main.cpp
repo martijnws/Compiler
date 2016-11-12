@@ -14,7 +14,7 @@
 
 #include <Direct2DLib\System.h>
 
-#include <RegexLL1ParserLib\Parser.h>
+#include <LL1RegexParser\RegexParser.h>
 #include <FA\AlphabetVisitor.h>
 #include <FA\NFABuilderVisitor.h>
 #include <SyntaxTreeLib\Visitor.h>
@@ -38,7 +38,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		const auto* expr = "a|b";
 		std::stringstream is(expr, std::ios::in);
 		// build the regex syntax tree
-		mws::td::LL1::Parser parser(is);
+		mws::td::LL1::RegexParser parser(is);
 		if (!parser.parse())
 		{
 			std::wcout << "parser error" << std::endl;

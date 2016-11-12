@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include <RegexLL1ParserLib/Parser.h>
+#include <LL1RegexParser/RegexParser.h>
 #include <SyntaxTreeLib/SyntaxNode.h>
 #include <FA/NFABuilderVisitor.h>
 #include <FA/AlphabetVisitor.h>
@@ -12,7 +12,7 @@
 
 namespace {
 
-typedef mws::td::LL1::Parser Parser;
+typedef mws::td::LL1::RegexParser Parser;
 
 template<typename Item>
 std::tuple<mws::DFANode*, Item*, Item*> buildDFA(mws::ast::SyntaxNode* root_)

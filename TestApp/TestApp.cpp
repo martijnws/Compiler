@@ -11,7 +11,7 @@
 #include <FA/DFAMinimize.h>
 #include <FA/DFAFromFirstFollowPosConvTraits.h>
 #include <FA/DFAFromNFAConvTraits.h>
-#include <RegexLL1ParserLib/Parser.h>
+#include <LL1RegexParser/RegexParser.h>
 #include <SyntaxTreeLib/SyntaxNode.h>
 #include <sstream>
 
@@ -38,7 +38,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
     const char* regex = "abc[^a-zA-Z]*def|abc(a|ab)*ab*";
 	std::stringstream is(regex, std::ios_base::in);
-	mws::td::LL1::Parser parser(is);
+	mws::td::LL1::RegexParser parser(is);
 
 	parser.parse();
     mws::ast::SyntaxNodePtr root(parser._astBuilder.detach());

@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 
-namespace mws { namespace td { namespace LL1 {
+namespace mws { namespace td { namespace SLR {
 
 class LR0Item
 {
@@ -46,7 +46,7 @@ public:
     class Hash
     {
     public:
-        std::size_t operator ()(const mws::td::LL1::LR0Item& item_)
+        std::size_t operator ()(const mws::td::SLR::LR0Item& item_)
         {
             std::size_t h = 0;
             h += static_cast<std::size_t>(item_._nt) << 16;

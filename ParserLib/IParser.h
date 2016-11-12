@@ -3,7 +3,7 @@
 #include <Grammar/Grammar.h>
 #include <map>
 
-namespace mws { namespace td { namespace LL1 {
+namespace mws { namespace td { 
 
 class IParser
 {
@@ -13,4 +13,4 @@ public:
 
 using SubParserMap = std::map<grammar::Token::Type, IParser*>;
 
-}}}
+}}

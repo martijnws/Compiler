@@ -1,10 +1,10 @@
-#include "SLRParserTable.h"
+#include "ParserTable.h"
 #include <FA/DFANode.h>
 #include <unordered_map>
 #include <functional>
 #include <iomanip>
 
-namespace mws { namespace td { namespace LL1 {
+namespace mws { namespace td { namespace SLR {
 
 using LR0ItemSet = ItemSet<LR0Item, LR0Item::Hash>;
 using LR0StateMap = std::unordered_map<typename LR0ItemSet::Ptr, LR0State*, typename LR0ItemSet::Hash, typename LR0ItemSet::Pred>;
@@ -205,7 +205,7 @@ std::set<LR0Item> createStartNode(const grammar::NT& ntStart_)
     return itemSet;
 }
 
-void SLRParserTable::printActionTable()
+void ParserTable::printActionTable()
 {
     
     std::cout << "   | ";
@@ -246,12 +246,12 @@ void SLRParserTable::printActionTable()
     }
 }
 
-SLRParserTable::SLRParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_)
+ParserTable::ParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_)
 {
 	build(grammar_, cTerminal_);
 }
 
-void SLRParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
+void ParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
 {
     auto itemSet = new LR0ItemSet(createStartNode(grammar_[0]));
    
@@ -347,7 +347,7 @@ void SLRParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
     std::cout << std::endl << std::endl;
 }
 
-SLRParserTable::Entry SLRParserTable::action(uint8_t state_, uint8_t t_) const
+ParserTable::Entry ParserTable::action(uint8_t state_, uint8_t t_) const
 {
     assert(state_ < _actionTable.rowCount());
     assert(t_ < _actionTable.colCount());
@@ -355,7 +355,7 @@ SLRParserTable::Entry SLRParserTable::action(uint8_t state_, uint8_t t_) const
     return _actionTable[state_][t_];
 }
 
-uint8_t SLRParserTable::goTo(uint8_t state_, uint8_t nt_) const
+uint8_t ParserTable::goTo(uint8_t state_, uint8_t nt_) const
 {
     assert(state_ < _gotoTable.rowCount());
     assert(nt_ < _gotoTable.colCount());
