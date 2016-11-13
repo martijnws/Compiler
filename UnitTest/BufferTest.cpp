@@ -5,7 +5,7 @@
 namespace {
 
 template<std::size_t ValueT>
-using Buffer = mws::common::BufferT<ValueT>;
+using Buffer = mws::common::BufferT<char, ValueT>;
 
 template<std::size_t ValueT>
 struct Size

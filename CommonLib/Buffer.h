@@ -7,10 +7,27 @@
 
 namespace mws { namespace common {
 
-template<std::size_t Size>
+template<typename CharT>
+struct BufferTraits;
+
+template<>
+struct BufferTraits<char>
+{
+	static const char NullTerminator = '\0';
+};
+
+template<>
+struct BufferTraits<wchar_t>
+{
+	static const char NullTerminator = L'\0';
+};
+
+template<typename CharT, std::size_t Size>
 class BufferT
 {
 public:
+	using Traits = BufferTraits<CharT>;
+
 	BufferT(std::istream& is_)
 		:
 		_is(is_), _pos(-1), _posReload(0)
@@ -38,7 +55,7 @@ public:
 
 			//load next buffer
 			_is.read(&_buf[idx()], Size);
-			_buf[idx() + _is.gcount()] = '\0';
+			_buf[idx() + _is.gcount()] = Traits::NullTerminator;
 
 			//move reload point forward
 			_posReload += Size;
@@ -62,7 +79,7 @@ public:
 
 	bool valid() const
 	{
-		return _is || cur() != '\0';
+		return _is || cur() != Traits::NullTerminator;
 	}
 
 private:
@@ -79,6 +96,6 @@ private:
 	std::size_t _posReload;
 };
 
-using Buffer = BufferT<4096>;
+using Buffer = BufferT<char, 4096>;
 
 }}
