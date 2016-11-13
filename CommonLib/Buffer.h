@@ -27,10 +27,11 @@ class BufferT
 {
 public:
 	using Traits = BufferTraits<CharT>;
+	using Stream = std::basic_istream<CharT>;
 
-	BufferT(std::istream& is_)
-		:
-		_is(is_), _pos(-1), _posReload(0)
+	BufferT(Stream& is_)
+	:
+		_is(is_)
 	{
 		
 	}
@@ -90,10 +91,10 @@ private:
 	}
 
 private:
-	char _buf[2 * Size + 8];
-	std::istream& _is;
-	std::size_t _pos;
-	std::size_t _posReload;
+	char        _buf[2 * Size + 8];
+	Stream&     _is;
+	std::size_t _pos = -1;
+	std::size_t _posReload = 0;
 };
 
 using Buffer = BufferT<char, 4096>;
