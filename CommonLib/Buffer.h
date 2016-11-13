@@ -26,8 +26,9 @@ template<typename CharT, std::size_t Size>
 class BufferT
 {
 public:
-	using Traits = BufferTraits<CharT>;
-	using Stream = std::basic_istream<CharT>;
+	using Char   = CharT;
+	using Traits = BufferTraits<Char>;
+	using Stream = std::basic_istream<Char>;
 
 	BufferT(Stream& is_)
 	:
@@ -36,13 +37,13 @@ public:
 		
 	}
 	
-	char cur() const
+	CharT cur() const
 	{
 		assert(_pos != -1);
 		return _buf[idx()];
 	}
 
-	char next()
+	CharT next()
 	{
 		if (!valid())
 			throw Exception("beyond end of input");
@@ -91,7 +92,7 @@ private:
 	}
 
 private:
-	char        _buf[2 * Size + 8];
+	CharT       _buf[2 * Size + 8];
 	Stream&     _is;
 	std::size_t _pos = -1;
 	std::size_t _posReload = 0;
