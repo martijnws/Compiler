@@ -1,5 +1,6 @@
 #pragma once
 
+#include <CommonLib/CodePoint.h>
 #include <cstdint>
 
 namespace mws { namespace grammar {
@@ -11,8 +12,8 @@ struct Token
     static const Type None = -1;
     static const Type Eof = 0;
 
-	Type _type;
-	char _lexeme;
+	Type      _type;
+	CodePoint _lexeme;
 };
 
 }}

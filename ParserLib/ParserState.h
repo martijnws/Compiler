@@ -30,7 +30,7 @@ public:
 
 	bool eof() const
 	{
-		return _cur._type == grammar::Token::Eof;
+		return _cur._type == LexerT::Eof;
 	}
 
 	grammar::Token& cur() const
@@ -47,7 +47,7 @@ public:
 	{
 		if (eof() || _cur._type != type_)
 		{
-			throw common::Exception("Lexer error");
+			throw common::Exception(_C("Lexer error"));
 		}
 
         if (fetchNext_)

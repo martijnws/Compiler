@@ -3,30 +3,32 @@
 #include "DFANode.h"
 #include "NFA.h"
 #include <CommonLib/Buffer.h>
-#include <string>
+#include <CommonLib/String.h>
 
 namespace mws {
 
 class Token
 {
 public:
+	static const std::size_t Invalid = -1;
+
     std::size_t _type;
-    std::string _lexeme;
+    String      _lexeme;
 };
 
 class Lexer
 {
 public:
-    Lexer(std::istream& is_);
+    Lexer(IStreamExt& is_);
    
-    const char* regex(std::size_t type) const;
-
     Token next();
 
+    const Char* regex(std::size_t type) const;
+
 private:
-    common::Buffer _buf;
-    DFANode*       _dfa;
-    bool           _eof;
+    common::BufferExt _buf;
+    DFANode*          _dfa;
+    bool              _eof;
 };
 
 }

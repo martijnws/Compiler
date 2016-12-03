@@ -322,13 +322,13 @@ void ParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
                 // follow sets of Reduce items not disjoint
                 if (_actionTable[state->_label][t]._action == Action::Reduce)
                 {
-                    throw mws::common::Exception("Reduce/Reduce conflict");
+                    throw mws::common::Exception(_C("Reduce/Reduce conflict"));
                 }
 
                 // we can shift and reduce.
                 if (_actionTable[state->_label][t]._action == Action::Shift)
                 {
-                    throw mws::common::Exception("Shift/Reduce conflict");
+                    throw mws::common::Exception(_C("Shift/Reduce conflict"));
                 }
 
                 Entry entry;

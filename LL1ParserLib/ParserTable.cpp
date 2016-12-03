@@ -30,7 +30,7 @@ void ParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
 			for (uint8_t t : prod._first)
 			{
 				if (_table[ntt][t] != E) 
-					throw common::Exception("ParserTable confict: first set not disjoint");
+					throw common::Exception(_C("ParserTable confict: first set not disjoint"));
 
 				_table[ntt][t] = i;
 			}
@@ -44,7 +44,7 @@ void ParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
 			for (uint8_t t : nt._follow)
 			{
 				if (_table[ntt][t] != E && _table[ntt][t] != i) 
-					throw common::Exception("ParserTable confict: follow set not disjoint");
+					throw common::Exception(_C("ParserTable confict: follow set not disjoint"));
 
 				_table[ntt][t] = i;
 			}
@@ -58,7 +58,7 @@ const grammar::Production& ParserTable::expand(const grammar::Grammar& grammar_,
 
 	if (index == E)
 	{
-		throw common::Exception("Parser error: no production found");
+		throw common::Exception(_C("Parser error: no production found"));
 	}
 
     /*std::cout << "expand: " << grammar_[nt_]._name << " :=";

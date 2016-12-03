@@ -73,8 +73,8 @@ public:
             }
 
             Hash hash;
-            std::size_t hlhs = hash(lhs_);
-            std::size_t hrhs = hash(rhs_);
+            auto hlhs = hash(lhs_);
+            auto hrhs = hash(rhs_);
 
             if (hlhs != hrhs)
             {

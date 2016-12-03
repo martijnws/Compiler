@@ -118,11 +118,11 @@ void ParserDriver<LexerT>::parse(grammar::Token& cur_)
             }
             case ParserTable::Action::Error:
             {
-                throw common::Exception("SLRParser error: No valid action from state");
+                throw common::Exception(_C("SLRParser error: No valid action from state"));
             }
             default:
             {
-                throw common::Exception("SLRParser error: Unknown action");
+                throw common::Exception(_C("SLRParser error: Unknown action"));
             }
         }
     }

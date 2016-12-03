@@ -35,13 +35,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	{
 		//const auto* expr = "[1-9][0-9]*.?[0-9]*";
 		//const auto* expr = "a";
-		const auto* expr = "a|b";
+		const auto* expr = u8"a|b";
 		std::stringstream is(expr, std::ios::in);
 		// build the regex syntax tree
-		mws::td::LL1::RegexParser parser(is);
+		mws::td::LL1::RegexParser<mws::common::BufferT<char, 32>> parser(is);
 		if (!parser.parse())
 		{
-			std::wcout << "parser error" << std::endl;
+			std::wcout << L"parser error" << std::endl;
 			return -1;
 		}
 

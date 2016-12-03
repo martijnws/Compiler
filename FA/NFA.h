@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RangeKey.h"
+#include <CommonLib/CodePoint.h>
 #include <map>
 #include <set>
 #include <functional>
@@ -26,7 +27,7 @@ public:
 class NFA
 {
 public:
-    static const Char E = -1;
+    static const CodePoint E = -1;
 
     NFANode* _s;
     NFANode* _f;

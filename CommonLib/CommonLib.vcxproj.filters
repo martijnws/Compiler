@@ -14,5 +14,12 @@
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="Unicode.h" />
+    <ClInclude Include="UnicodeException.h" />
+    <ClInclude Include="CodePoint.h" />
+    <ClInclude Include="String.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Unicode.cpp" />
   </ItemGroup>
 </Project>

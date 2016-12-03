@@ -1,24 +1,34 @@
 #include "RangeKey.h"
 #include "NFA.h"
+#include <CommonLib/Unicode.H>
 #include <sstream>
 
 namespace mws {
 
-std::wstring RangeKey::toString() const
+String RangeKey::toString() const
 {
-	std::wstringstream label;
+	Char bufL[8];
+	const auto sizeL = common::utf::Encoder<Char>::encode(_l, bufL);
+	bufL[sizeL] = _C('\0');
+
+	Char bufH[8];
+	const auto sizeH = common::utf::Encoder<Char>::encode(_h, bufH);
+	bufH[sizeH] = _C('\0');
+
+	StringStream label;
+
 	if (_l < _h)
 	{
-		label << (wchar_t)_l << "-" << (wchar_t)_h;
+		label << bufL << _C("-") << bufH;
 	}
 	else
 	if (_l == mws::NFA::E)
 	{
-		label << L'\u03b5';
+		label << _C('\u03b5');
 	}
 	else
 	{
-		label << (wchar_t)_l;
+		label << bufL;
 	}
 
 	return label.str();

@@ -143,7 +143,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlphabetVisitor.h" />
-    <ClInclude Include="Char.h" />
     <ClInclude Include="DFABuilder.h" />
     <ClInclude Include="DFAFromFirstFollowPosConvTraits.h" />
     <ClInclude Include="DFAFromNFAConvTraits.h" />

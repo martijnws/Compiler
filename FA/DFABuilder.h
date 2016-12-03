@@ -4,6 +4,7 @@
 #include "DFANode.h"
 #include <unordered_map>
 #include <memory>
+#include <sstream>
 
 namespace mws {
 
@@ -90,12 +91,28 @@ DFANode* convert(const Item* n_)
     return d;
 }
 
-template<typename Item>
-bool match(const DFANode* d_, const Item* nAccept_, const std::string& str_)
+template<typename Item, typename CharT>
+bool match(const DFANode* d_, const Item* nAccept_, const CharT* str_)
 {
-    for (char c : str_)
-    {
-        auto itr = d_->_transitionMap.find(c);
+	std::basic_stringstream<CharT> ss(str_);
+	common::BufferT<CharT, 4094> buf(ss);
+	return match_buf(d_, nAccept_, buf);
+}
+
+template<typename Item, typename CharT>
+bool match(const DFANode* d_, const Item* nAccept_, const std::basic_string<CharT>& str_)
+{
+	std::basic_stringstream<CharT> ss(str_);
+	common::BufferT<CharT, 4094> buf(ss);
+	return match_buf(d_, nAccept_, buf);
+}
+
+template<typename Item, typename BufferT>
+bool match_buf(const DFANode* d_, const Item* nAccept_, BufferT& buf_)
+{
+	for (auto cp = buf_.next(); buf_.valid(); cp = buf_.next())
+	{
+        auto itr = d_->_transitionMap.find(cp);
         if (itr == d_->_transitionMap.end())
         {
             return false;
@@ -107,14 +124,30 @@ bool match(const DFANode* d_, const Item* nAccept_, const std::string& str_)
     return d_->_regexID == nAccept_->_regexID;
 }
 
-template<typename Item>
-bool simulate(const Item* nBeg_, const Item* nAccept_, const std::string& str_)
+template<typename Item, typename CharT>
+bool simulate(const Item* nBeg_, const Item* nAccept_, const CharT* str_)
+{
+	std::basic_stringstream<CharT> ss(str_);
+	common::BufferT<CharT, 4094> buf(ss);
+	return simulate_buf(nBeg_, nAccept_, buf);
+}
+
+template<typename Item, typename CharT>
+bool simulate(const Item* nBeg_, const Item* nAccept_, const std::basic_string<CharT>& str_)
+{
+	std::basic_stringstream<CharT> ss(str_);
+	common::BufferT<CharT, 4094> buf(ss);
+	return simulate_buf(nBeg_, nAccept_, buf);
+}
+
+template<typename Item, typename BufferT>
+bool simulate_buf(const Item* nBeg_, const Item* nAccept_, BufferT& buf_)
 {
     std::set<const Item*> itemSet(DFATraits<Item>::createStartNode(nBeg_));
 
-    for (char c : str_)
+	for (auto cp = buf_.next(); buf_.valid(); cp = buf_.next())
     {
-        itemSet.swap(DFATraits<Item>::e_closure(move<Item>(itemSet, c)));
+        itemSet.swap(DFATraits<Item>::e_closure(move<Item>(itemSet, cp)));
     }
 
     return itemSet.find(nAccept_) != itemSet.end();

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Char.h"
+#include <CommonLib/CodePoint.h>
+#include <CommonLib/String.h>
 #include <algorithm>
 #include <set>
 #include <vector>
@@ -11,14 +12,14 @@ namespace mws {
 class RangeKey
 {
 public:
-    RangeKey(Char c_) 
+    RangeKey(CodePoint c_) 
     :
         _l(c_), _h(c_)
     {
         
     }
 
-    RangeKey(Char l_, Char h_) 
+    RangeKey(CodePoint l_, CodePoint h_) 
     :
         _l(l_), _h(h_)
     {
@@ -44,10 +45,10 @@ public:
         return lhs_._h < rhs_._l;
     }
 
-	std::wstring toString() const;
+	String toString() const;
 
-    Char _l;
-    Char _h;
+    CodePoint _l;
+    CodePoint _h;
 };
 
 inline std::vector<RangeKey> getDisjointRangeKeys(const std::set<RangeKey>& rkSet_, const RangeKey& rk_)
@@ -60,8 +61,8 @@ inline std::vector<RangeKey> getDisjointRangeKeys(const std::set<RangeKey>& rkSe
     auto itr = rkSet_.find(rkSuper._l);
     assert(itr != rkSet_.end());
 
-    Char l = itr->_l;
-    Char h = itr->_h;
+    auto l = itr->_l;
+    auto h = itr->_h;
 
     for ( ; itr != rkSet_.end(); ++itr)
     {
@@ -85,33 +86,36 @@ inline std::vector<RangeKey> getDisjointRangeKeys(const std::set<RangeKey>& rkSe
 
 inline std::set<RangeKey> getDisjointRangeSet(const std::vector<RangeKey>& rkVec_)
 {
+	enum class Bound { Open, Close };
+
+	using RangePair = std::pair<CodePoint, Bound>;
+
 	// step 1: find all bounds (h or l) and sort them.
 	// step 2: determine if a range exists between 2 bounds or not.
-	// The l = '0' marker and ' h = '1' marker tell us when a range opens ('0')
-	// or a range closes ('1'). If open ranges - closed ranges > 0 then we are in a range,
+	// If open ranges - closed ranges > 0 then we are in a range,
 	// otherwise we are in an open gap
-    std::vector<std::pair<Char, Char>> rkSortVec;
+    std::vector<RangePair> rkSortVec;
     for (const auto& rk : rkVec_)
     {
-        rkSortVec.push_back(std::make_pair(rk._l, '0'));
-        rkSortVec.push_back(std::make_pair(rk._h, '1'));
+        rkSortVec.push_back(std::make_pair(rk._l, Bound::Open));
+        rkSortVec.push_back(std::make_pair(rk._h, Bound::Close));
     }
 
-    std::sort(rkSortVec.begin(), rkSortVec.end(), [](const std::pair<Char, Char>& lhs_, const std::pair<Char, Char>& rhs_)
+    std::sort(rkSortVec.begin(), rkSortVec.end(), [](const RangePair& lhs_, const RangePair& rhs_)
     {
         return lhs_.first != rhs_.first ? lhs_.first < rhs_.first : lhs_.second < rhs_.second;
     });
 
     std::size_t cOpenRange = 0;
     std::set<RangeKey> rkSet;
-    Char l = 0;
+    CodePoint l = 0;
 
     for (const auto& kvpair : rkSortVec)
     {
-        Char bound = kvpair.first;
-        Char type = kvpair.second;
+        auto bound = kvpair.first;
+        auto type = kvpair.second;
 
-        if (type == '0')
+        if (type == Bound::Open)
         {
             if (bound > l && cOpenRange > 0)
             {
@@ -122,14 +126,14 @@ inline std::set<RangeKey> getDisjointRangeSet(const std::vector<RangeKey>& rkVec
             ++cOpenRange;
             l = bound;
         }
-        else
+        else //Bound::Close
         {
             --cOpenRange;
 
             // up to and including bound
 
             // TODO: refactor to get better asserts
-            assert(bound >= l - 1);
+            assert(l == 0 || bound >= l - 1);
 
             if (l <= bound)
             {

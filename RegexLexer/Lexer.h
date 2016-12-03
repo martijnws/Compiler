@@ -2,6 +2,7 @@
 
 #include "Token.h"
 #include <CommonLib/Buffer.h>
+#include <unordered_map>
 #include <boost/circular_buffer.hpp>
 
 namespace mws { namespace regex {
@@ -9,65 +10,74 @@ namespace mws { namespace regex {
 class RegexTokenTypeMap
 {
 public:
+    static const grammar::Token::Type Eof = Token::Enum::Eof;
    
 	RegexTokenTypeMap()
 	{
-		for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token); ++i)
-		{
-			_map[i] = Token::Enum::Symbol;
-		}
+		//for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token::Type); ++i)
+		//{
+		//	_map[i] = Token::Enum::Symbol;
+		//}
 
-		_map['|' ] = Token::Enum::Choice;
-        _map['?' ] = Token::Enum::ZeroOrOne;
-		_map['*' ] = Token::Enum::ZeroToMany;
-        _map['+' ] = Token::Enum::OneToMany;
-		_map['(' ] = Token::Enum::SubExprB;
-		_map[')' ] = Token::Enum::SubExprE;
-		_map['[' ] = Token::Enum::CharClassB;
-		_map[']' ] = Token::Enum::CharClassE;
-		_map['\0'] = Token::Enum::Eof;
+		_map[CP('|') ] = Token::Enum::Choice;
+        _map[CP('?') ] = Token::Enum::ZeroOrOne;
+		_map[CP('*') ] = Token::Enum::ZeroToMany;
+        _map[CP('+') ] = Token::Enum::OneToMany;
+		_map[CP('(') ] = Token::Enum::SubExprB;
+		_map[CP(')') ] = Token::Enum::SubExprE;
+		_map[CP('[') ] = Token::Enum::CharClassB;
+		_map[CP(']') ] = Token::Enum::CharClassE;
+		_map[CP('\0')] = Eof;
 	}
 
-	Token::Type type(char c_) const
+	Token::Type type(CodePoint cp_) const
 	{
-		return _map[c_];
+		auto itr = _map.find(cp_);
+		return (itr != _map.end() ? itr->second : Token::Enum::Symbol);
+		//return _map[c_];
 	}
 
 private:
-	Token::Type _map[256];
+	std::unordered_map<CodePoint, Token::Type> _map;
+	//Token::Type _map[256];
 };
 
 class CharClassTokenTypeMap
 {
 public:
     static const grammar::Token::Type Eof = Token::Enum::CharClassE;
+
 	CharClassTokenTypeMap()
 	{
-		for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token); ++i)
-		{
-			_map[i] = Token::Enum::Symbol;
-		}
+		//for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token::Type); ++i)
+		//{
+		//	_map[i] = Token::Enum::Symbol;
+		//}
 
-		_map['^' ] = Token::Enum::CharClassNeg;
-		_map['-' ] = Token::Enum::RngSep;
-		_map[']' ] = Eof;
-		_map['\0'] = Eof;
+		_map[CP('^' )] = Token::Enum::CharClassNeg;
+		_map[CP('-' )] = Token::Enum::RngSep;
+		_map[CP(']' )] = Eof;
+		_map[CP('\0')] = Eof;
 	}
 
-	Token::Type type(char c_) const
+	Token::Type type(CodePoint cp_) const
 	{
-		return _map[c_];
+		auto itr = _map.find(cp_);
+		return (itr != _map.end() ? itr->second : Token::Enum::Symbol);
+		//return _map[c_];
 	}
 
 private:
-	Token::Type _map[256];
+	std::unordered_map<CodePoint, Token::Type> _map;
+	//Token::Type _map[256];
 };
 
 template<typename DerivedT, typename BufferT, typename TokenTypeMapT>
 class Lexer
 {
 public:
-   
+	static const Token::Type Eof = TokenTypeMapT::Eof;
+
 	Lexer(BufferT& buf_)
 		:
 		_buf(buf_), _lookBehind(2)
@@ -81,7 +91,7 @@ public:
 
 		grammar::Token t = { Token::None, c };
 
-		if (c != '\\')
+		if (c != CP('\\'))
 		{
 			t._type = _map.type(c);
 			auto& derived = static_cast<DerivedT&>(*this);
@@ -93,9 +103,9 @@ public:
 
 			Token::Type type = _map.type(c);
             // supported escape seq is '\\' or '\<operator>'
-			if (type == Token::Enum::Symbol && c != '\\' || type == Token::Enum::Eof)
+			if (type == Token::Enum::Symbol && c != CP('\\') || type == Token::Enum::Eof)
 			{
-				throw common::Exception("invalid escape sequence");
+				throw common::Exception(_C("invalid escape sequence"));
 			}
 			else
 			{
@@ -155,8 +165,10 @@ public:
 		if (t_._type == Token::Enum::RngSep)
 		{
 			//peek 1 char ahead
-			char c = _buf.next();
-			_buf.retract(1);
+			const auto posOld = _buf.pos();
+			const auto c = _buf.next();
+			const auto posNew = _buf.pos();
+			_buf.retract(posNew - posOld);
 
 			if (_map.type(c) == Token::Enum::CharClassE // -]
 				||

@@ -10,7 +10,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Char.h" />
     <ClInclude Include="DFABuilder.h" />
     <ClInclude Include="DFAFromFirstFollowPosConvTraits.h" />
     <ClInclude Include="DFAFromNFAConvTraits.h" />

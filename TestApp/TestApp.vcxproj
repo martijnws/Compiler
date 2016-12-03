@@ -154,6 +154,9 @@
     <ClCompile Include="TestApp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommonLib\CommonLib.vcxproj">
+      <Project>{9845a384-2609-4bef-8dfd-bd63353a046e}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\FA\FA.vcxproj">
       <Project>{d7bc63af-c89f-473c-ae15-fbf16e8dbb5b}</Project>
     </ProjectReference>

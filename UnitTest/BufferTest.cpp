@@ -4,8 +4,11 @@
 
 namespace {
 
+//Use max Char size so that Buffer size >= MaxCodecSizePerCP for any size
 template<std::size_t ValueT>
-using Buffer = mws::common::BufferT<char, ValueT>;
+using Buffer = mws::common::BufferT<char32_t, ValueT>;
+using Stream = std::basic_stringstream<char32_t>;
+using String = std::basic_string<char32_t>;
 
 template<std::size_t ValueT>
 struct Size
@@ -29,20 +32,20 @@ TYPED_TEST(BufferBasicTest, forwardOnly)
 {
 	using Size = typename TestFixture::Size;
 
-	std::stringstream is("01234567", std::ios_base::in);
+	Stream is(U"01234567", std::ios_base::in);
 	Buffer<Size::value> buf(is);
 	ASSERT_TRUE(buf.valid());
 	// load first char
-	buf.next();
+	auto cp = buf.next();
 
 	for (std::size_t i = 0; i < 8; ++i)
 	{
 		const char c = static_cast<char>('0' + i);
 
 		ASSERT_TRUE(buf.valid())    << "c := " << c;
-		ASSERT_TRUE(buf.cur() == c) << "c := " << c;
+		ASSERT_TRUE(cp == c) << "c := " << c;
 
-		buf.next();
+		cp = buf.next();
 	}
 
 	EXPECT_FALSE(buf.valid());
@@ -56,101 +59,100 @@ protected:
 
 TEST_F(BufferRetractTest, retractBeforePos)
 {
-	std::stringstream is("01234567", std::ios_base::in);
+	Stream is(U"01234567", std::ios_base::in);
 	Buffer<4> buf(is);
 	ASSERT_TRUE(buf.valid());
 	// load first char
-	buf.next();
+	auto cp = buf.next();
 
 	ASSERT_TRUE(buf.valid());
-	ASSERT_EQ(buf.pos(), 0);
-	ASSERT_EQ(buf.cur(), '0');
+	ASSERT_EQ(buf.pos(), 0 + 1);
+	ASSERT_EQ(cp, CP('0'));
 
-	EXPECT_THROW(buf.retract(1), mws::common::Exception);
+	EXPECT_THROW(buf.retract(2), mws::common::Exception);
 	// operation should have no side affects
 	ASSERT_TRUE(buf.valid());
-	ASSERT_EQ(buf.pos(), 0);
-	ASSERT_EQ(buf.cur(), '0');
+	ASSERT_EQ(buf.pos(), 0 + 1);
 	
-	buf.next();
-	buf.next();
+	cp = buf.next();
+	ASSERT_EQ(cp, CP('1'));
+	cp = buf.next();
 	ASSERT_TRUE(buf.valid());
-	ASSERT_EQ(buf.pos(), 2);
-	ASSERT_EQ(buf.cur(), '2');
+	ASSERT_EQ(buf.pos(), 2 + 1);
+	ASSERT_EQ(cp, CP('2'));
 
-	EXPECT_THROW(buf.retract(3), mws::common::Exception);
+	EXPECT_THROW(buf.retract(4), mws::common::Exception);
 }
 
 TEST_F(BufferRetractTest, retractExceedBufferSize)
 {
-	const std::string input = { "01234567" };
-	std::stringstream is(input, std::ios_base::in);
+	const String input = { U"01234567" };
+	Stream is(input, std::ios_base::in);
 	Buffer<4> buf(is);
 	// load first char
-	buf.next();
+	auto cp = buf.next();
 
 	// move more than 4 positions
-	for (std::size_t i = 0; i < 6; ++i)
+	for (auto i = 0ul; i < 6; ++i)
 	{
 		ASSERT_TRUE(buf.valid());
-		ASSERT_EQ(buf.pos(), i);
-		ASSERT_EQ(buf.cur(), input[i]);
+		ASSERT_EQ(buf.pos(), i + 1);
+		ASSERT_EQ(cp, input[i]);
 
-		buf.next();
+		cp = buf.next();
 	}
 	
 	ASSERT_TRUE(buf.valid());
-	ASSERT_EQ(buf.pos(), 6);
-	ASSERT_EQ(buf.cur(), '6');
+	ASSERT_EQ(buf.pos(), 6 + 1);
+	ASSERT_EQ(cp, CP('6'));
 
 	EXPECT_THROW(buf.retract(5), mws::common::Exception);
 }
 
 TEST_F(BufferRetractTest, retractMaxSuccess)
 {
-	const std::string input = { "0123456789ABCDEF" };
-	std::stringstream is(input, std::ios_base::in);
+	const String input = { U"0123456789ABCDEF" };
+	Stream is(input, std::ios_base::in);
 	Buffer<4> buf(is);
 	// load first char
-	buf.next();
+	auto cp = buf.next();
 
 	ASSERT_TRUE(buf.valid());
 
 	// move more than BufSize positions
-	for (std::size_t i = 0; i < 6; ++i)
+	for (auto i = 0ul; i < 6; ++i)
 	{
-		buf.next();
+		cp = buf.next();
 		ASSERT_TRUE(buf.valid());
 	}
 	
-	ASSERT_EQ(buf.pos(), 6);
-	ASSERT_EQ(buf.cur(), '6');
+	ASSERT_EQ(buf.pos(), 6 + 1);
+	ASSERT_EQ(cp, CP('6'));
 
 	EXPECT_NO_THROW(buf.retract(4));
 
 	// reiterate positions and beyond
-	for (std::size_t i = 2; i < 10; ++i)
+	for (auto i = 2ul; i < 10; ++i)
 	{
 		ASSERT_TRUE(buf.valid());
-		ASSERT_EQ(buf.pos(), i);
-		ASSERT_EQ(buf.cur(), input[i]);
+		ASSERT_EQ(buf.pos(), i + 1);
 
-		buf.next();
+		cp = buf.next();
+		ASSERT_EQ(cp, input[i + 1]);
 	}
 
-	ASSERT_EQ(buf.pos(), 10);
-	ASSERT_EQ(buf.cur(), 'A');
+	ASSERT_EQ(buf.pos(), 10 + 1);
+	ASSERT_EQ(cp, CP('A'));
 
 	EXPECT_NO_THROW(buf.retract(4));
 
 	// reiterate positions and beyond
-	for (std::size_t i = 6; i < 16; ++i)
+	for (auto i = 7ul; i < 15; ++i)
 	{
+		cp = buf.next();
 		ASSERT_TRUE(buf.valid());
-		ASSERT_EQ(buf.pos(), i);
-		ASSERT_EQ(buf.cur(), input[i]);
-
-		buf.next();
+		ASSERT_EQ(buf.pos(), i + 1);
+		ASSERT_EQ(cp, input[i]);
 	}
 }
 

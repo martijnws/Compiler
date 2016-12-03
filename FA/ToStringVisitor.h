@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SyntaxTreeLib/Visitor.h>
-#include <string>
+#include <CommonLib/String.h>
 
 namespace mws {
 
@@ -20,7 +20,7 @@ public:
 	virtual void visit(const ast::Rng& n_);
     virtual void visit(const ast::CharClassSymbol& n_);
 
-	std::string _result;
+	String _result;
 };
 
 };

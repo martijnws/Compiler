@@ -1,29 +1,35 @@
 #pragma once
 
+#include "String.h"
 #include <exception>
-#include <string>
 
 namespace mws { namespace common {
 
-class Exception
-	:
-	std::exception
+class IException
 {
 public:
-	Exception(const std::string& msg_)
+	virtual const String& what() const = 0;
+};
+
+class Exception
+:
+	public IException
+{
+public:
+	Exception(const String& msg_)
 		:
 		_msg(msg_)
 	{
 
 	}
 
-	virtual const char* what() const
+	const String& what() const override
 	{
-		return _msg.c_str();
+		return _msg;
 	}
 
 private:
-	std::string _msg;
+	String _msg;
 };
 
 }}

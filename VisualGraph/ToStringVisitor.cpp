@@ -1,11 +1,14 @@
 #include "stdafx.h"
 #include "ToStringVisitor.h"
 #include <SyntaxTreeLib\SyntaxNode.h>
+#include <CommonLib/Unicode.h>
 
 void ToStringVisitor::visit(const mws::ast::Symbol& n_)
 {
-	wchar_t lexeme = n_.lexeme();
-	m_result = lexeme;
+	wchar_t buf[4];
+	const auto size = mws::common::utf::Encoder<wchar_t>::encode(n_.lexeme(), buf);
+	buf[size] = L'\0';
+	m_result = buf;
 }
 
 void ToStringVisitor::visit(const mws::ast::Choice& n_) 
@@ -55,6 +58,5 @@ void ToStringVisitor::visit(const mws::ast::Rng& n_)
 
 void ToStringVisitor::visit(const mws::ast::CharClassSymbol& n_)
 {
-	wchar_t lexeme = n_.lexeme();
-	m_result = lexeme;
+	visit(static_cast<const mws::ast::Symbol&>(n_));
 }

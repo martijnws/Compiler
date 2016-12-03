@@ -100,8 +100,7 @@ void ParserDriver<LexerT>::parse(grammar::Token& cur_)
 		}
 	}
 
-	//assert(st.eof());
+	assert(st.eof());
 }
-
 
 }}}

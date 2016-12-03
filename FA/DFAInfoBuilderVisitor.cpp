@@ -167,7 +167,7 @@ DFAInfo* DFAInfoBuilderVisitor::acceptState() const
     n._isNullable = true;
     n._firstPos.insert(&n);
     n._lastPos.insert(&n);
-    n._lexeme = '#';
+    n._lexeme = CP('#');
     return &n;
 }
 

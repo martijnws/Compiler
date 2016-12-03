@@ -29,11 +29,15 @@
 
 namespace mws { namespace td { namespace SLR {
 
+template<typename BufferT>
 class RegexParser
 {
 public:
-    
-	RegexParser(std::istream& is_)
+	using Buffer = BufferT;
+	using Char = typename Buffer::Char;
+	using IStream =  std::basic_istream<Char>;
+
+	RegexParser(IStream& is_)
 		: _buf(is_), _cur({ grammar::Token::None, 0 })
 
 	{
@@ -52,8 +56,8 @@ public:
 
 		try
 		{
-			using CCLexer = regex::CharClassLexer<common::Buffer>;
-			using RELexer = regex::RegexLexer<common::Buffer>;
+			using CCLexer = regex::CharClassLexer<Buffer>;
+			using RELexer = regex::RegexLexer<Buffer>;
 
              // sub parser setup
             SubParserMap ccSubParserCol;
@@ -70,13 +74,13 @@ public:
 		}
 		catch(const common::Exception& e)
 		{
-			std::cout << "Exception: " << e.what() << std::endl;
+			stdOut << _C("Exception: ") << e.what() << std::endl;
 			return false;
 		}
 	}
 
-	common::Buffer _buf;
-	grammar::Token _cur;
+	Buffer                 _buf;
+	grammar::Token         _cur;
 	ast::SyntaxTreeBuilder _astBuilder;
 };
 

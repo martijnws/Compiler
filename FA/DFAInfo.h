@@ -1,7 +1,7 @@
 #pragma once
 
-#include <set>
 #include "NFA.h"
+#include <set>
 
 namespace mws {
 

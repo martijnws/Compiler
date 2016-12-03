@@ -66,19 +66,19 @@ class Symbol
 	public Leaf
 {
 public:
-	Symbol(char l_)
+	Symbol(CodePoint l_)
 		: Leaf(), _l(l_)
 	{
 	
 	}
 
-	char lexeme() const
+	CodePoint lexeme() const
 	{
 		return _l;
 	}
 
 private:
-	const char _l;
+	const CodePoint _l;
 };
 
 class UnaryOp
@@ -257,7 +257,7 @@ class CharClassSymbol
 	public Symbol
 {
 public:
-	CharClassSymbol(char l_)
+	CharClassSymbol(CodePoint l_)
 		: Symbol(l_)
 	{
 	
