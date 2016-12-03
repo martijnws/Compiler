@@ -22,6 +22,7 @@ using CharExt = char;
 using Char = wchar_t;
 
 using String = std::basic_string<Char>;
+using StringExt = std::basic_string<CharExt>;
 
 using StringStream = std::basic_stringstream<Char>;
 using StringStreamExt = std::basic_stringstream<CharExt>;

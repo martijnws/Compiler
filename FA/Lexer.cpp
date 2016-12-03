@@ -12,40 +12,21 @@
 
 namespace mws {
 
-const Char* g_regexCol[] =
-{
-    _C("[ \t\n]+"),
-    _C("[0-9]+"),
-    _C("if"),
-    _C("else"),
-    _C("break"),
-    _C("continue"),
-    _C("class"),
-    // Note: let a = a-zA-Z0-9, b = _
-    // the pattern (a|b)*a(a|b)* reduces to b*a(a|b)*
-    _C("[a-zA-Z_]_*[a-zA-Z0-9][a-zA-Z0-9_]*"),
-    _C("{"),
-    _C("}"),
-    _C(";")
-};
-
-Lexer::Lexer(IStreamExt& is_) 
+Lexer::Lexer(IStreamExt& is_, const std::vector<StringExt>& regexCol_) 
 : 
     _buf(is_), _eof(false)
 {
 	//does not read from external source but from internal string literals
-	using RegexBuf = common::BufferT<Char, 4096>;
+	using RegexBuf = common::BufferT<CharExt, 4096>;
 
     auto nS = new NFANode();
     
     std::vector<RangeKey> rkVec;
     std::vector<mws::ast::SyntaxNode*> rootVec;
 
-    for (auto i = 0ul; i < sizeof(g_regexCol)/sizeof(Char*); ++i)
+	for (const auto& regex : regexCol_)
     {
-        auto regex = g_regexCol[i];
-
-        StringStream is(regex, std::ios_base::in);
+        StringStreamExt is(regex, std::ios_base::in);
 	    mws::td::LL1::RegexParser<RegexBuf> parser(is);
 
 	    parser.parse();
@@ -77,12 +58,6 @@ Lexer::Lexer(IStreamExt& is_)
 
     mws::minimize(_dfa, rkSet);
 }
-   
-const Char* Lexer::regex(std::size_t type) const
-{
-    assert(type < sizeof(g_regexCol)/sizeof(Char*));
-    return g_regexCol[type];
-}
 
 Token Lexer::next()
 {
@@ -104,12 +79,14 @@ Token Lexer::next()
     auto* d = _dfa;
    
 	Char buf[8] = { _C('\0') };
-    for (auto cp = _buf.next(); cp != CP('\0'); cp = _buf.next())
+	auto pos = _buf.pos();
+    for (auto cp = _buf.next(); cp != CP('\0'); pos = _buf.pos(), cp = _buf.next())
     {
         auto itr = d->_transitionMap.find(cp);
         if (itr == d->_transitionMap.end())
         {
-            _buf.retract(1);
+			const auto diff = _buf.pos() - pos; 
+            _buf.retract(diff);
             break;
         }
 

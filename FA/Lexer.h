@@ -19,11 +19,9 @@ public:
 class Lexer
 {
 public:
-    Lexer(IStreamExt& is_);
+    Lexer(IStreamExt& is_, const std::vector<StringExt>& regexCol_);
    
     Token next();
-
-    const Char* regex(std::size_t type) const;
 
 private:
     common::BufferExt _buf;
