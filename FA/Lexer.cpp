@@ -16,7 +16,6 @@ Lexer::Lexer(IStreamExt& is_, const std::vector<StringExt>& regexCol_)
 : 
     _buf(is_), _eof(false)
 {
-	//does not read from external source but from internal string literals
 	using RegexBuf = common::BufferT<CharExt, 4096>;
 
     auto nS = new NFANode();
