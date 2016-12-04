@@ -27,37 +27,27 @@ public:
 class Production
 {
 public:
-    Production()
-    :
-        _derivesEmpty(true)
-    {
-        
-    }
+    Production() = default;
 
-	Production(const Production& rhs_)
-		:
-		_gsList(rhs_._gsList), _first(rhs_._first), _derivesEmpty(rhs_._derivesEmpty)
-	{
+	Production(const Production& rhs_) = default;
 
-	}
-/*
     Production(Production&& rhs_) 
     : 
         _gsList(std::move(rhs_._gsList)), _first(std::move(rhs_._first)), _derivesEmpty(rhs_._derivesEmpty)
     {
     
     }
-*/
+
 	Production(const std::initializer_list<GrammarSymbol>& gsList_)
 	: 
-        _gsList(gsList_.begin(), gsList_.end()), _derivesEmpty(gsList_.size() > 0)
+        _gsList(gsList_.begin(), gsList_.end()), _derivesEmpty(gsList_.size() == 0)
 	{
 		
 	}
 
 	std::vector<GrammarSymbol> _gsList;
 	std::set<uint8_t>          _first;
-	bool                       _derivesEmpty;
+	bool                       _derivesEmpty = true;
 };
 
 class NT
@@ -77,7 +67,7 @@ public:
 
 	void getFirst(std::set<uint8_t>& firstSet_) const
 	{
-		for (const Production& prod : _prodList)
+		for (const auto& prod : _prodList)
 		{
 			firstSet_.insert(prod._first.begin(), prod._first.end());
 		}
