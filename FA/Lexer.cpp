@@ -16,8 +16,6 @@ Lexer::Lexer(IStreamExt& is_, const std::vector<StringExt>& regexCol_)
 : 
     _buf(is_), _eof(false)
 {
-	using RegexBuf = common::BufferT<CharExt, 4096>;
-
     auto nS = new NFANode();
     
     std::vector<RangeKey> rkVec;
@@ -25,8 +23,10 @@ Lexer::Lexer(IStreamExt& is_, const std::vector<StringExt>& regexCol_)
 
 	for (const auto& regex : regexCol_)
     {
-        StringStreamExt is(regex, std::ios_base::in);
-	    mws::td::LL1::RegexParser<RegexBuf> parser(is);
+		using CharType = StringExt::value_type;
+
+        std::basic_stringstream<CharType> is(regex, std::ios_base::in);
+	    mws::td::LL1::RegexParser<common::BufferT<CharType, 4096>> parser(is);
 
 	    parser.parse();
         auto* root = parser._astBuilder.detach();
