@@ -1,6 +1,6 @@
 #include "DFAInfoBuilderVisitor.h"
 #include "DFAInfo.h"
-#include <SyntaxTreeLib/SyntaxNode.h>
+#include <RegexSyntaxTreeLib/SyntaxNode.h>
 #include <algorithm>
 #include <iterator>
 #include <cassert>
@@ -14,7 +14,7 @@ DFAInfoBuilderVisitor::DFAInfoBuilderVisitor(const std::set<RangeKey>& rkSet_)
 
 }
 
-void DFAInfoBuilderVisitor::visit(const ast::Symbol& n_)
+void DFAInfoBuilderVisitor::visit(const regex::Symbol& n_)
 {
     auto n = new DFAInfo();
 
@@ -27,7 +27,7 @@ void DFAInfoBuilderVisitor::visit(const ast::Symbol& n_)
     _dfaInfo = n;
 }
 
-void DFAInfoBuilderVisitor::visit(const ast::Choice& n_)
+void DFAInfoBuilderVisitor::visit(const regex::Choice& n_)
 {
     n_.lhs().accept(*this);
     auto lhs = _dfaInfo;
@@ -52,7 +52,7 @@ void DFAInfoBuilderVisitor::visit(const ast::Choice& n_)
     _dfaInfo = n;
 }
 
-void DFAInfoBuilderVisitor::visit(const ast::Concat& n_)
+void DFAInfoBuilderVisitor::visit(const regex::Concat& n_)
 {
 	n_.lhs().accept(*this);
     auto lhs = _dfaInfo;
@@ -102,7 +102,7 @@ DFAInfo* DFAInfoBuilderVisitor::concat(const DFAInfo* lhs_, const DFAInfo* rhs_)
     return n;
 }
 
-void DFAInfoBuilderVisitor::visit(const ast::ZeroToMany& n_)
+void DFAInfoBuilderVisitor::visit(const regex::ZeroToMany& n_)
 {
 	n_.opr().accept(*this);
     auto opr = _dfaInfo;
@@ -123,7 +123,7 @@ void DFAInfoBuilderVisitor::visit(const ast::ZeroToMany& n_)
     _dfaInfo = n;
 }
 
-void DFAInfoBuilderVisitor::visit(const ast::CharClass& n_)
+void DFAInfoBuilderVisitor::visit(const regex::CharClass& n_)
 {
 	CharClassVisitor ccv;
 

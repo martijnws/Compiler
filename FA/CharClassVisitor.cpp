@@ -1,11 +1,11 @@
 #include "CharClassVisitor.h"
 #include "NFA.h"
-#include <SyntaxTreeLib/SyntaxNode.h>
+#include <RegexSyntaxTreeLib/SyntaxNode.h>
 #include <cassert>
 
 namespace mws {
 
-void CharClassVisitor::visit(const ast::Negate& n_)
+void CharClassVisitor::visit(const regex::Negate& n_)
 {
     n_.opr().accept(*this);
 
@@ -27,13 +27,13 @@ void CharClassVisitor::visit(const ast::Negate& n_)
     _charClassSet.swap(complement);
 }
 
-void CharClassVisitor::visit(const ast::RngConcat& n_)
+void CharClassVisitor::visit(const regex::RngConcat& n_)
 {
 	n_.lhs().accept(*this);
     n_.rhs().accept(*this);
 }
 
-void CharClassVisitor::visit(const ast::Rng& n_)
+void CharClassVisitor::visit(const regex::Rng& n_)
 {
     RangeKey rkNew(n_.lhsSymbol().lexeme(), n_.rhsSymbol().lexeme());
 
@@ -56,7 +56,7 @@ void CharClassVisitor::visit(const ast::Rng& n_)
     }
 }
 
-void CharClassVisitor::visit(const ast::CharClassSymbol& n_)
+void CharClassVisitor::visit(const regex::CharClassSymbol& n_)
 {
     _charClassSet.insert(n_.lexeme());
 }

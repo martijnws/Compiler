@@ -75,7 +75,7 @@ class DrawInfoSyntaxNode
 	public DrawInfoNode
 {
 public:
-	DrawInfoSyntaxNode(const mws::ast::SyntaxNode* n_, uint32_t depth_, float width_, float xCenter_, float yCenter_)
+	DrawInfoSyntaxNode(const mws::regex::SyntaxNode* n_, uint32_t depth_, float width_, float xCenter_, float yCenter_)
 	:
 		DrawInfoNode(depth_, width_, xCenter_, yCenter_),
 		m_n(n_)
@@ -92,7 +92,7 @@ public:
 
 
 private:
-	const mws::ast::SyntaxNode* m_n = nullptr;
+	const mws::regex::SyntaxNode* m_n = nullptr;
 };
 
 class DrawInfoNFANode

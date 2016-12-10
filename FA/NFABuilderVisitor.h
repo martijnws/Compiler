@@ -7,18 +7,18 @@ namespace mws {
 
 class NFABuilderVisitor
 	:
-	public ast::Visitor
+	public regex::Visitor
 {
 public:
     NFABuilderVisitor(const std::set<RangeKey>& rkSet_);
 
-	virtual void visit(const ast::Symbol& n_);
-	virtual void visit(const ast::Choice& n_);
-	virtual void visit(const ast::Concat& n_);
-    virtual void visit(const ast::ZeroOrOne& n_);
-	virtual void visit(const ast::ZeroToMany& n_);
-    virtual void visit(const ast::OneToMany& n_);
-	virtual void visit(const ast::CharClass& n_);
+	void visit(const regex::Symbol& n_) override;
+	void visit(const regex::Choice& n_) override;
+	void visit(const regex::Concat& n_) override;
+    void visit(const regex::ZeroOrOne& n_) override;
+	void visit(const regex::ZeroToMany& n_) override;
+    void visit(const regex::OneToMany& n_) override;
+	void visit(const regex::CharClass& n_) override;
 	
     NFANode* startState() 
     { 

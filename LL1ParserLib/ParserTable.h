@@ -10,7 +10,7 @@ class ParserTable
 public:
     ParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_);
 
-    const grammar::Production& expand(const grammar::Grammar& grammar_, uint8_t nt_, grammar::Token::Type t_) const;
+    const grammar::Production& expand(const grammar::Grammar& grammar_, uint8_t nt_,  grammar::Token::Type t_) const;
 
 private:
     void build(const grammar::Grammar& grammar_, uint8_t cTerminal_);

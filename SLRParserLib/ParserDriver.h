@@ -13,6 +13,9 @@ class ParserDriver
     public IParser
 {
 public:
+	using TokenEnum    = typename LexerT::Token::Enum;
+	using SubParserMap = std::map<TokenEnum, IParser*>;
+
 	ParserDriver(LexerT& lexer_, grammar::Handler& h_, const grammar::Grammar& grammar_, const ParserTable& parserTable_, const SubParserMap& subParserCol_)
     :
 		_lexer(lexer_),
@@ -24,7 +27,7 @@ public:
 		
 	}
 
-    void parse(grammar::Token& cur_) override;
+    void parse() override;
 
 private:
 	LexerT&                 _lexer;
@@ -35,9 +38,9 @@ private:
 };
 
 template<typename LexerT>
-void ParserDriver<LexerT>::parse(grammar::Token& cur_)
+void ParserDriver<LexerT>::parse()
 {
-    ParserState<LexerT> st(_lexer, cur_);
+    ParserState<LexerT> st(_lexer);
     st.init();
 
     grammar::TokenStore store;
@@ -70,11 +73,8 @@ void ParserDriver<LexerT>::parse(grammar::Token& cur_)
                     const auto& parser = itr->second;
                     parser->parse(st.cur());
                 }
-                else
-                {
-                    st.next();
-                }
 
+                st.next();
                 break;
             }
             case ParserTable::Action::Reduce:
@@ -126,7 +126,11 @@ void ParserDriver<LexerT>::parse(grammar::Token& cur_)
             }
         }
     }
-	//assert(st.eof());
+	
+	assert(st.eof() || st.eoc());
+	// In case this is an embedded piece of code, the eoc marker
+	// is pushed back on the buffer so host of embedded code can (re)fetch it with correct Lexer
+	st.retractLast();
 }
 
 }}}

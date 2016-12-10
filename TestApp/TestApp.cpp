@@ -72,7 +72,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	mws::td::LL1::RegexParser<mws::common::BufferExt> parser(is);
 
 	parser.parse();
-    mws::ast::SyntaxNodePtr root(parser._astBuilder.detach());
+    mws::regex::SyntaxNode::Ptr root(parser._astBuilder.detach());
 
     {
         mws::ToStringVisitor visitor;

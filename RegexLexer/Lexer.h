@@ -10,9 +10,10 @@ namespace mws { namespace regex {
 class RegexTokenTypeMap
 {
 public:
-    static const grammar::Token::Type Eof = Token::Enum::Eof;
+    //static const Token::Enum Eof = Token::Enum::Eof;
+	using Token = REToken;
    
-	RegexTokenTypeMap()
+	RegexTokenTypeMap(CodePoint cpEoc_)
 	{
 		//for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token::Type); ++i)
 		//{
@@ -27,10 +28,13 @@ public:
 		_map[CP(')') ] = Token::Enum::SubExprE;
 		_map[CP('[') ] = Token::Enum::CharClassB;
 		_map[CP(']') ] = Token::Enum::CharClassE;
-		_map[CP('\0')] = Eof;
+
+		_map[cpEoc_  ] = Token::Enum::Eoc;
+		// In case Eoc == Eof, Eof takes precedence.
+		_map[CP('\0')] = Token::Enum::Eof;
 	}
 
-	Token::Type type(CodePoint cp_) const
+	REToken::Enum type(CodePoint cp_) const
 	{
 		auto itr = _map.find(cp_);
 		return (itr != _map.end() ? itr->second : Token::Enum::Symbol);
@@ -38,16 +42,18 @@ public:
 	}
 
 private:
-	std::unordered_map<CodePoint, Token::Type> _map;
+	std::unordered_map<CodePoint, Token::Enum> _map;
 	//Token::Type _map[256];
 };
 
 class CharClassTokenTypeMap
 {
 public:
-    static const grammar::Token::Type Eof = Token::Enum::CharClassE;
+	using Token = CCToken;
 
-	CharClassTokenTypeMap()
+    //static const Token::Enum Eof = Token::Enum::CharClassE;
+
+	CharClassTokenTypeMap(CodePoint cpEoc_)
 	{
 		//for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token::Type); ++i)
 		//{
@@ -56,11 +62,13 @@ public:
 
 		_map[CP('^' )] = Token::Enum::CharClassNeg;
 		_map[CP('-' )] = Token::Enum::RngSep;
-		_map[CP(']' )] = Eof;
-		_map[CP('\0')] = Eof;
+		//_map[CP(']' )] = Eof;
+		//_map[CP('\0')] = Eof;
+		_map[CP('\0')] = Token::Enum::Eof;
+		_map[cpEoc_]   = Token::Enum::Eoc;
 	}
 
-	Token::Type type(CodePoint cp_) const
+	CCToken::Enum type(CodePoint cp_) const
 	{
 		auto itr = _map.find(cp_);
 		return (itr != _map.end() ? itr->second : Token::Enum::Symbol);
@@ -68,7 +76,7 @@ public:
 	}
 
 private:
-	std::unordered_map<CodePoint, Token::Type> _map;
+	std::unordered_map<CodePoint, CCToken::Enum> _map;
 	//Token::Type _map[256];
 };
 
@@ -76,32 +84,37 @@ template<typename DerivedT, typename BufferT, typename TokenTypeMapT>
 class Lexer
 {
 public:
-	static const Token::Type Eof = TokenTypeMapT::Eof;
+	//static const Token::Enum Eof = TokenTypeMapT::Eof;
+	using Token = typename TokenTypeMapT::Token;
+	using TokenType = typename Token::Type;
 
-	Lexer(BufferT& buf_)
+	Lexer(BufferT& buf_, CodePoint cpEoc_)
 		:
-		_buf(buf_), _lookBehind(2)
+		_buf(buf_), _lookBehind(2), _map(cpEoc_)
 	{
 		
 	}
 
-	grammar::Token next()
+	typename TokenTypeMapT::Token next()
 	{
+		const auto posOld = _buf.pos();
 		auto c = _buf.next();
 
-		grammar::Token t = { Token::None, c };
+		Token t; //= { c, Token::None };
 
 		if (c != CP('\\'))
 		{
 			t._type = _map.type(c);
 			auto& derived = static_cast<DerivedT&>(*this);
-			derived.postProcess(t);
+			t._type = derived.postProcess(t._type);
 		}
 		else
 		{
 			c = _buf.next();
 
-			Token::Type type = _map.type(c);
+			//TODO: set correct lexeme on Token for escaped characters
+
+			auto type = _map.type(c);
             // supported escape seq is '\\' or '\<operator>'
 			if (type == Token::Enum::Symbol && c != CP('\\') || type == Token::Enum::Eof)
 			{
@@ -113,18 +126,34 @@ public:
 			}
 		}
 
+		t._lexeme = c;
+
 		_lookBehind.push_back(t._type);
+		_lastTokenSize = _buf.pos() - posOld;
+
 		return t;
 	}
 
+	void retractLast()
+	{
+		if (_lastTokenSize == 0)
+		{
+			throw common::Exception(_C("Cannot retract more than 1 token"));
+		}
+
+		_buf.retract(_lastTokenSize);
+		_lastTokenSize = 0;
+	}
+
 protected:
-	static const TokenTypeMapT          _map;
-	BufferT&                            _buf;
-	boost::circular_buffer<Token::Type> _lookBehind;
+	BufferT&                          _buf;
+	boost::circular_buffer<TokenType> _lookBehind;
+	const TokenTypeMapT               _map;
+	std::size_t                       _lastTokenSize = 0;
 };
 
-template<typename DerivedT, typename BufferT, typename TokenTypeMapT>
-const TokenTypeMapT Lexer<DerivedT, BufferT, TokenTypeMapT>::_map = TokenTypeMapT();
+//template<typename DerivedT, typename BufferT, typename TokenTypeMapT>
+//const TokenTypeMapT Lexer<DerivedT, BufferT, TokenTypeMapT>::_map = TokenTypeMapT();
 
 // TODO: restructure these templates (make postProcess internal to Lexer)
 
@@ -133,16 +162,18 @@ class RegexLexer
 	: public Lexer<RegexLexer<BufferT>, BufferT, RegexTokenTypeMap>
 {
 public:
-	RegexLexer(BufferT& buf_)
+	using Token = RegexTokenTypeMap::Token;
+
+	RegexLexer(BufferT& buf_, CodePoint cpEoc_)
 		:
-		Lexer(buf_)
+		Lexer(buf_, cpEoc_)
 	{
 		
 	}
 
-	void postProcess(grammar::Token& t_)
+	RegexTokenTypeMap::Token::Enum postProcess(Token::Enum type_)
 	{
-		
+		return type_;	
 	}
 };
 
@@ -151,18 +182,21 @@ class CharClassLexer
 	: public Lexer<CharClassLexer<BufferT>, BufferT, CharClassTokenTypeMap>
 {
 public:
-	CharClassLexer(BufferT& buf_)
+	using Token = CharClassTokenTypeMap::Token;
+
+	CharClassLexer(BufferT& buf_, CodePoint cpEoc_)
 		:
-		Lexer(buf_)
+		Lexer(buf_, cpEoc_)
 	{
 		
 	}
 
-	void postProcess(grammar::Token& t_)
+	CharClassTokenTypeMap::Token::Enum postProcess(Token::Enum type_)
 	{
 		//Handle context dependencies of RngSep::lexeme
+		auto type = type_;
 
-		if (t_._type == Token::Enum::RngSep)
+		if (type_ == Token::Enum::RngSep)
 		{
 			//peek 1 char ahead
 			const auto posOld = _buf.pos();
@@ -170,23 +204,25 @@ public:
 			const auto posNew = _buf.pos();
 			_buf.retract(posNew - posOld);
 
-			if (_map.type(c) == Token::Enum::CharClassE // -]
+			if (_map.type(c) == Token::Enum::Eoc // -]
 				||
 				_lookBehind.size() == 0 // [-
 				||
 				_lookBehind.size() == 1 && _lookBehind.back() == Token::Enum::CharClassNeg) // [^-
 			{
-				t_._type = Token::Enum::Symbol;
+				type = Token::Enum::Symbol;
 			}
 		}
 		else 
-		if (t_._type == Token::Enum::CharClassNeg)
+		if (type_ == Token::Enum::CharClassNeg)
 		{
 			if (_lookBehind.size() > 0) // [...^
 			{
-				t_._type = Token::Enum::Symbol;
+				type = Token::Enum::Symbol;
 			}
 		}
+
+		return type;
 	}
 };
 

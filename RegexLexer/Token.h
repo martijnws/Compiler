@@ -4,9 +4,26 @@
 
 namespace mws { namespace regex {
 
-struct Token : public grammar::Token 
+// Eoc = End of code
+
+struct REToken
+:
+	public grammar::Token
 {
-	enum Enum { Eof = grammar::Token::Eof, Symbol, Choice, ZeroOrOne, ZeroToMany, OneToMany, SubExprB, SubExprE, CharClassB, CharClassE, CharClassNeg, RngSep, Max };
+	enum Enum { Eof = grammar::Token::Eof, Eoc, Symbol, Choice, ZeroOrOne, ZeroToMany, OneToMany, SubExprB, SubExprE, CharClassB, CharClassE, Max };
+
+	CodePoint _lexeme;
+	Enum      _type;
+};
+
+struct CCToken
+:
+	public grammar::Token
+{
+	enum Enum { Eof = grammar::Token::Eof, Eoc, Symbol, CharClassNeg, RngSep, Max };
+
+	CodePoint _lexeme;
+	Enum      _type;
 };
 
 }}

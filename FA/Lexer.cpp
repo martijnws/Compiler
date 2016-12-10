@@ -7,7 +7,7 @@
 #include "DFAFromNFAConvTraits.h"
 #include <LL1RegexParser/RegexParser.h>
 #include <SLRRegexParser/RegexParser.h>
-#include <SyntaxTreeLib/SyntaxNode.h>
+#include <RegexSyntaxTreeLib/SyntaxNode.h>
 #include <CommonLib/Unicode.h>
 
 namespace mws {
@@ -19,7 +19,7 @@ Lexer::Lexer(IStreamExt& is_, const std::vector<StringExt>& regexCol_)
     auto nS = new NFANode();
     
     std::vector<RangeKey> rkVec;
-    std::vector<mws::ast::SyntaxNode*> rootVec;
+    std::vector<regex::SyntaxNode*> rootVec;
 
 	for (const auto& regex : regexCol_)
     {
@@ -42,7 +42,7 @@ Lexer::Lexer(IStreamExt& is_, const std::vector<StringExt>& regexCol_)
 
     for (auto i = 0ul; i < rootVec.size(); ++i)
     {
-        mws::ast::SyntaxNodePtr root(rootVec[i]);
+        regex::SyntaxNode::Ptr root(rootVec[i]);
 
         mws::NFABuilderVisitor visitor(rkSet);
         root->accept(visitor);

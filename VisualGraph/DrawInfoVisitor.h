@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SyntaxTreeLib\Visitor.h>
+#include <RegexSyntaxTreeLib\Visitor.h>
 #include <map>
 
 class DrawInfoNode;
@@ -36,13 +36,13 @@ protected:
 
 class DrawInfoSyntaxNodeVisitor
 : 
-	public mws::ast::Visitor,
+	public mws::regex::Visitor,
 	public GraphDrawInfo
 {
 public:
-	void visit(const mws::ast::Leaf& n_) override; 
-	void visit(const mws::ast::BinaryOp& n_) override;
-	void visit(const mws::ast::UnaryOp& n_) override;
+	void visit(const mws::regex::Leaf& n_) override; 
+	void visit(const mws::regex::BinaryOp& n_) override;
+	void visit(const mws::regex::UnaryOp& n_) override;
 };
 
 class DrawInfoNFANodeVisitor

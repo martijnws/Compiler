@@ -7,6 +7,17 @@ namespace mws {
 
 String RangeKey::toString() const
 {
+	StringStream label;
+
+	//handle befofe encoding. NFA::E is not a valid CodePoint
+	if (_l == mws::NFA::E)
+	{
+		label << _C('\u03b5');
+		return label.str();
+	}
+
+	assert(_h != mws::NFA::E);
+
 	Char bufL[8];
 	const auto sizeL = common::utf::Encoder<Char>::encode(_l, bufL);
 	bufL[sizeL] = _C('\0');
@@ -15,16 +26,9 @@ String RangeKey::toString() const
 	const auto sizeH = common::utf::Encoder<Char>::encode(_h, bufH);
 	bufH[sizeH] = _C('\0');
 
-	StringStream label;
-
 	if (_l < _h)
 	{
 		label << bufL << _C("-") << bufH;
-	}
-	else
-	if (_l == mws::NFA::E)
-	{
-		label << _C('\u03b5');
 	}
 	else
 	{

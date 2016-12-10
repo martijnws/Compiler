@@ -1,7 +1,7 @@
 #include "Visitor.h"
 #include "SyntaxNode.h"
 
-namespace mws { namespace ast {
+namespace mws { namespace regex {
 
 void Visitor::visit(const Symbol& n_)
 {

@@ -4,7 +4,7 @@
 #include <SLRParserLib/ParserTable.h>
 #include <RegexGrammar/Grammar.h>
 #include <RegexLexer/Lexer.h>
-#include <SyntaxTreeLib/SyntaxTreeBuilder.h>
+#include <RegexSyntaxTreeLib/SyntaxTreeBuilder.h>
 #include <CommonLib/Buffer.h>
 #include <iostream>
 
@@ -38,7 +38,7 @@ public:
 	using IStream =  std::basic_istream<Char>;
 
 	RegexParser(IStream& is_)
-		: _buf(is_), _cur({ grammar::Token::None, 0 })
+		: _buf(is_)
 
 	{
 	
@@ -69,7 +69,7 @@ public:
             reSubParserCol.insert(std::make_pair(regex::Token::Enum::CharClassB, &ccParser));
 			ParserDriver<RELexer> reParser(reLexer, _astBuilder, gRE, parserTableRE, reSubParserCol);
 
-			reParser.parse(_cur);
+			reParser.parse();
 			return true;
 		}
 		catch(const common::Exception& e)
@@ -79,9 +79,8 @@ public:
 		}
 	}
 
-	Buffer                 _buf;
-	grammar::Token         _cur;
-	ast::SyntaxTreeBuilder _astBuilder;
+	Buffer                   _buf;
+	regex::SyntaxTreeBuilder _astBuilder;
 };
 
 }}}

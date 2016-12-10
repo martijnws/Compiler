@@ -1,48 +1,36 @@
 #pragma once
 
+#include "SyntaxNodeFwd.h"
 #include <RegexGrammar/ParserHandler.h>
 #include <stack>
 #include <cassert>
 
-namespace mws { namespace ast {
-
-class SyntaxNode;
+namespace mws { namespace regex { 
 
 class SyntaxTreeBuilder
 	:
-	public regex::ParserHandler
+	public ParserHandler
 {
 public:
+	using Stack = std::stack<SyntaxNode*>;
+
 	void onEof() override;
 	void onChoice() override;
 	void onConcat() override;
 	void onZeroOrOne() override;
 	void onZeroToMany() override;
     void onOneToMany() override;
-	void onSymbol(const grammar::Token& t_) override;
+	void onSymbol(const regex::REToken& t_) override;
 	void onCharClass() override;
 	void onNegate() override;
     void onRngConcat() override;
 	void onRng() override;
-    void onCharClassSymbol(const grammar::Token& t_) override;
+    void onCharClassSymbol(const regex::CCToken& t_) override;
 
-	SyntaxNode* detach()
-	{
-		if (_stack.size())
-		{
-			assert(_stack.size() == 1);
-			SyntaxNode* n = _stack.top();
-            _stack.pop();
-            return n;
-		}
-		else
-		{
-			return nullptr;
-		}
-	}
+	SyntaxNode* detach();
 
 private:
-	std::stack<SyntaxNode*> _stack;
+	Stack _stack;
 };
 
 }}

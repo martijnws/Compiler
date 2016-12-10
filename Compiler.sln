@@ -44,6 +44,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LL1RegexParser", "LL1RegexP
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SLRRegexParser", "SLRRegexParser\SLRRegexParser.vcxproj", "{22BDB237-6DF8-44E9-96DC-D0E0D4B668A6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegexSyntaxTreeLib", "RegexSyntaxTreeLib\RegexSyntaxTreeLib.vcxproj", "{88264CFB-9540-4158-A9C1-BC95768101ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -258,6 +260,18 @@ Global
 		{22BDB237-6DF8-44E9-96DC-D0E0D4B668A6}.Release|Win32.Build.0 = Release|Win32
 		{22BDB237-6DF8-44E9-96DC-D0E0D4B668A6}.Release|x64.ActiveCfg = Release|x64
 		{22BDB237-6DF8-44E9-96DC-D0E0D4B668A6}.Release|x64.Build.0 = Release|x64
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Debug|Win32.ActiveCfg = Debug|Win32
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Debug|Win32.Build.0 = Debug|Win32
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Debug|x64.ActiveCfg = Debug|x64
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Debug|x64.Build.0 = Debug|x64
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Release|Win32.ActiveCfg = Release|Win32
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Release|Win32.Build.0 = Release|Win32
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Release|x64.ActiveCfg = Release|x64
+		{88264CFB-9540-4158-A9C1-BC95768101ED}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -13,7 +13,7 @@ namespace mws { namespace grammar {
 class NT;
 using Grammar = std::vector<NT>;
 
-using Action     = std::function<void (Handler&, const Token&, TokenStore&)>;
+using Action     = std::function<void (Handler&, const Token*, TokenStore&)>;
 
 class GrammarSymbol
 {
@@ -80,29 +80,34 @@ public:
 
 inline Action no_op()
 {
-    static auto l_no_op = [](Handler& h_, const Token& t_,  TokenStore& store_){};
+    auto l_no_op = [](Handler& h_, const Token* t_,  TokenStore& store_){};
     return l_no_op;
 }
 
 
-inline GrammarSymbol t(uint8_t type_)
+template<typename Enum>
+inline GrammarSymbol t(Enum type_)
 { 
-    return { true, type_, no_op()  }; 
+    return { true, static_cast<uint8_t>(type_), no_op()  }; 
 }
 
-inline GrammarSymbol t(uint8_t type_, Action action_) 
+
+template<typename Enum>
+inline GrammarSymbol t(Enum type_, Action action_) 
 { 
-    return { true, type_, action_ }; 
+    return { true, static_cast<uint8_t>(type_), action_ }; 
 }
 
-inline GrammarSymbol n(uint8_t type_)
+template<typename Enum>
+inline GrammarSymbol n(Enum type_)
 { 
-    return { false, type_, no_op() }; 
+    return { false, static_cast<uint8_t>(type_), no_op() }; 
 }
 
-inline GrammarSymbol n(uint8_t type_, Action action_) 
+template<typename Enum>
+inline GrammarSymbol n(Enum type_, Action action_) 
 { 
-    return { false, type_, action_ }; 
+    return { false, static_cast<uint8_t>(type_), action_ }; 
 }
 
 
@@ -110,25 +115,36 @@ inline GrammarSymbol n(uint8_t type_, Action action_)
 template<typename H>
 Action inline a(void (H::*action_)())
 {
-    return [action_](Handler& h_, const Token& t_, TokenStore& store_) { (static_cast<H&>(h_).*action_)(); };
+    return [action_](Handler& h_, const Token* t_, TokenStore& store_) 
+	{ 
+		(static_cast<H&>(h_).*action_)(); 
+	};
 }
 
-template<typename H>
-Action inline a(void (H::*action_)(const Token& t_))
+template<typename H, typename T>
+Action inline a(void (H::*action_)(const T&))
 {
-    return [action_](Handler& h_, const Token& t_, TokenStore& store_) { (static_cast<H&>(h_).*action_)(t_); };
+    return [action_](Handler& h_, const Token* t_, TokenStore& store_) 
+	{ 
+		(static_cast<H&>(h_).*action_)(static_cast<const T&>(*t_)); 
+	};
 }
-
 
 Action inline a_set(uint8_t index_)
 {
-    return [index_](Handler& h_, const Token& t_, TokenStore& store_) { store_.put(index_, t_); };
+    return [index_](Handler& h_, const Token* t_, TokenStore& store_) 
+	{ 
+		store_.put(index_, t_); 
+	};
 }
 
-template<typename H>
-Action inline a_get(void (H::*action_)(const Token& t_), uint8_t index_)
+template<typename H, typename T>
+Action inline a_get(void (H::*action_)(const T&), uint8_t index_)
 {
-    return [action_, index_](Handler& h_, const Token& t_, TokenStore& store_) { (static_cast<H&>(h_).*action_)(store_.get(index_)); };
+    return [action_, index_](Handler& h_, const Token* t_, TokenStore& store_) 
+	{ 
+		(static_cast<H&>(h_).*action_)(static_cast<const T&>(*store_.get(index_))); 
+	};
 }
 
 }}

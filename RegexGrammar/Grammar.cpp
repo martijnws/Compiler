@@ -10,11 +10,12 @@ namespace mws { namespace regex {
 
 using namespace grammar;
 
-using T = Token::Enum;
 using H = ParserHandler;
 
 grammar::Grammar& getRegexGrammar()
 {
+	using T = REToken::Enum;
+
     using N = ReNonTerminal;
     using e = Production;
 
@@ -64,6 +65,7 @@ grammar::Grammar& getRegexGrammar()
 
 grammar::Grammar& getCharClassGrammar()
 {
+	using T = CCToken::Enum;
     using N = CCNonTerminal;
     using e = Production;
 
@@ -92,7 +94,7 @@ grammar::Grammar& getCharClassGrammar()
     if (!init)
     {
         grammar::first(g);
-	    grammar::follow(g, T::CharClassE);
+	    grammar::follow(g, T::Eoc);
         init = true;
     }
 

@@ -4,9 +4,11 @@
 
 namespace mws { namespace regex {
 
-enum ReNonTerminal { Start, Choice, ChoiceT, Concat, ConcatT, Term, QuantifierO, ZeroOrOne, ZeroToMany, OneToMany, Factor };
+//Note: It is VERY important to use 'enum class' rather than 'enum', otherwise these names will conflict with SyntaxNode derived classes of the same name
 
-enum CCNonTerminal { CharClass, CharClassNeg, RngConcat, RngConcatT, Rng, RngT, Option };
+enum class ReNonTerminal { Start, Choice, ChoiceT, Concat, ConcatT, Term, QuantifierO, ZeroOrOne, ZeroToMany, OneToMany, Factor };
+
+enum class CCNonTerminal { CharClass, CharClassNeg, RngConcat, RngConcatT, Rng, RngT, Option };
 
 grammar::Grammar& getRegexGrammar();
 grammar::Grammar& getCharClassGrammar();

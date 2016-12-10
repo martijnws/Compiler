@@ -1,17 +1,16 @@
 #pragma once
 
-#include "Visitor.h"
 #include <Grammar/Token.h>
 #include <memory>
 
 namespace mws { namespace ast {
 
-class SyntaxNode;
-using SyntaxNodePtr = std::unique_ptr<const SyntaxNode>;
-
+template<typename V>
 class Acceptor
 {
 public:
+	using Visitor = V;
+
     virtual ~Acceptor() {}
 	virtual void accept(Visitor& visitor_) const = 0;
 };
@@ -22,6 +21,7 @@ class AcceptorImpl
 	public Base
 {
 public:
+	using Visitor = typename Base::Visitor;
 
 	template<typename... Args>
 	AcceptorImpl(Args... args_)
@@ -31,17 +31,20 @@ public:
 	
 	}
 
-	virtual void accept(Visitor& visitor_) const
+	void accept(Visitor& visitor_) const override
 	{
 		visitor_.visit(static_cast<const Base&>(*this));
 	}
 };
 
+template<typename V>
 class SyntaxNode
 	:
-	public Acceptor
+	public Acceptor<V>
 {
 public:
+	using Ptr = std::unique_ptr<const SyntaxNode<V>>;
+
 	SyntaxNode(const SyntaxNode&) = delete;
 	SyntaxNode& operator = (const SyntaxNode&) = delete;
 
@@ -49,9 +52,10 @@ protected:
 	SyntaxNode() = default;
 };
 
+template<typename V>
 class Leaf
 	:
-	public SyntaxNode
+	public SyntaxNode<V>
 {
 public:
 	Leaf(const Leaf&) = delete;
@@ -61,33 +65,13 @@ protected:
 	Leaf() = default;
 };
 
-class Symbol
-	:
-	public Leaf
-{
-public:
-	Symbol(CodePoint l_)
-		: Leaf(), _l(l_)
-	{
-	
-	}
-
-	CodePoint lexeme() const
-	{
-		return _l;
-	}
-
-private:
-	const CodePoint _l;
-};
-
+template<typename V>
 class UnaryOp
 	:
-	public SyntaxNode
+	public SyntaxNode<V>
 {
 protected:
-  
-	UnaryOp(const SyntaxNode* n_)
+	UnaryOp(const SyntaxNode<V>* n_)
 		: _n(n_)
 	{
 	
@@ -95,22 +79,23 @@ protected:
 
 public:
 
-	const SyntaxNode& opr() const
+	const SyntaxNode<V>& opr() const
 	{
 		return *_n;
 	}
 
 private:
-	SyntaxNodePtr _n;
+	SyntaxNode<V>::Ptr _n;
 };
 
+template<typename V>
 class BinaryOp
 	:
-	public SyntaxNode
+	public SyntaxNode<V>
 {
 protected:
 
-	BinaryOp(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
+	BinaryOp(const SyntaxNode<V>* lhs_, const SyntaxNode<V>* rhs_)
 		: _lhs(lhs_), _rhs(rhs_)
 	{
 	
@@ -118,150 +103,19 @@ protected:
 
 public:
 
-	const SyntaxNode& lhs() const
+	const SyntaxNode<V>& lhs() const
 	{
 		return *_lhs;
 	}
 
-	const SyntaxNode& rhs() const
+	const SyntaxNode<V>& rhs() const
 	{
 		return *_rhs;
 	}
 
 private:
-	SyntaxNodePtr _lhs;
-	SyntaxNodePtr _rhs;
-};
-
-class Choice
-	:
-	public BinaryOp
-{
-public:
-	Choice(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
-		: BinaryOp(lhs_, rhs_)
-	{
-	
-	}
-};
-
-class Concat
-	:
-	public BinaryOp
-{
-public:
-	Concat(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
-		: BinaryOp(lhs_, rhs_)
-	{
-	
-	}
-};
-
-class ZeroOrOne
-	:
-	public UnaryOp
-{
-public:
-	ZeroOrOne(const SyntaxNode* n_)
-		: UnaryOp(n_)
-	{
-	
-	}
-};
-
-class ZeroToMany
-	:
-	public UnaryOp
-{
-public:
-	ZeroToMany(const SyntaxNode* n_)
-		: UnaryOp(n_)
-	{
-	
-	}
-};
-
-class OneToMany
-	:
-	public UnaryOp
-{
-public:
-	OneToMany(const SyntaxNode* n_)
-		: UnaryOp(n_)
-	{
-	
-	}
-};
-
-
-class CharClass
-	:
-	public UnaryOp
-{
-public:
-	CharClass(const SyntaxNode* n_)
-		: UnaryOp(n_)
-	{
-	
-	}
-};
-
-class Negate
-	:
-	public UnaryOp
-{
-public:
-	Negate(const SyntaxNode* n_)
-		: UnaryOp(n_)
-	{
-	
-	}
-};
-
-class RngConcat
-	:
-	public BinaryOp
-{
-public:
-	RngConcat(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
-		: BinaryOp(lhs_, rhs_)
-	{
-	
-	}
-};
-
-class Rng
-	:
-	public BinaryOp
-{
-public:
-	Rng(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
-		: BinaryOp(lhs_, rhs_)
-	{
-	
-	}
-
-    const Symbol& lhsSymbol() const
-    {
-        return static_cast<const Symbol&>(lhs());
-    }
-
-    const Symbol& rhsSymbol() const
-    {
-        return static_cast<const Symbol&>(rhs());
-    }
-};
-
-class CharClassSymbol
-	:
-	public Symbol
-{
-public:
-	CharClassSymbol(CodePoint l_)
-		: Symbol(l_)
-	{
-	
-	}
+	SyntaxNode<V>::Ptr _lhs;
+	SyntaxNode<V>::Ptr _rhs;
 };
 
 }}

@@ -4,8 +4,8 @@
 #include <LL1ParserLib/ParserTable.h>
 #include <RegexGrammar/Grammar.h>
 #include <RegexLexer/Lexer.h>
+#include <RegexSyntaxTreeLib/SyntaxTreeBuilder.h>
 #include <CommonLib/Buffer.h>
-#include <SyntaxTreeLib/SyntaxTreeBuilder.h>
 #include <iostream>
 
 // Notes on grammar
@@ -38,7 +38,7 @@ public:
 	using IStream =  std::basic_istream<Char>;
 
 	RegexParser(IStream& is_)
-		: _buf(is_), _cur({ grammar::Token::None, 0 })
+		: _buf(is_)
 
 	{
 	
@@ -50,8 +50,8 @@ public:
         static grammar::Grammar& gRE = regex::getRegexGrammar();
         static grammar::Grammar& gCC = regex::getCharClassGrammar();
 
-        static ParserTable parserTableRE(gRE, regex::Token::Enum::Max);
-        static ParserTable parserTableCC(gCC, regex::Token::Enum::Max);
+        static ParserTable parserTableRE(gRE, regex::REToken::Enum::Max);
+        static ParserTable parserTableCC(gCC, regex::CCToken::Enum::Max);
 
 		try
 		{
@@ -59,16 +59,16 @@ public:
 			using RELexer = regex::RegexLexer<Buffer>;
 
              // sub parser setup
-            SubParserMap ccSubParserCol;
-			CCLexer ccLexer(_buf);
+            ParserDriver<CCLexer>::SubParserMap ccSubParserCol;
+			CCLexer ccLexer(_buf, CP(']'));
 			ParserDriver<CCLexer> ccParser(ccLexer, _astBuilder, gCC, parserTableCC, ccSubParserCol);
 
-            SubParserMap reSubParserCol;
-			RELexer reLexer(_buf);
-            reSubParserCol.insert(std::make_pair(regex::Token::Enum::CharClassB, &ccParser));
+            ParserDriver<RELexer>::SubParserMap reSubParserCol;
+			RELexer reLexer(_buf, CP('\0'));
+            reSubParserCol.insert(std::make_pair(regex::REToken::Enum::CharClassB, &ccParser));
 			ParserDriver<RELexer> reParser(reLexer, _astBuilder, gRE, parserTableRE, reSubParserCol);
 
-			reParser.parse(_cur);
+			reParser.parse();
 			return true;
 		}
 		catch(const common::Exception& e)
@@ -78,9 +78,8 @@ public:
 		}
 	}
 
-	Buffer                 _buf;
-	grammar::Token         _cur;
-	ast::SyntaxTreeBuilder _astBuilder;
+	Buffer                   _buf;
+	regex::SyntaxTreeBuilder _astBuilder;
 };
 
 }}}

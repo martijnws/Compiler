@@ -17,7 +17,7 @@
 #include <LL1RegexParser\RegexParser.h>
 #include <FA\AlphabetVisitor.h>
 #include <FA\NFABuilderVisitor.h>
-#include <SyntaxTreeLib\Visitor.h>
+#include <RegexSyntaxTreeLib\Visitor.h>
 
 #include <sstream>
 

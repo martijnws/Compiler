@@ -13,6 +13,9 @@ class ParserDriver
     public IParser
 {
 public:
+	using TokenEnum    = typename LexerT::Token::Enum;
+	using SubParserMap = std::map<TokenEnum, IParser*>;
+
 	ParserDriver(LexerT& lexer_, grammar::Handler& h_, const grammar::Grammar& grammar_, const ParserTable& parserTable_, const SubParserMap& subParserCol_)
     :
 		_lexer(lexer_),
@@ -24,7 +27,7 @@ public:
 		
 	}
 
-    void parse(grammar::Token& cur_) override;
+    void parse() override;
 
 private:
 	LexerT&                 _lexer;
@@ -35,9 +38,9 @@ private:
 };
 
 template<typename LexerT>
-void ParserDriver<LexerT>::parse(grammar::Token& cur_)
+void ParserDriver<LexerT>::parse()
 {
-    ParserState<LexerT> st(_lexer, cur_);
+    ParserState<LexerT> st(_lexer);
     st.init();
 
 	using GSEntry = std::pair<grammar::GrammarSymbol, bool>;
@@ -61,18 +64,20 @@ void ParserDriver<LexerT>::parse(grammar::Token& cur_)
 		{
             //std::cout << "match Terminal: " << tokCur._lexeme << std::endl;
 
-            auto itr = _subParserCol.find(gs._type);
+            auto itr = _subParserCol.find(static_cast<TokenEnum>(gs._type));
             const bool isSGSS = itr != _subParserCol.end();
 			// match
 			st.m(gs._type, !isSGSS);
            
-            gs._action(_h, tokCur, store);
+            gs._action(_h, &tokCur, store);
 			stack.pop_back();
           
             if (isSGSS)
             {
                 const auto& parser = itr->second;
-                parser->parse(st.cur());
+                parser->parse();
+				// (re)fetch eoc marker
+				st.next();
             }
 
 			continue;
@@ -82,7 +87,7 @@ void ParserDriver<LexerT>::parse(grammar::Token& cur_)
 		if (entry.second)
 		{
             //std::cout << "Pop NonTerminal " << _grammar[gs._type]._name << std::endl;
-			gs._action(_h, tokCur, store);
+			gs._action(_h, &tokCur, store);
 			stack.pop_back();
 			continue;
 		}
@@ -100,7 +105,10 @@ void ParserDriver<LexerT>::parse(grammar::Token& cur_)
 		}
 	}
 
-	assert(st.eof());
+	assert(st.eof() || st.eoc());
+	// In case this is an embedded piece of code, the eoc marker
+	// is pushed back on the buffer so host of embedded code can (re)fetch it with correct Lexer
+	st.retractLast();
 }
 
 }}}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RangeKey.h"
-#include <SyntaxTreeLib/Visitor.h>
+#include <RegexSyntaxTreeLib/Visitor.h>
 #include <set>
 
 namespace mws {
@@ -10,15 +10,14 @@ class DFAInfo;
 
 class CharClassVisitor
 	:
-	public mws::ast::Visitor
+	public regex::Visitor
 {
 public:
-	virtual void visit(const ast::Negate& n_);
-    virtual void visit(const ast::RngConcat& n_);
-	virtual void visit(const ast::Rng& n_);
-    virtual void visit(const ast::CharClassSymbol& n_);
+	void visit(const regex::Negate& n_) override;
+    void visit(const regex::RngConcat& n_) override;
+	void visit(const regex::Rng& n_) override;
+    void visit(const regex::CharClassSymbol& n_) override;
 
-//protected:
     std::set<RangeKey> _charClassSet;
 };
 

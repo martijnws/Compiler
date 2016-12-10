@@ -1,5 +1,5 @@
 #include "NFABuilderVisitor.h"
-#include <SyntaxTreeLib/SyntaxNode.h>
+#include <RegexSyntaxTreeLib/SyntaxNode.h>
 #include <cassert>
 
 namespace mws {
@@ -11,7 +11,7 @@ NFABuilderVisitor::NFABuilderVisitor(const std::set<RangeKey>& rkSet_)
     
 }
     
-void NFABuilderVisitor::visit(const ast::Symbol& n_)
+void NFABuilderVisitor::visit(const regex::Symbol& n_)
 {
 	auto s = new NFANode();
     auto f = new NFANode();
@@ -22,7 +22,7 @@ void NFABuilderVisitor::visit(const ast::Symbol& n_)
     _result._f = f;
 }
 
-void NFABuilderVisitor::visit(const ast::Choice& n_)
+void NFABuilderVisitor::visit(const regex::Choice& n_)
 {
     n_.lhs().accept(*this);
     auto lhs = _result;
@@ -41,7 +41,7 @@ void NFABuilderVisitor::visit(const ast::Choice& n_)
     _result = lhs;
 }
 
-void NFABuilderVisitor::visit(const ast::Concat& n_)
+void NFABuilderVisitor::visit(const regex::Concat& n_)
 {
 	n_.lhs().accept(*this);
     auto lhs = _result;
@@ -59,7 +59,7 @@ void NFABuilderVisitor::visit(const ast::Concat& n_)
     _result._f = rhs._f;
 }
 
-void NFABuilderVisitor::visit(const ast::ZeroOrOne& n_)
+void NFABuilderVisitor::visit(const regex::ZeroOrOne& n_)
 {
     n_.opr().accept(*this);
     auto opr = _result;
@@ -73,7 +73,7 @@ void NFABuilderVisitor::visit(const ast::ZeroOrOne& n_)
     _result = opr;
 }
 
-void NFABuilderVisitor::visit(const ast::ZeroToMany& n_)
+void NFABuilderVisitor::visit(const regex::ZeroToMany& n_)
 {
     // Note: composition(OnetoMany, ZeroOrOne) == ZeroToMany
     // <factor>+? == <factor>*
@@ -98,7 +98,7 @@ void NFABuilderVisitor::visit(const ast::ZeroToMany& n_)
     _result._f = f;
 }
 
-void NFABuilderVisitor::visit(const ast::OneToMany& n_)
+void NFABuilderVisitor::visit(const regex::OneToMany& n_)
 {
 	n_.opr().accept(*this);
     auto opr = _result;
@@ -122,7 +122,7 @@ void NFABuilderVisitor::visit(const ast::OneToMany& n_)
 }
 
 
-void NFABuilderVisitor::visit(const ast::CharClass& n_)
+void NFABuilderVisitor::visit(const regex::CharClass& n_)
 {
 	CharClassVisitor ccv;
 

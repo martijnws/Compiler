@@ -178,8 +178,8 @@
     <ProjectReference Include="..\RegexGrammar\RegexGrammar.vcxproj">
       <Project>{42a40911-9335-468a-98a8-f6bc646deb16}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\SyntaxTreeLib\SyntaxTreeLib.vcxproj">
-      <Project>{6e560029-ae47-406b-8828-b6737123d5a9}</Project>
+    <ProjectReference Include="..\RegexSyntaxTreeLib\RegexSyntaxTreeLib.vcxproj">
+      <Project>{88264cfb-9540-4158-a9c1-bc95768101ed}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

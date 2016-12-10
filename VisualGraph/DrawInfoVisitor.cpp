@@ -5,7 +5,7 @@
 #include <FA/NFA.h>
 #include <algorithm>
 
-void DrawInfoSyntaxNodeVisitor::visit(const mws::ast::Leaf& n_) 
+void DrawInfoSyntaxNodeVisitor::visit(const mws::regex::Leaf& n_) 
 {
 	m_depth = std::max(m_depth, m_curDepth);
 
@@ -17,7 +17,7 @@ void DrawInfoSyntaxNodeVisitor::visit(const mws::ast::Leaf& n_)
 	++m_cLeaf;
 }
 
-void DrawInfoSyntaxNodeVisitor::visit(const mws::ast::BinaryOp& n_) 
+void DrawInfoSyntaxNodeVisitor::visit(const mws::regex::BinaryOp& n_) 
 {
 	++m_curDepth;
 
@@ -36,7 +36,7 @@ void DrawInfoSyntaxNodeVisitor::visit(const mws::ast::BinaryOp& n_)
 	m_subTree->add(rhsTree);
 }
 
-void DrawInfoSyntaxNodeVisitor::visit(const mws::ast::UnaryOp& n_)
+void DrawInfoSyntaxNodeVisitor::visit(const mws::regex::UnaryOp& n_)
 {
 	++m_curDepth;
 

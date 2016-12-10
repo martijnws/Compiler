@@ -8,13 +8,13 @@ namespace mws {
 
 class AlphabetVisitor 
 	:
-	public ast::Visitor
+	public regex::Visitor
 {
 public:
-	virtual void visit(const ast::Symbol& n_);
-    virtual void visit(const ast::UnaryOp& n_);
-    virtual void visit(const ast::BinaryOp& n_);
-	virtual void visit(const ast::CharClass& n_);
+	void visit(const regex::Symbol& n_) override;
+    void visit(const regex::UnaryOp& n_) override;
+    void visit(const regex::BinaryOp& n_) override;
+	void visit(const regex::CharClass& n_) override;
 
     std::vector<RangeKey> _rkVec;
 };

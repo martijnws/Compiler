@@ -7,13 +7,9 @@ namespace mws { namespace grammar {
 
 struct Token
 {
-    using Type = uint8_t;
+	enum Enum { Eof = 0 };
 
-    static const Type None = -1;
-    static const Type Eof = 0;
-
-	Type      _type;
-	CodePoint _lexeme;
+	using Type = uint8_t;
 };
 
 }}

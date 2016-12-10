@@ -3,8 +3,7 @@
 #include <WinLib\Window.h>
 #include <WinLib\ForwardDecl.h>
 #include <Direct2DLib\RenderTarget.h>
-
-#include <SyntaxTreeLib\SyntaxNode.h>
+#include <RegexSyntaxTreeLib\SyntaxNode.h>
 #include <vector>
 #include <set>
 
@@ -23,7 +22,7 @@ public:
 	using RenderTarget      = d2d::DeviceContextRenderTarget;
 	using RenderTargetGuard = d2d::RenderTargetGuard<RenderTarget>;
 
-    ASTWindow(d2d::System& system_, mws::ast::SyntaxNode* astRoot_)
+    ASTWindow(d2d::System& system_, mws::regex::SyntaxNode* astRoot_)
 	:
 		m_d2dSystem(system_), m_astRoot(astRoot_)
     {
@@ -54,7 +53,7 @@ private:
 	ComPtr<IDWriteTextFormat>    m_spTextFormatSmall;
 	ComPtr<ID2D1SolidColorBrush> m_spBrushBlue;
 	ComPtr<ID2D1SolidColorBrush> m_spBrushWhite;
-	mws::ast::SyntaxNodePtr      m_astRoot;
+	mws::regex::SyntaxNode::Ptr  m_astRoot;
 	mws::NFANode*                m_nfaStart = nullptr;
 };
 

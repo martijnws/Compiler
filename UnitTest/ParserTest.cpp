@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include <LL1RegexParser/RegexParser.h>
-#include <SyntaxTreeLib/SyntaxNode.h>
+#include <RegexSyntaxTreeLib/SyntaxNode.h>
 #include <FA/NFABuilderVisitor.h>
 #include <FA/AlphabetVisitor.h>
 #include <FA/ToStringVisitor.h>
@@ -21,9 +21,9 @@ using Stream = std::basic_stringstream<TChar>;
 #define _TS(_c) _SExt(_c)
 
 template<typename Item>
-std::tuple<mws::DFANode*, Item*, Item*> buildDFA(mws::ast::SyntaxNode* root_)
+std::tuple<mws::DFANode*, Item*, Item*> buildDFA(mws::regex::SyntaxNode* root_)
 {
-    mws::ast::SyntaxNodePtr root(root_);
+    mws::regex::SyntaxNode::Ptr root(root_);
 
     mws::AlphabetVisitor alphabetVisitor;
     root->accept(alphabetVisitor);
@@ -42,7 +42,7 @@ std::tuple<mws::DFANode*, Item*, Item*> buildDFA(mws::ast::SyntaxNode* root_)
     return std::make_tuple(dfa, a,a);
 }
 
- auto toString(mws::ast::SyntaxNode* root_)
+ auto toString(mws::regex::SyntaxNode* root_)
 {
     mws::ToStringVisitor toStrVisitor;
 	root_->accept(toStrVisitor);

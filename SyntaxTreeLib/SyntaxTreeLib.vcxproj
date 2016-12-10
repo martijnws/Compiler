@@ -136,13 +136,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SyntaxTreeBuilder.cpp" />
-    <ClCompile Include="Visitor.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="SyntaxNode.h" />
-    <ClInclude Include="SyntaxTreeBuilder.h" />
-    <ClInclude Include="Visitor.h" />
+    <ClInclude Include="SyntaxNodeFwd.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

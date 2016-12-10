@@ -1,21 +1,8 @@
 #pragma once
 
-namespace mws { namespace ast {
+#include "SyntaxNodeFwd.h"
 
-class Leaf;
-class UnaryOp;
-class BinaryOp;
-class Symbol;
-class Choice;
-class Concat;
-class ZeroOrOne;
-class ZeroToMany;
-class OneToMany;
-class CharClass;
-class Negate;
-class RngConcat;
-class Rng;
-class CharClassSymbol;
+namespace mws { namespace regex {
 
 class Visitor
 {
@@ -38,4 +25,4 @@ public:
     virtual void visit(const BinaryOp& n_);
 };
 
-}}
+}} //mws::regex

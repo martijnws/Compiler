@@ -8,11 +8,13 @@ namespace mws { namespace td {
 template<typename LexerT>
 class ParserState
 {
+	using Token = typename LexerT::Token;
+
 public:
  
-	ParserState(LexerT& lexer_, grammar::Token& cur_)
+	ParserState(LexerT& lexer_)
 	: 
-		_lexer(lexer_), _cur(cur_)
+		_lexer(lexer_)
 	{
 		
 	}
@@ -30,10 +32,15 @@ public:
 
 	bool eof() const
 	{
-		return _cur._type == LexerT::Eof;
+		return _cur._type == Token::Eof;
 	}
 
-	grammar::Token& cur() const
+	bool eoc() const
+	{
+		return _cur._type == Token::Eoc;
+	}
+
+	auto& cur() const
 	{
 		return _cur;
 	}
@@ -56,9 +63,14 @@ public:
         }
 	}
 
+	void retractLast()
+	{
+		_lexer.retractLast();
+	}
+
 private:
-	LexerT&         _lexer;
-	grammar::Token& _cur;
+	LexerT&  _lexer;
+	Token    _cur;
 };
 
 }}

@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "ToStringVisitor.h"
-#include <SyntaxTreeLib\SyntaxNode.h>
+#include <RegexSyntaxTreeLib\SyntaxNode.h>
 #include <CommonLib/Unicode.h>
 
-void ToStringVisitor::visit(const mws::ast::Symbol& n_)
+void ToStringVisitor::visit(const mws::regex::Symbol& n_)
 {
 	wchar_t buf[4];
 	const auto size = mws::common::utf::Encoder<wchar_t>::encode(n_.lexeme(), buf);
@@ -11,52 +11,52 @@ void ToStringVisitor::visit(const mws::ast::Symbol& n_)
 	m_result = buf;
 }
 
-void ToStringVisitor::visit(const mws::ast::Choice& n_) 
+void ToStringVisitor::visit(const mws::regex::Choice& n_) 
 {
 	m_result = L"|";
 }
 
-void ToStringVisitor::visit(const mws::ast::Concat& n_)
+void ToStringVisitor::visit(const mws::regex::Concat& n_)
 {
 	m_result = L"&";
 }
 
-void ToStringVisitor::visit(const mws::ast::ZeroOrOne& n_)
+void ToStringVisitor::visit(const mws::regex::ZeroOrOne& n_)
 {
 	m_result = L"?";
 }
 
-void ToStringVisitor::visit(const mws::ast::ZeroToMany& n_)
+void ToStringVisitor::visit(const mws::regex::ZeroToMany& n_)
 {
 	m_result = L"*";
 }
 
-void ToStringVisitor::visit(const mws::ast::OneToMany& n_)
+void ToStringVisitor::visit(const mws::regex::OneToMany& n_)
 {
 	m_result = L"+";
 }
 
-void ToStringVisitor::visit(const mws::ast::CharClass& n_)
+void ToStringVisitor::visit(const mws::regex::CharClass& n_)
 {
 	m_result = L"[]";
 }
 
-void ToStringVisitor::visit(const mws::ast::Negate& n_)
+void ToStringVisitor::visit(const mws::regex::Negate& n_)
 {
 	m_result = L"^";
 }
 
-void ToStringVisitor::visit(const mws::ast::RngConcat& n_)
+void ToStringVisitor::visit(const mws::regex::RngConcat& n_)
 {
 	m_result = L"&";
 }
 
-void ToStringVisitor::visit(const mws::ast::Rng& n_)
+void ToStringVisitor::visit(const mws::regex::Rng& n_)
 {
 	m_result = L"R"; 
 }
 
-void ToStringVisitor::visit(const mws::ast::CharClassSymbol& n_)
+void ToStringVisitor::visit(const mws::regex::CharClassSymbol& n_)
 {
-	visit(static_cast<const mws::ast::Symbol&>(n_));
+	visit(static_cast<const mws::regex::Symbol&>(n_));
 }
