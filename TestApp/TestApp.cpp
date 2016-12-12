@@ -26,11 +26,19 @@ const mws::CharExt* g_regexCol[] =
     _CExt("class"),
     // Note: let a = a-zA-Z0-9, b = _
     // the pattern (a|b)*a(a|b)* reduces to b*a(a|b)*
-    _CExt("[a-zA-Z_]_*[a-zA-Z0-9][a-zA-Z0-9_]*"),
+    //_CExt("[a-zA-Z_]_*[a-zA-Z0-9][a-zA-Z0-9_]*"),
+    _CExt("[a-zA-Z_]_*[a-zA-Z][a-zA-Z_]*"),
     _CExt("{"),
     _CExt("}"),
     _CExt(";")
 };
+
+//const mws::CharExt* g_regexCol[] =
+//{
+//	_CExt("a"),
+//	_CExt("b"),
+//	_CExt("abc"),
+//};
 
 void testMatchAndSimulate(mws::DFANode* dfa_, const mws::DFAInfo* s_, const mws::DFAInfo* a_, const mws::Char* str_, bool expect_ = true)
 {
@@ -57,7 +65,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		std::vector<mws::StringExt> regexCol;
 		std::copy(g_regexCol, g_regexCol + sizeof(g_regexCol)/sizeof(mws::CharExt*), std::back_inserter(regexCol));
 
-        const auto* text = _CExt("hello world; if bla ___0_   { continue; } else elsbla else1234 { bla 1234 break; }");
+        //const auto* text = _CExt("hello world; if bla ___0_   { continue; } else elsbla else1234 { bla 1234 break; }");
+        const auto* text = _CExt("hello world; if bla ___A_   { continue; } else elsbla else1234 { bla 1234 break; }");
+
+
+        //const auto* text = _CExt("ababc");
         mws::StringStreamExt is(text, std::ios_base::in);
 
         mws::Lexer lexer(is, regexCol);

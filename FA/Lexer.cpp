@@ -67,7 +67,7 @@ Token Lexer::next()
         throw common::Exception(_C("Eof"));
     }
 
-    if (!_eof && !_buf.valid())
+    if (!_buf.valid())
     {
         _eof = true;
         t._type = mws::Token::Invalid;
@@ -77,9 +77,13 @@ Token Lexer::next()
     // restart dfa from beginning for each token
     auto* d = _dfa;
    
+	auto lexeme = t._lexeme;
 	Char buf[8] = { _C('\0') };
 	auto pos = _buf.pos();
-    for (auto cp = _buf.next(); cp != CP('\0'); pos = _buf.pos(), cp = _buf.next())
+	auto beg = pos;
+	std::size_t regexID = -1;
+
+    for (auto cp = _buf.next(); cp != CP('\0'); cp = _buf.next())
     {
         auto itr = d->_transitionMap.find(cp);
         if (itr == d->_transitionMap.end())
@@ -90,16 +94,28 @@ Token Lexer::next()
         }
 
 		const auto size = common::utf::Encoder<Char>::encode(cp, buf);
-        t._lexeme.insert(t._lexeme.end(), buf, buf + size);
+        lexeme.insert(lexeme.end(), buf, buf + size);
         d = itr->second;
+
+		//cache pos of last valid end state
+		if (d->_regexID != -1)
+		{
+			pos = _buf.pos();
+			regexID = d->_regexID;
+		}
     }
 
-    if (d->_regexID == -1)
+    if (regexID != -1)
     {
-        throw common::Exception(_C("Invalid Token"));
+		assert(pos > beg);
+		t._type = regexID;
+		t._lexeme.append(lexeme, 0, pos - beg);
     }
+	else
+	{
+		t._type = mws::Token::Invalid;
+	}
 
-    t._type = d->_regexID;
     return t;
 }
 
