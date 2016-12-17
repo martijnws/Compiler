@@ -13,13 +13,14 @@ namespace mws { namespace grammar {
 class NT;
 using Grammar = std::vector<NT>;
 
-using Action     = std::function<void (Handler&, const Token*, TokenStore&)>;
+using Action  = std::function<void (Handler&, const Token*, TokenStore&)>;
+using GSID    = TokenID;
 
 class GrammarSymbol
 {
 public:
 	bool    _isTerminal;
-	uint8_t _type;
+	GSID    _type;
 	Action  _action;
 };
 
@@ -46,7 +47,7 @@ public:
 	}
 
 	std::vector<GrammarSymbol> _gsList;
-	std::set<uint8_t>          _first;
+	std::set<TokenID>          _first;
 	bool                       _derivesEmpty = true;
 };
 
@@ -65,7 +66,7 @@ public:
 		return std::any_of(_prodList.begin(), _prodList.end(), [](const Production& prod_){ return prod_._derivesEmpty; });
 	}
 
-	void getFirst(std::set<uint8_t>& firstSet_) const
+	void getFirst(std::set<TokenID>& firstSet_) const
 	{
 		for (const auto& prod : _prodList)
 		{
@@ -74,7 +75,7 @@ public:
 	}
 
 	std::vector<Production> _prodList;
-	std::set<uint8_t>       _follow;
+	std::set<TokenID>       _follow;
 	std::string             _name;
 };
 
@@ -88,26 +89,26 @@ inline Action no_op()
 template<typename Enum>
 inline GrammarSymbol t(Enum type_)
 { 
-    return { true, static_cast<uint8_t>(type_), no_op()  }; 
+    return { true, static_cast<GSID>(type_), no_op()  }; 
 }
 
 
 template<typename Enum>
 inline GrammarSymbol t(Enum type_, Action action_) 
 { 
-    return { true, static_cast<uint8_t>(type_), action_ }; 
+    return { true, static_cast<GSID>(type_), action_ }; 
 }
 
 template<typename Enum>
 inline GrammarSymbol n(Enum type_)
 { 
-    return { false, static_cast<uint8_t>(type_), no_op() }; 
+    return { false, static_cast<GSID>(type_), no_op() }; 
 }
 
 template<typename Enum>
 inline GrammarSymbol n(Enum type_, Action action_) 
 { 
-    return { false, static_cast<uint8_t>(type_), action_ }; 
+    return { false, static_cast<GSID>(type_), action_ }; 
 }
 
 
@@ -130,7 +131,7 @@ Action inline a(void (H::*action_)(const T&))
 	};
 }
 
-Action inline a_set(uint8_t index_)
+Action inline a_set(TokenID index_)
 {
     return [index_](Handler& h_, const Token* t_, TokenStore& store_) 
 	{ 
@@ -139,7 +140,7 @@ Action inline a_set(uint8_t index_)
 }
 
 template<typename H, typename T>
-Action inline a_get(void (H::*action_)(const T&), uint8_t index_)
+Action inline a_get(void (H::*action_)(const T&), TokenID index_)
 {
     return [action_, index_](Handler& h_, const Token* t_, TokenStore& store_) 
 	{ 

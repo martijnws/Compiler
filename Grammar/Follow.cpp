@@ -3,11 +3,11 @@
 
 namespace mws { namespace grammar {
 
-inline std::ostream& operator << (std::ostream& os_, const std::set<uint8_t>& set_)
+inline std::ostream& operator << (std::ostream& os_, const std::set<GSID>& set_)
 {
 	for (auto i : set_)
 	{
-		os_ << (int)i << " ";
+		os_ << static_cast<int>(i) << " ";
 	}
 
 	return os_;
@@ -17,17 +17,17 @@ struct Context
 {
     Context(std::size_t size_)
     :
-        _ntFollowSetsCount(std::vector<uint8_t>(size_, 0)), _followSetToNtsMap(std::vector<std::vector<uint8_t>>(size_))
+        _ntFollowSetsCount(std::vector<GSID>(size_, 0)), _followSetToNtsMap(std::vector<std::vector<GSID>>(size_))
     {
     
     }
 
-    std::vector<uint8_t>              _ntFollowSetsCount;
-    std::vector<std::vector<uint8_t>> _followSetToNtsMap;
+    std::vector<GSID>              _ntFollowSetsCount;
+    std::vector<std::vector<GSID>> _followSetToNtsMap;
 };
 
 
-void follow(grammar::Grammar& grammar_, uint8_t nttHead_, grammar::Production& prod_, Context& ctx_)
+void follow(grammar::Grammar& grammar_, GSID nttHead_, grammar::Production& prod_, Context& ctx_)
 {
 	assert(nttHead_ >= 0 && nttHead_ < grammar_.size());
 	
@@ -35,7 +35,7 @@ void follow(grammar::Grammar& grammar_, uint8_t nttHead_, grammar::Production& p
 
 	// start with true because last grammar symbol requires follow(ntHead)
 	bool requiresFollow = true;
-	std::set<uint8_t> followSet;
+	std::set<TokenID> followSet;
 
     // i must be signed to detect >= 0 condition
 	for (int64_t i = prod_._gsList.size() - 1; i >= 0; --i)
@@ -74,7 +74,7 @@ void follow(grammar::Grammar& grammar_, uint8_t nttHead_, grammar::Production& p
 	}
 }
 
-void follow(grammar::Grammar& grammar_, const grammar::Token::Type& tokEof_)
+void follow(grammar::Grammar& grammar_, const TokenID& tokEof_)
 {
 	std::cout << "Follow:" << std::endl;
 
@@ -93,9 +93,9 @@ void follow(grammar::Grammar& grammar_, const grammar::Token::Type& tokEof_)
 	}
 
 	// second pass: add followsets
-	std::vector<uint8_t> completeFollowSets;
+	std::vector<GSID> completeFollowSets;
 	
-	for (auto i = 0; i < ctx._ntFollowSetsCount.size(); ++i)
+	for (GSID i = 0; i < ctx._ntFollowSetsCount.size(); ++i)
 	{
 		if (ctx._ntFollowSetsCount[i] == 0)
 		{
@@ -103,12 +103,12 @@ void follow(grammar::Grammar& grammar_, const grammar::Token::Type& tokEof_)
 		}
 	}
 
-	for (size_t i = 0; i < completeFollowSets.size(); ++i)
+	for (GSID i = 0; i < completeFollowSets.size(); ++i)
 	{
 		auto nttComplete = completeFollowSets[i];
 		const auto& ntComplete = grammar_[nttComplete];
+		const auto& incompleteFollowSets = ctx._followSetToNtsMap[nttComplete];
 
-		std::vector<uint8_t>& incompleteFollowSets = ctx._followSetToNtsMap[nttComplete];
 		for (const auto nttIncomplete : incompleteFollowSets)
 		{
 			// add follow(nttComplete) to follow(nttIncomplete)

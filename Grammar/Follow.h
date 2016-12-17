@@ -5,7 +5,7 @@
 namespace mws { namespace grammar {
 
 // sub grammars have have alternative Eof token
-void follow(Grammar& grammar_, const grammar::Token::Type& tokEof_);
+void follow(Grammar& grammar_, const TokenID& tokEof_);
 
 }}
 

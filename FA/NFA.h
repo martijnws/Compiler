@@ -2,6 +2,7 @@
 
 #include "RangeKey.h"
 #include <CommonLib/CodePoint.h>
+#include <CommonLib/TokenID.h>
 #include <map>
 #include <set>
 #include <functional>
@@ -13,15 +14,13 @@ class NFANode
 public:
     using Map = std::multimap<RangeKey, NFANode*>;
 
-    NFANode() : _regexID(-1){}
-
     bool accept() const
     {
-        return _regexID != -1;
+        return _regexID != InvalidTokenID;
     }
 
-    Map         _transitionMap;
-    std::size_t _regexID;
+    Map     _transitionMap;
+    TokenID _regexID = InvalidTokenID;
 };
 
 class NFA

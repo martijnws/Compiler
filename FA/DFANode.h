@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RangeKey.h"
+#include <CommonLib/TokenID.h>
 #include <set>
 #include <map>
 #include <cassert>
@@ -12,17 +13,17 @@ namespace mws {
 class DFANode
 {
 public:
-    DFANode(std::size_t regexID_) : _regexID(regexID_){}
+    DFANode(TokenID regexID_) : _regexID(regexID_){}
 
     using Map = std::map<RangeKey, DFANode*>;
 
     bool accept() const
     {
-        return _regexID != -1;
+        return _regexID != InvalidTokenID;
     }
 
-    Map _transitionMap;
-    std::size_t _regexID;
+    Map     _transitionMap;
+    TokenID _regexID;
 };
 
 template<typename Item, typename HashT = std::hash<Item>>

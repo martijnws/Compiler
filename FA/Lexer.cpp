@@ -61,19 +61,17 @@ Lexer::Lexer(IStreamExt& is_, const std::vector<IPair>& regexCol_)
     mws::minimize(_dfa, rkSet);
 }
 
-grammar::Token::Type Lexer::next(String& lexeme_)
+bool Lexer::next(String& lexeme_, TokenID& type_)
 {
     if (_eof)
     {
         throw common::Exception(_C("Eof"));
     }
 
-	grammar::Token::Type type = grammar::Token::Invalid;
-
     if (!_buf.valid())
     {
         _eof = true;
-        return type;
+        return false;
     }
 
     // restart dfa from beginning for each token
@@ -83,7 +81,7 @@ grammar::Token::Type Lexer::next(String& lexeme_)
 	Char buf[8]; // = { _C('\0') };
 	auto pos = _buf.pos();
 	auto beg = pos;
-	std::size_t regexID = -1;
+	auto regexID = InvalidTokenID;
 
     for (auto cp = _buf.next(); cp != CP('\0'); cp = _buf.next())
     {
@@ -98,7 +96,7 @@ grammar::Token::Type Lexer::next(String& lexeme_)
         d = itr->second;
 
 		//cache pos of last valid end state
-		if (d->_regexID != -1)
+		if (d->_regexID != InvalidTokenID)
 		{
 			pos = _buf.pos();
 			regexID = d->_regexID;
@@ -108,14 +106,16 @@ grammar::Token::Type Lexer::next(String& lexeme_)
 	//retract to position where valid regexID was found (or beg, in case no match was found at all)
 	_buf.retract(_buf.pos() - pos);
 
-	assert(regexID != -1 ? pos > beg : pos == beg);
-    if (regexID != -1)
+	const auto result = regexID != InvalidTokenID;
+	assert(result ? pos > beg : pos == beg);
+
+    if (result)
     {
-		type = regexID;
+		type_ = regexID;
 		lexeme_.append(lexeme, 0, pos - beg);
     }
 
-	return type;
+	return result;
 }
 
 }

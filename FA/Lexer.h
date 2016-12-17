@@ -5,6 +5,7 @@
 #include <Grammar/Token.h>
 #include <CommonLib/Buffer.h>
 #include <CommonLib/String.h>
+#include <CommonLib/TokenID.h>
 
 namespace mws {
 
@@ -13,13 +14,13 @@ class Lexer
 public:
 	struct IPair
 	{
-		StringExt            regex;
-		grammar::Token::Type type;
+		StringExt regex;
+		TokenID   type;
 	};
 
     Lexer(IStreamExt& is_, const std::vector<IPair>& regexCol_);
 
-    grammar::Token::Type next(String& lexeme_);
+    bool next(String& lexeme_, TokenID& type_);
 
 private:
     common::BufferExt _buf;
@@ -37,10 +38,23 @@ public:
 	using Lexer::Lexer;
 	using Lexer::next;
 
+	using Token = TokenT;
+
 	TokenT next()
 	{
 		Token t;
-		t._type = static_cast<TokenT::Enum>(next(t._lexeme));
+		auto type = InvalidTokenID;
+		if (next(t._lexeme, type))
+		{
+			assert(type != InvalidTokenID);
+			assert(type <= Token::max());
+			t._type = static_cast<Token::Enum>(type);
+		}
+		else
+		{
+			t._type = Token::Invalid;
+		}
+
 		return t;
 	}
 };

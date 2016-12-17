@@ -45,12 +45,12 @@ public:
 		return _cur;
 	}
 
-    void m(grammar::Token::Type type_)
+    void m(TokenID type_)
 	{
         m(type_, true);
     }
 
-	void m(grammar::Token::Type type_, bool fetchNext_)
+	void m(TokenID type_, bool fetchNext_)
 	{
 		const auto type = static_cast<Token::Enum>(type_);
 

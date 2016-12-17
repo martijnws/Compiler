@@ -126,7 +126,6 @@ class Lexer
 
 public:
 	using Token     = typename TokenTypeMapT::Token;
-	using TokenType = typename Token::Type;
 
 	Lexer(BufferT& buf_)
 		:
@@ -179,9 +178,11 @@ public:
 		return t;
 	}
 
-protected:
+private:
+	using TokenEnum = typename Token::Enum;
+
 	BufferT&                          _buf;
-	boost::circular_buffer<TokenType> _lookBehind;
+	boost::circular_buffer<TokenEnum> _lookBehind;
 	const TokenTypeMapT               _map;
 	std::size_t                       _lastTokenSize = 0;
 };

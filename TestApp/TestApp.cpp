@@ -20,9 +20,9 @@ class Token
 	public mws::grammar::Token
 {
 public:
-	enum Enum { Invalid = mws::grammar::Token::Invalid, WS, Num, If, Else, Break, Continue, Class, ID, BlockO, BlockC, Eos /*end of statement*/ };
+	enum Enum { WS, Num, If, Else, Break, Continue, Class, ID, BlockO, BlockC, Eos, Eof, Invalid /*end of statement*/ };
 
-	static mws::grammar::Token::Type max()
+	static mws::TokenID max()
 	{
 		return Eos;
 	}
@@ -48,7 +48,8 @@ std::vector<mws::Lexer::IPair> g_regexCol =
     { _CExt("[a-zA-Z_]_*[a-zA-Z][a-zA-Z_]*"),			Token::Enum::ID },
     { _CExt("{"),                                       Token::Enum::BlockO },
     { _CExt("}"),                                       Token::Enum::BlockC },
-	{ _CExt(";"),                                       Token::Enum::Eos }
+	{ _CExt(";"),                                       Token::Enum::Eos },
+	//{ _CExt("\0"),                                      Token::Enum::Eof } //Doesn't work yet
 };
 
 //const mws::CharExt* g_regexCol[] =
@@ -90,7 +91,7 @@ int _tmain(int argc, _TCHAR* argv[])
         mws::LexerT<Token> lexer(is, g_regexCol);
         for (auto t = lexer.next(); t._type != Token::Invalid; t = lexer.next())
         {
-            stdOut << _C("lexeme = ") << t._lexeme << _C(", type = ") << g_regexCol[t._type - 1].regex.c_str() << std::endl;
+            stdOut << _C("lexeme = ") << t._lexeme << _C(", type = ") << g_regexCol[t._type].regex.c_str() << std::endl;
         }
     }
 

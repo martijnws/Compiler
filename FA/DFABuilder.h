@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <memory>
 #include <sstream>
+#include <limits>
 
 namespace mws {
 
@@ -13,9 +14,11 @@ template<typename Item>
 using DFANodeMap = std::unordered_map<typename ItemSet<const Item*>::Ptr, DFANode*, typename ItemSet<const Item*>::Hash, typename ItemSet<const Item*>::Pred>;
 
 template<typename Item>
-std::size_t getAcceptRegexID(const std::set<const Item*>& itemSet_)
+TokenID getAcceptRegexID(const std::set<const Item*>& itemSet_)
 {
-    std::size_t regexID = -1;
+	constexpr auto maxID = std::numeric_limits<TokenID>::max();
+    auto regexID = maxID;
+
     for (auto n : itemSet_)
     {
         if (n->accept())
@@ -24,7 +27,7 @@ std::size_t getAcceptRegexID(const std::set<const Item*>& itemSet_)
         }
     }
 
-    return regexID;
+    return regexID != maxID ? regexID : InvalidTokenID;
 }
 
 template<typename Item>

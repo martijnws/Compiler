@@ -136,6 +136,7 @@
     <ClInclude Include="CodePoint.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="TokenID.h" />
     <ClInclude Include="Unicode.h" />
     <ClInclude Include="UnicodeException.h" />
     <ClInclude Include="Util.h" />

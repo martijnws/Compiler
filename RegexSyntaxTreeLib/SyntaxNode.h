@@ -2,6 +2,7 @@
 
 #include "SyntaxNodeFwd.h"
 #include <SyntaxTreeLib/SyntaxNode.h>
+#include <CommonLib/CodePoint.h>
 
 namespace mws { namespace regex {
 

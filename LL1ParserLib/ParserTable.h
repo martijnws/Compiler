@@ -8,15 +8,17 @@ namespace mws { namespace td { namespace LL1 {
 class ParserTable
 {
 public:
-    ParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_);
+	using GSID = grammar::GSID;
 
-    const grammar::Production& expand(const grammar::Grammar& grammar_, uint8_t nt_,  grammar::Token::Type t_) const;
+    ParserTable(const grammar::Grammar& grammar_, TokenID cTerminal_);
+
+    const grammar::Production& expand(const grammar::Grammar& grammar_, GSID nt_,  TokenID t_) const;
 
 private:
-    void build(const grammar::Grammar& grammar_, uint8_t cTerminal_);
+    void build(const grammar::Grammar& grammar_, TokenID cTerminal_);
 
 private:
-    common::Matrix<uint8_t> _table;
+    common::Matrix<GSID> _table;
 };
 
 }}}

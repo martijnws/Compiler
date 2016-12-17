@@ -3,7 +3,7 @@
 
 namespace mws { namespace grammar {
 
-inline std::ostream& operator << (std::ostream& os_, const std::set<uint8_t>& set_)
+inline std::ostream& operator << (std::ostream& os_, const std::set<TokenID>& set_)
 {
 	for (auto i : set_)
 	{
@@ -13,7 +13,7 @@ inline std::ostream& operator << (std::ostream& os_, const std::set<uint8_t>& se
 	return os_;
 }
 
-void first(grammar::Grammar& grammar_, uint8_t ntt_, std::vector<bool>& isFirstComputed_)
+void first(grammar::Grammar& grammar_, GSID ntt_, std::vector<bool>& isFirstComputed_)
 {
 	assert(ntt_ >= 0 && ntt_ < grammar_.size());
 
@@ -62,10 +62,10 @@ void first(grammar::Grammar& grammar_)
 
     std::vector<bool> isFirstComputed(grammar_.size(), false);
 
-	for (uint8_t i = 0; i < grammar_.size(); ++i)
+	for (GSID i = 0; i < grammar_.size(); ++i)
 	{
 		first(grammar_, i, isFirstComputed);
-		std::set<uint8_t> firstSet;
+		std::set<TokenID> firstSet;
 		grammar_[i].getFirst(firstSet);
 		std::cout << grammar_[i]._name << " " << firstSet << std::endl;
 	}
