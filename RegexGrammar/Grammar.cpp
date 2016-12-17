@@ -56,7 +56,7 @@ grammar::Grammar& getRegexGrammar()
     if (!init)
     {
         grammar::first(g);
-	    grammar::follow(g);
+	    grammar::follow(g, T::Eof);
         init = true;
     }
 
@@ -94,7 +94,7 @@ grammar::Grammar& getCharClassGrammar()
     if (!init)
     {
         grammar::first(g);
-	    grammar::follow(g, T::Eoc);
+	    grammar::follow(g, T::Invalid);
         init = true;
     }
 

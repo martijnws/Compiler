@@ -48,7 +48,7 @@ void ParserDriver<LexerT>::parse()
 	grammar::TokenStore store;
 
     // type = 0 indicates this GrammarSymbol is an instance of NT at grammar[0]. That is, it is an instance of Start
-    grammar::GrammarSymbol startSymbol = grammar::n(0);
+    auto startSymbol = grammar::n(0);
 	std::vector<GSEntry> stack;
 	stack.push_back(std::make_pair(startSymbol, false));
 
@@ -76,7 +76,7 @@ void ParserDriver<LexerT>::parse()
             {
                 const auto& parser = itr->second;
                 parser->parse();
-				// (re)fetch eoc marker
+				// (re)fetch last token
 				st.next();
             }
 
@@ -105,10 +105,7 @@ void ParserDriver<LexerT>::parse()
 		}
 	}
 
-	assert(st.eof() || st.eoc());
-	// In case this is an embedded piece of code, the eoc marker
-	// is pushed back on the buffer so host of embedded code can (re)fetch it with correct Lexer
-	st.retractLast();
+	assert(st.eof() || st.invalid());
 }
 
 }}}

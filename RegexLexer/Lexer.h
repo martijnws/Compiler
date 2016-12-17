@@ -7,19 +7,13 @@
 
 namespace mws { namespace regex {
 
-class RegexTokenTypeMap
+class RETokenTypeMap
 {
 public:
-    //static const Token::Enum Eof = Token::Enum::Eof;
 	using Token = REToken;
    
-	RegexTokenTypeMap(CodePoint cpEoc_)
+	RETokenTypeMap()
 	{
-		//for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token::Type); ++i)
-		//{
-		//	_map[i] = Token::Enum::Symbol;
-		//}
-
 		_map[CP('|') ] = Token::Enum::Choice;
         _map[CP('?') ] = Token::Enum::ZeroOrOne;
 		_map[CP('*') ] = Token::Enum::ZeroToMany;
@@ -28,9 +22,6 @@ public:
 		_map[CP(')') ] = Token::Enum::SubExprE;
 		_map[CP('[') ] = Token::Enum::CharClassB;
 		_map[CP(']') ] = Token::Enum::CharClassE;
-
-		_map[cpEoc_  ] = Token::Enum::Eoc;
-		// In case Eoc == Eof, Eof takes precedence.
 		_map[CP('\0')] = Token::Enum::Eof;
 	}
 
@@ -38,75 +29,129 @@ public:
 	{
 		auto itr = _map.find(cp_);
 		return (itr != _map.end() ? itr->second : Token::Enum::Symbol);
-		//return _map[c_];
+	}
+
+	bool isValid(CodePoint cp_) const
+	{
+		return true;
+	}
+
+	bool isValidEscaped(CodePoint cp_,  Token::Enum type_) const
+	{
+		return cp_ == CP('\\') || (type_ != Token::Enum::Symbol && type_ != Token::Enum::Eof);
+	}
+
+	template<typename Lexer>
+	REToken::Enum postProcess(Lexer& lexer_, Token::Enum type_) const
+	{
+		return type_;	
 	}
 
 private:
 	std::unordered_map<CodePoint, Token::Enum> _map;
-	//Token::Type _map[256];
 };
 
-class CharClassTokenTypeMap
+class CCTokenTypeMap
 {
 public:
 	using Token = CCToken;
 
-    //static const Token::Enum Eof = Token::Enum::CharClassE;
-
-	CharClassTokenTypeMap(CodePoint cpEoc_)
+	CCTokenTypeMap()
 	{
-		//for (std::size_t i = 0; i < sizeof(_map)/sizeof(Token::Type); ++i)
-		//{
-		//	_map[i] = Token::Enum::Symbol;
-		//}
-
 		_map[CP('^' )] = Token::Enum::CharClassNeg;
 		_map[CP('-' )] = Token::Enum::RngSep;
-		//_map[CP(']' )] = Eof;
-		//_map[CP('\0')] = Eof;
-		_map[CP('\0')] = Token::Enum::Eof;
-		_map[cpEoc_]   = Token::Enum::Eoc;
 	}
 
 	CCToken::Enum type(CodePoint cp_) const
 	{
 		auto itr = _map.find(cp_);
 		return (itr != _map.end() ? itr->second : Token::Enum::Symbol);
-		//return _map[c_];
 	}
 
+	bool isValid(CodePoint cp_) const
+	{
+		return cp_ != CP(']');
+	}
+
+	bool isValidEscaped(CodePoint cp_,  Token::Enum type_) const
+	{
+		return cp_ == CP('\\') || cp_ == CP(']') || type_ != Token::Enum::Symbol;
+	}
+
+	template<typename Lexer>
+	CCToken::Enum postProcess(Lexer& lexer_, Token::Enum type_) const
+	{
+		auto& buf = lexer_._buf;
+		const auto& lookBehind = lexer_._lookBehind;
+
+		//Handle context dependencies of RngSep::lexeme
+		auto type = type_;
+
+		if (type_ == Token::Enum::RngSep)
+		{
+			//peek 1 char ahead
+			const auto beg = buf.pos();
+			const auto c = buf.next();
+			const auto end = buf.pos();
+			buf.retract(end - beg);
+
+			if (c == CP(']') // -]
+				||
+				lookBehind.size() == 0 // [-
+				||
+				lookBehind.size() == 1 && lookBehind.back() == Token::Enum::CharClassNeg) // [^-
+			{
+				type = Token::Enum::Symbol;
+			}
+		}
+		else 
+		if (type_ == Token::Enum::CharClassNeg)
+		{
+			if (lookBehind.size() > 0) // [...^
+			{
+				type = Token::Enum::Symbol;
+			}
+		}
+
+		return type;
+	}
 private:
-	std::unordered_map<CodePoint, CCToken::Enum> _map;
-	//Token::Type _map[256];
+	std::unordered_map<CodePoint, Token::Enum> _map;
 };
 
-template<typename DerivedT, typename BufferT, typename TokenTypeMapT>
+template<typename BufferT, typename TokenTypeMapT>
 class Lexer
 {
+	friend typename TokenTypeMapT;
+
 public:
-	//static const Token::Enum Eof = TokenTypeMapT::Eof;
-	using Token = typename TokenTypeMapT::Token;
+	using Token     = typename TokenTypeMapT::Token;
 	using TokenType = typename Token::Type;
 
-	Lexer(BufferT& buf_, CodePoint cpEoc_)
+	Lexer(BufferT& buf_)
 		:
-		_buf(buf_), _lookBehind(2), _map(cpEoc_)
+		_buf(buf_), _lookBehind(2)
 	{
 		
 	}
 
 	typename TokenTypeMapT::Token next()
 	{
-		const auto posOld = _buf.pos();
-		auto c = _buf.next();
+		Token t;
 
-		Token t; //= { c, Token::None };
+		const auto beg = _buf.pos();
+		auto c = _buf.next();
+		if (!_map.isValid(c))
+		{
+			_buf.retract(_buf.pos() - beg);
+			t._type = Token::Enum::Invalid;
+			return t;
+		}
 
 		if (c != CP('\\'))
 		{
 			t._type = _map.type(c);
-			auto& derived = static_cast<DerivedT&>(*this);
-			t._type = derived.postProcess(t._type);
+			t._type = _map.postProcess(*this, t._type);
 		}
 		else
 		{
@@ -116,7 +161,7 @@ public:
 
 			auto type = _map.type(c);
             // supported escape seq is '\\' or '\<operator>'
-			if (type == Token::Enum::Symbol && c != CP('\\') || type == Token::Enum::Eof)
+			if (!_map.isValidEscaped(c, type))
 			{
 				throw common::Exception(_C("invalid escape sequence"));
 			}
@@ -129,20 +174,9 @@ public:
 		t._lexeme = c;
 
 		_lookBehind.push_back(t._type);
-		_lastTokenSize = _buf.pos() - posOld;
+		_lastTokenSize = _buf.pos() - beg;
 
 		return t;
-	}
-
-	void retractLast()
-	{
-		if (_lastTokenSize == 0)
-		{
-			throw common::Exception(_C("Cannot retract more than 1 token"));
-		}
-
-		_buf.retract(_lastTokenSize);
-		_lastTokenSize = 0;
 	}
 
 protected:
@@ -152,78 +186,10 @@ protected:
 	std::size_t                       _lastTokenSize = 0;
 };
 
-//template<typename DerivedT, typename BufferT, typename TokenTypeMapT>
-//const TokenTypeMapT Lexer<DerivedT, BufferT, TokenTypeMapT>::_map = TokenTypeMapT();
-
-// TODO: restructure these templates (make postProcess internal to Lexer)
+template<typename BufferT>
+using RELexer = Lexer<BufferT, RETokenTypeMap>;
 
 template<typename BufferT>
-class RegexLexer
-	: public Lexer<RegexLexer<BufferT>, BufferT, RegexTokenTypeMap>
-{
-public:
-	using Token = RegexTokenTypeMap::Token;
-
-	RegexLexer(BufferT& buf_, CodePoint cpEoc_)
-		:
-		Lexer(buf_, cpEoc_)
-	{
-		
-	}
-
-	RegexTokenTypeMap::Token::Enum postProcess(Token::Enum type_)
-	{
-		return type_;	
-	}
-};
-
-template<typename BufferT>
-class CharClassLexer
-	: public Lexer<CharClassLexer<BufferT>, BufferT, CharClassTokenTypeMap>
-{
-public:
-	using Token = CharClassTokenTypeMap::Token;
-
-	CharClassLexer(BufferT& buf_, CodePoint cpEoc_)
-		:
-		Lexer(buf_, cpEoc_)
-	{
-		
-	}
-
-	CharClassTokenTypeMap::Token::Enum postProcess(Token::Enum type_)
-	{
-		//Handle context dependencies of RngSep::lexeme
-		auto type = type_;
-
-		if (type_ == Token::Enum::RngSep)
-		{
-			//peek 1 char ahead
-			const auto posOld = _buf.pos();
-			const auto c = _buf.next();
-			const auto posNew = _buf.pos();
-			_buf.retract(posNew - posOld);
-
-			if (_map.type(c) == Token::Enum::Eoc // -]
-				||
-				_lookBehind.size() == 0 // [-
-				||
-				_lookBehind.size() == 1 && _lookBehind.back() == Token::Enum::CharClassNeg) // [^-
-			{
-				type = Token::Enum::Symbol;
-			}
-		}
-		else 
-		if (type_ == Token::Enum::CharClassNeg)
-		{
-			if (_lookBehind.size() > 0) // [...^
-			{
-				type = Token::Enum::Symbol;
-			}
-		}
-
-		return type;
-	}
-};
+using CCLexer = Lexer<BufferT, CCTokenTypeMap>;
 
 }}

@@ -32,15 +32,15 @@ public:
 
 	bool eof() const
 	{
-		return _cur._type == Token::Eof;
+		return _cur._type == Token::Enum::Eof;
 	}
 
-	bool eoc() const
+	bool invalid() const
 	{
-		return _cur._type == Token::Eoc;
+		return _cur._type == Token::Enum::Invalid;
 	}
 
-	auto& cur() const
+	const auto& cur() const
 	{
 		return _cur;
 	}
@@ -52,7 +52,9 @@ public:
 
 	void m(grammar::Token::Type type_, bool fetchNext_)
 	{
-		if (eof() || _cur._type != type_)
+		const auto type = static_cast<Token::Enum>(type_);
+
+		if (eof() || _cur._type != type)
 		{
 			throw common::Exception(_C("Lexer error"));
 		}
@@ -61,11 +63,6 @@ public:
         {
 		    _cur = _lexer.next();
         }
-	}
-
-	void retractLast()
-	{
-		_lexer.retractLast();
 	}
 
 private:

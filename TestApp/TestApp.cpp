@@ -15,22 +15,40 @@
 #include <SyntaxTreeLib/SyntaxNode.h>
 #include <CommonLib/String.h>
 
-const mws::CharExt* g_regexCol[] =
+class Token
+	:
+	public mws::grammar::Token
 {
-    _CExt("[ \t\n]+"),
-    _CExt("[0-9]+"),
-    _CExt("if"),
-    _CExt("else"),
-    _CExt("break"),
-    _CExt("continue"),
-    _CExt("class"),
+public:
+	enum Enum { Invalid = mws::grammar::Token::Invalid, WS, Num, If, Else, Break, Continue, Class, ID, BlockO, BlockC, Eos /*end of statement*/ };
+
+	static mws::grammar::Token::Type max()
+	{
+		return Eos;
+	}
+
+	mws::String _lexeme;
+	Enum        _type;
+};
+
+using IPair = mws::Lexer::IPair;
+
+std::vector<mws::Lexer::IPair> g_regexCol =
+{
+	{ _CExt("[ \t\n]+"),                                Token::Enum::WS },
+	{ _CExt("[0-9]+"),                                  Token::Enum::Num },
+    { _CExt("if"),                                      Token::Enum::If },
+    { _CExt("else"),                                    Token::Enum::Else },
+    { _CExt("break"),                                   Token::Enum::Break },
+    { _CExt("continue"),                                Token::Enum::Continue },
+    { _CExt("class"),                                   Token::Enum::Class },
     // Note: let a = a-zA-Z0-9, b = _
     // the pattern (a|b)*a(a|b)* reduces to b*a(a|b)*
     //_CExt("[a-zA-Z_]_*[a-zA-Z0-9][a-zA-Z0-9_]*"),
-    _CExt("[a-zA-Z_]_*[a-zA-Z][a-zA-Z_]*"),
-    _CExt("{"),
-    _CExt("}"),
-    _CExt(";")
+    { _CExt("[a-zA-Z_]_*[a-zA-Z][a-zA-Z_]*"),			Token::Enum::ID },
+    { _CExt("{"),                                       Token::Enum::BlockO },
+    { _CExt("}"),                                       Token::Enum::BlockC },
+	{ _CExt(";"),                                       Token::Enum::Eos }
 };
 
 //const mws::CharExt* g_regexCol[] =
@@ -62,9 +80,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 
     {
-		std::vector<mws::StringExt> regexCol;
-		std::copy(g_regexCol, g_regexCol + sizeof(g_regexCol)/sizeof(mws::CharExt*), std::back_inserter(regexCol));
-
         //const auto* text = _CExt("hello world; if bla ___0_   { continue; } else elsbla else1234 { bla 1234 break; }");
         const auto* text = _CExt("hello world; if bla ___A_   { continue; } else elsbla else1234 { bla 1234 break; }");
 
@@ -72,10 +87,10 @@ int _tmain(int argc, _TCHAR* argv[])
         //const auto* text = _CExt("ababc");
         mws::StringStreamExt is(text, std::ios_base::in);
 
-        mws::Lexer lexer(is, regexCol);
-        for (auto t = lexer.next(); t._type != mws::Token::Invalid; t = lexer.next())
+        mws::LexerT<Token> lexer(is, g_regexCol);
+        for (auto t = lexer.next(); t._type != Token::Invalid; t = lexer.next())
         {
-            stdOut << _C("lexeme = ") << t._lexeme << _C(", type = ") << g_regexCol[t._type] << std::endl;
+            stdOut << _C("lexeme = ") << t._lexeme << _C(", type = ") << g_regexCol[t._type - 1].regex.c_str() << std::endl;
         }
     }
 

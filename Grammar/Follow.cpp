@@ -74,11 +74,6 @@ void follow(grammar::Grammar& grammar_, uint8_t nttHead_, grammar::Production& p
 	}
 }
 
-void follow(Grammar& grammar_)
-{
-    follow(grammar_, Token::Eof);
-}
-
 void follow(grammar::Grammar& grammar_, const grammar::Token::Type& tokEof_)
 {
 	std::cout << "Follow:" << std::endl;

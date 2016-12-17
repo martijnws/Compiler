@@ -7,7 +7,7 @@ namespace mws { namespace grammar {
 
 struct Token
 {
-	enum Enum { Eof = 0 };
+	enum Enum { Invalid = 0 };
 
 	using Type = uint8_t;
 };

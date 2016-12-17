@@ -127,10 +127,7 @@ void ParserDriver<LexerT>::parse()
         }
     }
 	
-	assert(st.eof() || st.eoc());
-	// In case this is an embedded piece of code, the eoc marker
-	// is pushed back on the buffer so host of embedded code can (re)fetch it with correct Lexer
-	st.retractLast();
+	assert(st.eof() || st.invalid());
 }
 
 }}}

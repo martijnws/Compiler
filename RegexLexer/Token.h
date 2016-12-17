@@ -4,14 +4,17 @@
 
 namespace mws { namespace regex {
 
-// Eoc = End of code
-
 struct REToken
 :
 	public grammar::Token
 {
-	enum Enum { Eof = grammar::Token::Eof, Eoc, Symbol, Choice, ZeroOrOne, ZeroToMany, OneToMany, SubExprB, SubExprE, CharClassB, CharClassE, Max };
+	enum Enum { Invalid = grammar::Token::Invalid, Eof, Symbol, Choice, ZeroOrOne, ZeroToMany, OneToMany, SubExprB, SubExprE, CharClassB, CharClassE };
 
+	static grammar::Token::Type max()
+	{
+		return Enum::CharClassE;
+	}
+	
 	CodePoint _lexeme;
 	Enum      _type;
 };
@@ -20,8 +23,13 @@ struct CCToken
 :
 	public grammar::Token
 {
-	enum Enum { Eof = grammar::Token::Eof, Eoc, Symbol, CharClassNeg, RngSep, Max };
+	enum Enum { Invalid = grammar::Token::Invalid, Eof, Symbol, CharClassNeg, RngSep };
 
+	static grammar::Token::Type max()
+	{
+		return Enum::RngSep;
+	}
+	
 	CodePoint _lexeme;
 	Enum      _type;
 };

@@ -50,21 +50,21 @@ public:
         static grammar::Grammar& gRE = regex::getRegexGrammar();
         static grammar::Grammar& gCC = regex::getCharClassGrammar();
 
-        static ParserTable parserTableRE(gRE, regex::REToken::Enum::Max);
-        static ParserTable parserTableCC(gCC, regex::CCToken::Enum::Max);
+        static ParserTable parserTableRE(gRE, regex::REToken::max() + 1);
+        static ParserTable parserTableCC(gCC, regex::CCToken::max() + 1);
 
 		try
 		{
-			using CCLexer = regex::CharClassLexer<Buffer>;
-			using RELexer = regex::RegexLexer<Buffer>;
+			using CCLexer = regex::CCLexer<Buffer>;
+			using RELexer = regex::RELexer<Buffer>;
 
              // sub parser setup
             ParserDriver<CCLexer>::SubParserMap ccSubParserCol;
-			CCLexer ccLexer(_buf, CP(']'));
+			CCLexer ccLexer(_buf);
 			ParserDriver<CCLexer> ccParser(ccLexer, _astBuilder, gCC, parserTableCC, ccSubParserCol);
 
             ParserDriver<RELexer>::SubParserMap reSubParserCol;
-			RELexer reLexer(_buf, CP('\0'));
+			RELexer reLexer(_buf);
             reSubParserCol.insert(std::make_pair(regex::REToken::Enum::CharClassB, &ccParser));
 			ParserDriver<RELexer> reParser(reLexer, _astBuilder, gRE, parserTableRE, reSubParserCol);
 

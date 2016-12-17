@@ -51,13 +51,13 @@ public:
         static grammar::Grammar& gRE = regex::getRegexGrammar();
         static grammar::Grammar& gCC = regex::getCharClassGrammar();
 
-        static ParserTable parserTableRE(gRE, regex::Token::Enum::Max);
-        static ParserTable parserTableCC(gCC, regex::Token::Enum::Max);
+        static ParserTable parserTableRE(gRE, regex::REToken::max() + 1);
+        static ParserTable parserTableCC(gCC, regex::CCToken::max() + 1);
 
 		try
 		{
-			using CCLexer = regex::CharClassLexer<Buffer>;
-			using RELexer = regex::RegexLexer<Buffer>;
+			using CCLexer = regex::CCLexer<Buffer>;
+			using RELexer = regex::RELexer<Buffer>;
 
              // sub parser setup
             SubParserMap ccSubParserCol;
