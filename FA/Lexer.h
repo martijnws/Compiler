@@ -12,20 +12,36 @@ namespace mws {
 class Lexer
 {
 public:
-	struct IPair
+	using Buffer = common::BufferExt;
+
+	struct TokenInfo
 	{
+		TokenInfo() = default;
+
+		TokenInfo(const StringExt& regex_, TokenID type_, bool skip_ = false)
+		:
+			regex(regex_), type(type_), skip(skip_) 
+		{
+
+		}
+
 		StringExt regex;
 		TokenID   type;
+		bool      skip = false;
 	};
 
-    Lexer(IStreamExt& is_, const std::vector<IPair>& regexCol_);
+	using TokenInfoCol = std::vector<TokenInfo>;
+
+    Lexer(IStreamExt& is_, const TokenInfoCol& tokenInfoCol_);
 
     bool next(String& lexeme_, TokenID& type_);
+    bool next(String& lexeme_, TokenID& type_, bool& skip_);
 
 private:
-    common::BufferExt _buf;
-    DFANode*          _dfa;
-    bool              _eof;
+    Buffer       _buf;
+	TokenInfoCol _tokenInfoCol;
+    DFANode*     _dfa = nullptr;
+    bool         _eof = false;
 };
 
 

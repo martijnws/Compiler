@@ -24,35 +24,35 @@ public:
 
 	static mws::TokenID max()
 	{
-		return Eos;
+		return Invalid;
 	}
 
 	mws::String _lexeme;
 	Enum        _type;
 };
 
-using IPair = mws::Lexer::IPair;
+using TI = mws::Lexer::TokenInfo;
 
-std::vector<mws::Lexer::IPair> g_regexCol =
+std::vector<TI> g_tokenInfoCol =
 {
-	{ _CExt("[ \t\n]+"),                                Token::Enum::WS },
-	{ _CExt("[0-9]+"),                                  Token::Enum::Num },
-    { _CExt("if"),                                      Token::Enum::If },
-    { _CExt("else"),                                    Token::Enum::Else },
-    { _CExt("break"),                                   Token::Enum::Break },
-    { _CExt("continue"),                                Token::Enum::Continue },
-    { _CExt("class"),                                   Token::Enum::Class },
+	TI( _CExt("[ \t\n]+"),                                Token::Enum::WS, true ),
+	TI( _CExt("[0-9]+"),                                  Token::Enum::Num ),
+    TI( _CExt("if"),                                      Token::Enum::If ),
+    TI( _CExt("else"),                                    Token::Enum::Else ),
+    TI( _CExt("break"),                                   Token::Enum::Break ),
+    TI( _CExt("continue"),                                Token::Enum::Continue ),
+    TI( _CExt("class"),                                   Token::Enum::Class ),
     // Note: let a = a-zA-Z0-9, b = _
     // the pattern (a|b)*a(a|b)* reduces to b*a(a|b)*
     //_CExt("[a-zA-Z_]_*[a-zA-Z0-9][a-zA-Z0-9_]*"),
-    { _CExt("[a-zA-Z_]_*[a-zA-Z][a-zA-Z_]*"),			Token::Enum::ID },
-    { _CExt("{"),                                       Token::Enum::BlockO },
-    { _CExt("}"),                                       Token::Enum::BlockC },
-	{ _CExt(";"),                                       Token::Enum::Eos },
-	//{ _CExt("\0"),                                      Token::Enum::Eof } //Doesn't work yet
+    TI( _CExt("[a-zA-Z_]_*[a-zA-Z][a-zA-Z_]*"),			  Token::Enum::ID ),
+    TI( _CExt("{"),                                       Token::Enum::BlockO ),
+	TI( _CExt("}"),                                       Token::Enum::BlockC ),
+	TI( _CExt(";"),                                       Token::Enum::Eos ),
+	TI{ _CExt("\\0"),                                     Token::Enum::Eof } //Doesn't work yet
 };
 
-//const mws::CharExt* g_regexCol[] =
+//const mws::CharExt* g_tokenInfoCol[] =
 //{
 //	_CExt("a"),
 //	_CExt("b"),
@@ -68,7 +68,6 @@ void testMatchAndSimulate(mws::DFANode* dfa_, const mws::DFAInfo* s_, const mws:
 	assert(res == expect_);
 }
 
-
 int _tmain(int argc, _TCHAR* argv[])
 {
 	/*
@@ -79,7 +78,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	auto root = parser._astBuilder.detach();
 	*/
 	
-
+	try
     {
         //const auto* text = _CExt("hello world; if bla ___0_   { continue; } else elsbla else1234 { bla 1234 break; }");
         const auto* text = _CExt("hello world; if bla ___A_   { continue; } else elsbla else1234 { bla 1234 break; }");
@@ -88,12 +87,16 @@ int _tmain(int argc, _TCHAR* argv[])
         //const auto* text = _CExt("ababc");
         mws::StringStreamExt is(text, std::ios_base::in);
 
-        mws::LexerT<Token> lexer(is, g_regexCol);
+        mws::LexerT<Token> lexer(is, g_tokenInfoCol);
         for (auto t = lexer.next(); t._type != Token::Invalid; t = lexer.next())
         {
-            stdOut << _C("lexeme = ") << t._lexeme << _C(", type = ") << g_regexCol[t._type].regex.c_str() << std::endl;
+            stdOut << _C("lexeme = ") << t._lexeme << _C(", type = ") << reinterpret_cast<const wchar_t*>(g_tokenInfoCol[t._type].regex.c_str()) << std::endl;
         }
     }
+	catch(mws::common::Exception& e)
+	{
+		stdOut << e.what() << std::endl;
+	}
 
     const auto* regex = _CExt("abc[^a-zA-Z]*def|abc(a|ab)*ab*");
 	mws::StringStreamExt is(regex, std::ios_base::in);

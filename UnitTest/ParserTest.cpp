@@ -60,7 +60,7 @@ TEST_F(ParserBasicExprTest, parseEmpty)
 {
 	Stream is(_TS(""), std::ios_base::in);
 	Parser parser(is);
-    ASSERT_TRUE(parser.parse());
+    ASSERT_NO_THROW(parser.parse());
     auto* root = parser._astBuilder.detach();
     ASSERT_TRUE(root == nullptr);
 }
@@ -70,7 +70,7 @@ TEST_F(ParserBasicExprTest, parseSingleChar)
 	Stream is(_TS("a"), std::ios_base::in);
 	Parser parser(is);
 
-	EXPECT_TRUE(parser.parse());
+	ASSERT_NO_THROW(parser.parse());
     auto* root = parser._astBuilder.detach();
     ASSERT_TRUE(root != nullptr);
 
@@ -96,7 +96,7 @@ TEST_F(ParserBasicExprTest, parseChoice)
 	Stream is(_TS("a|b"), std::ios_base::in);
 	Parser parser(is);
 
-	EXPECT_TRUE(parser.parse());
+	ASSERT_NO_THROW(parser.parse());
     auto* root = parser._astBuilder.detach();
     ASSERT_TRUE(root != nullptr);
 
@@ -124,7 +124,7 @@ TEST_F(ParserBasicExprTest, parseConcat)
 	Stream is(_TS("aa"), std::ios_base::in);
 	Parser parser(is);
 
-	EXPECT_TRUE(parser.parse());
+	ASSERT_NO_THROW(parser.parse());
 }
 
 TEST_F(ParserBasicExprTest, parseKleeneClosure)
@@ -132,7 +132,7 @@ TEST_F(ParserBasicExprTest, parseKleeneClosure)
 	Stream is(_TS("a*"), std::ios_base::in);
 	Parser parser(is);
 
-	EXPECT_TRUE(parser.parse());
+	ASSERT_NO_THROW(parser.parse());
 }
 
 TEST_F(ParserBasicExprTest, parseSubExpr)
@@ -140,7 +140,7 @@ TEST_F(ParserBasicExprTest, parseSubExpr)
 	Stream is(_TS("(a)"), std::ios_base::in);
 	Parser parser(is);
 
-	EXPECT_TRUE(parser.parse());
+	ASSERT_NO_THROW(parser.parse());
 }
 
 TEST_F(ParserBasicExprTest, parseComplexExpr)
@@ -150,7 +150,7 @@ TEST_F(ParserBasicExprTest, parseComplexExpr)
     Stream is(_TS(R"R([a]b)R"), std::ios_base::in);
 	Parser parser(is);
 
-	EXPECT_TRUE(parser.parse());
+	ASSERT_NO_THROW(parser.parse());
 }
 
 class ParserCharClassCorrectTest : public ::testing::TestWithParam<const TChar*>
@@ -166,7 +166,7 @@ TEST_P(ParserCharClassCorrectTest, parse)
 	Stream is(GetParam(), std::ios_base::in);
 	Parser parser(is);
 
-	EXPECT_TRUE(parser.parse()) << _TS("cc expr = ") << param;
+	ASSERT_NO_THROW(parser.parse()) << _TS("cc expr = ") << param;
 }
 
 INSTANTIATE_TEST_CASE_P(CharClass, ParserCharClassCorrectTest, ::testing::Values(
@@ -217,7 +217,7 @@ TEST_P(ParserCharClassIncorrectTest, parse)
 	Stream is(param, std::ios_base::in);
 	Parser parser(is);
 
-	EXPECT_FALSE(parser.parse()) << _TS("cc expr = ") << param;
+	EXPECT_THROW(parser.parse(), mws::common::Exception) << _TS("cc expr = ") << param;
 }
 
 INSTANTIATE_TEST_CASE_P(CharClass, ParserCharClassIncorrectTest, ::testing::Values(
@@ -246,7 +246,7 @@ TEST_P(ParserSymbolTest, parse)
 		AsciiStream is(c, std::ios_base::in);
 		Parser parser(is);
 
-		EXPECT_TRUE(parser.parse());
+		ASSERT_NO_THROW(parser.parse());
 	}
 
 	{
@@ -254,7 +254,7 @@ TEST_P(ParserSymbolTest, parse)
 		AsciiStream is(c, std::ios_base::in);
 		Parser parser(is);
 
-		EXPECT_TRUE(parser.parse());
+		ASSERT_NO_THROW(parser.parse());
 	}
 
 	// For now escaped alphabetic characters are disallowed.
@@ -263,7 +263,7 @@ TEST_P(ParserSymbolTest, parse)
 		AsciiStream is(c, std::ios_base::in);
 		Parser parser(is);
 
-		EXPECT_FALSE(parser.parse());
+		EXPECT_THROW(parser.parse(), mws::common::Exception);
 	}
 
 	{
@@ -271,7 +271,7 @@ TEST_P(ParserSymbolTest, parse)
 		AsciiStream is(c, std::ios_base::in);
 		Parser parser(is);
 
-		EXPECT_FALSE(parser.parse());
+		EXPECT_THROW(parser.parse(), mws::common::Exception);
 	}
 }
 
@@ -293,7 +293,7 @@ TEST_P(ParserSpecialSymbolTest, parse)
 		AsciiStream is(c, std::ios_base::in);
 		Parser parser(is);
 
-		EXPECT_TRUE(parser.parse());
+		ASSERT_NO_THROW(parser.parse());
 	}
 
 	// without escape none of the special characters is a valid expression on its own
@@ -302,7 +302,7 @@ TEST_P(ParserSpecialSymbolTest, parse)
 		AsciiStream is(c, std::ios_base::in);
 		Parser parser(is);
 
-		EXPECT_FALSE(parser.parse()) << "cc expr = " << GetParam();
+		EXPECT_THROW(parser.parse(), mws::common::Exception) << "cc expr = " << GetParam();
 	}
 }
 

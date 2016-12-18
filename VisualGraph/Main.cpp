@@ -39,11 +39,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		std::stringstream is(expr, std::ios::in);
 		// build the regex syntax tree
 		mws::td::LL1::RegexParser<mws::common::BufferT<char, 32>> parser(is);
-		if (!parser.parse())
-		{
-			std::wcout << L"parser error" << std::endl;
-			return -1;
-		}
+		parser.parse();
 
 		// root of the regex syntax tree
 		auto astRoot = parser._astBuilder.detach();

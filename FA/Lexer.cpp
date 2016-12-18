@@ -13,21 +13,35 @@
 
 namespace mws {
 
-Lexer::Lexer(IStreamExt& is_, const std::vector<IPair>& regexCol_) 
+Lexer::Lexer(IStreamExt& is_, const TokenInfoCol& tokenInfoCol_) 
 : 
     _buf(is_), _eof(false)
 {
+	if (tokenInfoCol_.empty())
+	{
+		throw common::Exception(_S("TokenInfo cannot be empty"));
+	}
+
     auto nS = new NFANode();
     
+	const auto itrMax = std::max_element(tokenInfoCol_.begin(), tokenInfoCol_.end(), 
+		[](const auto& ti1_, const auto& ti2_) { return ti1_.type < ti2_.type; });
+	assert(itrMax != tokenInfoCol_.end());
+
+	_tokenInfoCol.resize(itrMax->type + 1);
+
     std::vector<RangeKey> rkVec;
     std::vector<regex::SyntaxNode*> rootVec;
-	rootVec.reserve(regexCol_.size());
+	rootVec.reserve(tokenInfoCol_.size());
 
-	for (const auto& pair : regexCol_)
+	for (const auto& ti : tokenInfoCol_)
     {
 		using CharType = StringExt::value_type;
+		
+		//cache for constant time lookup on type
+		_tokenInfoCol[ti.type] = ti;
 
-        std::basic_stringstream<CharType> is(pair.regex, std::ios_base::in);
+        std::basic_stringstream<CharType> is(ti.regex, std::ios_base::in);
 	    mws::td::LL1::RegexParser<common::BufferT<CharType, 4096>> parser(is);
 
 	    parser.parse();
@@ -51,7 +65,7 @@ Lexer::Lexer(IStreamExt& is_, const std::vector<IPair>& regexCol_)
         root->accept(visitor);
 
         std::unique_ptr<NFANode> s(visitor.startState());
-        visitor.acceptState()->_regexID = regexCol_[i].type;
+        visitor.acceptState()->_regexID = tokenInfoCol_[i].type;
 
         nS->_transitionMap.insert(s->_transitionMap.begin(), s->_transitionMap.end());
     }
@@ -63,9 +77,20 @@ Lexer::Lexer(IStreamExt& is_, const std::vector<IPair>& regexCol_)
 
 bool Lexer::next(String& lexeme_, TokenID& type_)
 {
+	auto result = false;
+
+	for (auto skip = true; skip; result = next(lexeme_, type_, skip));
+
+	return result;
+}
+
+bool Lexer::next(String& lexeme_, TokenID& type_, bool& skip_)
+{
+	skip_ = false;
+
     if (_eof)
     {
-        throw common::Exception(_C("Eof"));
+        throw common::Exception(_S("Eof"));
     }
 
     if (!_buf.valid())
@@ -113,6 +138,7 @@ bool Lexer::next(String& lexeme_, TokenID& type_)
     {
 		type_ = regexID;
 		lexeme_.append(lexeme, 0, pos - beg);
+		skip_ = _tokenInfoCol[type_].skip;
     }
 
 	return result;

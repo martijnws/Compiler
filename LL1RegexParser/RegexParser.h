@@ -44,8 +44,7 @@ public:
 	
 	}
 
-	//TODO: make void and handle exception in caller (fix unittests appropriately)
-	bool parse()
+	void parse()
 	{
         static grammar::Grammar& gRE = regex::getRegexGrammar();
         static grammar::Grammar& gCC = regex::getCharClassGrammar();
@@ -53,29 +52,20 @@ public:
         static ParserTable parserTableRE(gRE, regex::REToken::max() + 1);
         static ParserTable parserTableCC(gCC, regex::CCToken::max() + 1);
 
-		try
-		{
-			using CCLexer = regex::CCLexer<Buffer>;
-			using RELexer = regex::RELexer<Buffer>;
+		using CCLexer = regex::CCLexer<Buffer>;
+		using RELexer = regex::RELexer<Buffer>;
 
-             // sub parser setup
-            ParserDriver<CCLexer>::SubParserMap ccSubParserCol;
-			CCLexer ccLexer(_buf);
-			ParserDriver<CCLexer> ccParser(ccLexer, _astBuilder, gCC, parserTableCC, ccSubParserCol);
+		 // sub parser setup
+		ParserDriver<CCLexer>::SubParserMap ccSubParserCol;
+		CCLexer ccLexer(_buf);
+		ParserDriver<CCLexer> ccParser(ccLexer, _astBuilder, gCC, parserTableCC, ccSubParserCol);
 
-            ParserDriver<RELexer>::SubParserMap reSubParserCol;
-			RELexer reLexer(_buf);
-            reSubParserCol.insert(std::make_pair(regex::REToken::Enum::CharClassB, &ccParser));
-			ParserDriver<RELexer> reParser(reLexer, _astBuilder, gRE, parserTableRE, reSubParserCol);
+		ParserDriver<RELexer>::SubParserMap reSubParserCol;
+		RELexer reLexer(_buf);
+		reSubParserCol.insert(std::make_pair(regex::REToken::Enum::CharClassB, &ccParser));
+		ParserDriver<RELexer> reParser(reLexer, _astBuilder, gRE, parserTableRE, reSubParserCol);
 
-			reParser.parse();
-			return true;
-		}
-		catch(const common::Exception& e)
-		{
-			stdOut << _C("Exception: ") << e.what() << std::endl;
-			return false;
-		}
+		reParser.parse();
 	}
 
 	Buffer                   _buf;
