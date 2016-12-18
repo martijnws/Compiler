@@ -2,17 +2,18 @@
 
 #include "Token.h"
 #include <CommonLib/Buffer.h>
+#include <CommonLib/CodePointEsc.h>
 #include <unordered_map>
 #include <boost/circular_buffer.hpp>
 
 namespace mws { namespace regex {
 
-class RETokenTypeMap
+class RETokenPolicy
 {
 public:
 	using Token = REToken;
    
-	RETokenTypeMap()
+	RETokenPolicy()
 	{
 		_map[CP('|') ] = Token::Enum::Choice;
         _map[CP('?') ] = Token::Enum::ZeroOrOne;
@@ -31,16 +32,6 @@ public:
 		return (itr != _map.end() ? itr->second : Token::Enum::Symbol);
 	}
 
-	bool isValid(CodePoint cp_) const
-	{
-		return true;
-	}
-
-	bool isValidEscaped(CodePoint cp_,  Token::Enum type_) const
-	{
-		return cp_ == CP('\\') || (type_ != Token::Enum::Symbol && type_ != Token::Enum::Eof);
-	}
-
 	template<typename Lexer>
 	REToken::Enum postProcess(Lexer& lexer_, Token::Enum type_) const
 	{
@@ -51,31 +42,22 @@ private:
 	std::unordered_map<CodePoint, Token::Enum> _map;
 };
 
-class CCTokenTypeMap
+class CCTokenPolicy
 {
 public:
 	using Token = CCToken;
 
-	CCTokenTypeMap()
+	CCTokenPolicy()
 	{
 		_map[CP('^' )] = Token::Enum::CharClassNeg;
 		_map[CP('-' )] = Token::Enum::RngSep;
+		_map[CP(']' )] = Token::Enum::Invalid;
 	}
 
 	CCToken::Enum type(CodePoint cp_) const
 	{
 		auto itr = _map.find(cp_);
 		return (itr != _map.end() ? itr->second : Token::Enum::Symbol);
-	}
-
-	bool isValid(CodePoint cp_) const
-	{
-		return cp_ != CP(']');
-	}
-
-	bool isValidEscaped(CodePoint cp_,  Token::Enum type_) const
-	{
-		return cp_ == CP('\\') || cp_ == CP(']') || type_ != Token::Enum::Symbol;
 	}
 
 	template<typename Lexer>
@@ -91,11 +73,11 @@ public:
 		{
 			//peek 1 char ahead
 			const auto beg = buf.pos();
-			const auto c = buf.next();
+			const auto cp = buf.next();
 			const auto end = buf.pos();
 			buf.retract(end - beg);
 
-			if (c == CP(']') // -]
+			if (cp == CP(']') // -]
 				||
 				lookBehind.size() == 0 // [-
 				||
@@ -119,58 +101,64 @@ private:
 	std::unordered_map<CodePoint, Token::Enum> _map;
 };
 
-template<typename BufferT, typename TokenTypeMapT>
+template<typename Buffer, typename TokenPolicy>
 class Lexer
 {
-	friend typename TokenTypeMapT;
+	friend typename TokenPolicy;
 
 public:
-	using Token     = typename TokenTypeMapT::Token;
+	using Token = typename TokenPolicy::Token;
 
-	Lexer(BufferT& buf_)
+	Lexer(Buffer& buf_)
 		:
 		_buf(buf_), _lookBehind(2)
 	{
 		
 	}
 
-	typename TokenTypeMapT::Token next()
+	Token next()
 	{
 		Token t;
 
 		const auto beg = _buf.pos();
-		auto c = _buf.next();
-		if (!_map.isValid(c))
+		auto cp = _buf.next();
+		t._type = _map.type(cp);
+
+		if (t._type == Token::Enum::Invalid)
 		{
 			_buf.retract(_buf.pos() - beg);
-			t._type = Token::Enum::Invalid;
 			return t;
 		}
 
-		if (c != CP('\\'))
+		if (cp != CP('\\'))
 		{
-			t._type = _map.type(c);
 			t._type = _map.postProcess(*this, t._type);
 		}
 		else
 		{
-			c = _buf.next();
+			cp = _buf.next();
 
-			//TODO: set correct lexeme on Token for escaped characters
+			auto cpEsc = cp;
+			const auto validEsc = CodePointFromEsc(cp, cpEsc);
 
-			auto type = _map.type(c);
-            // supported escape seq is '\\' or '\<operator>'
-			if (!_map.isValidEscaped(c, type))
+			if (validEsc)
 			{
-				throw common::Exception(_C("invalid escape sequence"));
+				t._type = Token::Enum::Symbol;
+				cp = cpEsc;
 			}
 			else
 			{
+				auto type = _map.type(cp);
+				if (type == Token::Enum::Symbol || cp == CP('\0'))
+				{
+					throw common::Exception(_C("invalid escape sequence"));
+				}
+
 				t._type = Token::Enum::Symbol;
 			}
 		}
 
-		t._lexeme = c;
+		t._lexeme = cp;
 
 		_lookBehind.push_back(t._type);
 		_lastTokenSize = _buf.pos() - beg;
@@ -181,16 +169,16 @@ public:
 private:
 	using TokenEnum = typename Token::Enum;
 
-	BufferT&                          _buf;
+	Buffer&                           _buf;
 	boost::circular_buffer<TokenEnum> _lookBehind;
-	const TokenTypeMapT               _map;
+	const TokenPolicy                 _map;
 	std::size_t                       _lastTokenSize = 0;
 };
 
 template<typename BufferT>
-using RELexer = Lexer<BufferT, RETokenTypeMap>;
+using RELexer = Lexer<BufferT, RETokenPolicy>;
 
 template<typename BufferT>
-using CCLexer = Lexer<BufferT, CCTokenTypeMap>;
+using CCLexer = Lexer<BufferT, CCTokenPolicy>;
 
 }}

@@ -27,6 +27,11 @@ public:
 		return Invalid;
 	}
 
+	bool isLast() const
+	{
+		return _type == Enum::Invalid || _type == Enum::Eof;
+	}
+
 	mws::String _lexeme;
 	Enum        _type;
 };
@@ -45,7 +50,7 @@ std::vector<TI> g_tokenInfoCol =
     // Note: let a = a-zA-Z0-9, b = _
     // the pattern (a|b)*a(a|b)* reduces to b*a(a|b)*
     //_CExt("[a-zA-Z_]_*[a-zA-Z0-9][a-zA-Z0-9_]*"),
-    TI( _CExt("[a-zA-Z_]_*[a-zA-Z][a-zA-Z_]*"),			  Token::Enum::ID ),
+    TI( _CExt("[a-zA-Z_]*[a-zA-Z][a-zA-Z_]*"),			  Token::Enum::ID ),
     TI( _CExt("{"),                                       Token::Enum::BlockO ),
 	TI( _CExt("}"),                                       Token::Enum::BlockC ),
 	TI( _CExt(";"),                                       Token::Enum::Eos ),
@@ -81,14 +86,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	try
     {
         //const auto* text = _CExt("hello world; if bla ___0_   { continue; } else elsbla else1234 { bla 1234 break; }");
-        const auto* text = _CExt("hello world; if bla ___A_   { continue; } else elsbla else1234 { bla 1234 break; }");
+        //const auto* text = _CExt("hello world; if bla ___A_   { continue; } else elsbla else1234 { bla 1234 break; }");
+        const auto* text = _CExt("a");
 
 
         //const auto* text = _CExt("ababc");
         mws::StringStreamExt is(text, std::ios_base::in);
 
         mws::LexerT<Token> lexer(is, g_tokenInfoCol);
-        for (auto t = lexer.next(); t._type != Token::Invalid; t = lexer.next())
+        for (auto t = lexer.next(); !t.isLast(); t = lexer.next())
         {
             stdOut << _C("lexeme = ") << t._lexeme << _C(", type = ") << reinterpret_cast<const wchar_t*>(g_tokenInfoCol[t._type].regex.c_str()) << std::endl;
         }

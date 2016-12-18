@@ -19,6 +19,7 @@
     <ClInclude Include="CodePoint.h" />
     <ClInclude Include="String.h" />
     <ClInclude Include="TokenID.h" />
+    <ClInclude Include="CodePointEsc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Unicode.cpp" />

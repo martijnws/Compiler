@@ -57,31 +57,34 @@ public:
 	CodePoint next()
 	{
 		if (!valid())
+		{
 			throw Exception(_C("beyond end of input"));
+		}
 
-		//++_pos;
-	
 		// reached end of buffer?
-		//if (pos() == _posReload)
 		const auto diff = _posReload - pos();
 		// a unicode CodePoint may be encoded with MaxSize code units
-		if (diff < utf::Codec<Char>::MaxCodecSizePerCP)
+		if (diff < utf::Codec<Char>::MaxCodecSizePerCP && _canReload) 
 		{
 			assert(idx() <= Size);
 
 			//load next buffer
 			const auto offset = idx() + diff;
 			_is.read(&_buf[offset], Size);
-			_buf[offset + _is.gcount()] = Traits::NullTerminator;
+			const auto count = _is.gcount();
+			_canReload = count == Size;
+			//istream does not load null terminator from stream. We have to insert it manually
+			_buf[offset + count] = Traits::NullTerminator;
 
 			//move reload point forward
-			_posReload += Size;
+			_posReload += count;
 		}
 
-		const auto size = Decoder::decode(&_buf[idx()], _curCP);
+		auto cp = CP('\0');
+		const auto size = Decoder::decode(&_buf[idx()], cp);
 		_pos += size;
 
-		return _curCP;//cur();
+		return cp;
 	}
 
 	std::size_t pos() const
@@ -101,20 +104,11 @@ public:
 
 	bool valid() const
 	{
-		//TODO: cur() breaks when retracting
-		return _is || cur() != Traits::NullTerminator;
+		//The null terminator is at buf[_posReload]
+		return _canReload || pos() <= _posReload;
 	}
 
 private:
-
-	CodePoint cur() const
-	{
-		//assert(_pos != -1);
-		//return _buf[idx()];
-		assert(_curCP != -1);
-		return _curCP;
-	}
-
 	std::size_t idx() const
 	{
 		return _pos % (Size * 2);
@@ -125,7 +119,7 @@ private:
 	Stream&     _is;
 	std::size_t _pos = 0;
 	std::size_t _posReload = 0;
-	CodePoint   _curCP = -1;
+	bool        _canReload = true;
 };
 
 using BufferExt = BufferT<CharExt, 4096>;

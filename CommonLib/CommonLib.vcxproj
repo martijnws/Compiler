@@ -132,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="CodePointEsc.h" />
     <ClInclude Include="String.h" />
     <ClInclude Include="CodePoint.h" />
     <ClInclude Include="Exception.h" />

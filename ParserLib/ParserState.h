@@ -30,6 +30,7 @@ public:
 		_cur = _lexer.next();
 	}
 
+/*
 	bool eof() const
 	{
 		return _cur._type == Token::Enum::Eof;
@@ -39,7 +40,7 @@ public:
 	{
 		return _cur._type == Token::Enum::Invalid;
 	}
-
+*/
 	const auto& cur() const
 	{
 		return _cur;
@@ -54,7 +55,7 @@ public:
 	{
 		const auto type = static_cast<Token::Enum>(type_);
 
-		if (eof() || _cur._type != type)
+		if (/*eof() ||*/ _cur._type != type)
 		{
 			throw common::Exception(_C("Lexer error"));
 		}

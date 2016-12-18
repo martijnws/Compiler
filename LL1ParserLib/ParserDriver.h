@@ -105,7 +105,7 @@ void ParserDriver<LexerT>::parse()
 		}
 	}
 
-	assert(st.eof() || st.invalid());
+	assert(st.cur().isLast());
 }
 
 }}}

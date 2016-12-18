@@ -17,6 +17,11 @@ struct REToken
 		return Enum::CharClassE;
 	}
 	
+	bool isLast() const
+	{
+		return _type == Enum::Invalid || _type == Enum::Eof;
+	}
+
 	CodePoint _lexeme;
 	Enum      _type;
 };
@@ -25,13 +30,18 @@ struct CCToken
 :
 	public grammar::Token
 {
-	enum Enum : TokenID { Invalid, Eof, Symbol, CharClassNeg, RngSep };
+	enum Enum : TokenID { Invalid, Symbol, CharClassNeg, RngSep };
 
 	static TokenID max()
 	{
 		return Enum::RngSep;
 	}
 	
+	bool isLast() const
+	{
+		return _type == Enum::Invalid;
+	}
+
 	CodePoint _lexeme;
 	Enum      _type;
 };
