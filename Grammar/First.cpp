@@ -22,6 +22,9 @@ void first(grammar::Grammar& grammar_, GSID ntt_, std::vector<bool>& isFirstComp
 		return;
 	}
 
+	//flag right away to prevent endless recursion of left recursive grammars
+	isFirstComputed_[ntt_] = true;
+
 	auto& nt = grammar_[ntt_];
 
 	for (auto& prod : nt._prodList)
@@ -52,8 +55,6 @@ void first(grammar::Grammar& grammar_, GSID ntt_, std::vector<bool>& isFirstComp
 			}
 		}
 	}
-
-	isFirstComputed_[ntt_] = true;
 }
 
 void first(grammar::Grammar& grammar_)

@@ -5,7 +5,7 @@
 #include <string>
 
 //#define FMT_INTERNAL_UTF16
-#define FMT_EXTERNAL_UTF16
+//#define FMT_EXTERNAL_UTF16
 
 namespace mws {
 
@@ -49,6 +49,12 @@ using CharExt = char32_t;
 using CharExt = wchar_t;
 #endif
 
+#define SI(_c) _S(_c)
+#define CI(_c) _C(_c)
+
+#define SE(_c) _SExt(_c)
+#define CE(_c) _CExt(_c)
+
 #define stdOut std::wcout
 
 using String = std::basic_string<Char>;
@@ -59,5 +65,8 @@ using StringStreamExt = std::basic_stringstream<CharExt>;
 
 using IStream = std::basic_istream<Char>;
 using IStreamExt = std::basic_istream<CharExt>;
+
+using OStream = std::basic_ostream<Char>;
+using OStreamExt = std::basic_ostream<CharExt>;
 
 }

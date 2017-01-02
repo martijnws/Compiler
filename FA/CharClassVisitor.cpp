@@ -7,7 +7,7 @@ namespace mws {
 
 void CharClassVisitor::visit(const regex::Negate& n_)
 {
-    n_.opr().accept(*this);
+    n_.opr()->accept(*this);
 
     std::set<RangeKey> complement;
     CodePoint l = 0;
@@ -29,8 +29,8 @@ void CharClassVisitor::visit(const regex::Negate& n_)
 
 void CharClassVisitor::visit(const regex::RngConcat& n_)
 {
-	n_.lhs().accept(*this);
-    n_.rhs().accept(*this);
+	n_.lhs()->accept(*this);
+    n_.rhs()->accept(*this);
 }
 
 void CharClassVisitor::visit(const regex::Rng& n_)

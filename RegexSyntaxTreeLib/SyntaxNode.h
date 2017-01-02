@@ -31,7 +31,7 @@ class Choice
 	public BinaryOp
 {
 public:
-	Choice(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
+	Choice(SyntaxNode::Ptr lhs_, SyntaxNode::Ptr rhs_)
 		: BinaryOp(lhs_, rhs_)
 	{
 	
@@ -43,7 +43,7 @@ class Concat
 	public BinaryOp
 {
 public:
-	Concat(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
+	Concat(SyntaxNode::Ptr lhs_, SyntaxNode::Ptr rhs_)
 		: BinaryOp(lhs_, rhs_)
 	{
 	
@@ -55,7 +55,7 @@ class ZeroOrOne
 	public UnaryOp
 {
 public:
-	ZeroOrOne(const SyntaxNode* n_)
+	ZeroOrOne(SyntaxNode::Ptr n_)
 		: UnaryOp(n_)
 	{
 	
@@ -67,7 +67,7 @@ class ZeroToMany
 	public UnaryOp
 {
 public:
-	ZeroToMany(const SyntaxNode* n_)
+	ZeroToMany(SyntaxNode::Ptr n_)
 		: UnaryOp(n_)
 	{
 	
@@ -79,7 +79,7 @@ class OneToMany
 	public UnaryOp
 {
 public:
-	OneToMany(const SyntaxNode* n_)
+	OneToMany(SyntaxNode::Ptr n_)
 		: UnaryOp(n_)
 	{
 	
@@ -92,7 +92,7 @@ class CharClass
 	public UnaryOp
 {
 public:
-	CharClass(const SyntaxNode* n_)
+	CharClass(SyntaxNode::Ptr n_)
 		: UnaryOp(n_)
 	{
 	
@@ -104,7 +104,7 @@ class Negate
 	public UnaryOp
 {
 public:
-	Negate(const SyntaxNode* n_)
+	Negate(SyntaxNode::Ptr n_)
 		: UnaryOp(n_)
 	{
 	
@@ -116,7 +116,7 @@ class RngConcat
 	public BinaryOp
 {
 public:
-	RngConcat(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
+	RngConcat(SyntaxNode::Ptr lhs_, SyntaxNode::Ptr rhs_)
 		: BinaryOp(lhs_, rhs_)
 	{
 	
@@ -128,7 +128,7 @@ class Rng
 	public BinaryOp
 {
 public:
-	Rng(const SyntaxNode* lhs_, const SyntaxNode* rhs_)
+	Rng(SyntaxNode::Ptr lhs_, SyntaxNode::Ptr rhs_)
 		: BinaryOp(lhs_, rhs_)
 	{
 	
@@ -136,12 +136,12 @@ public:
 
     const Symbol& lhsSymbol() const
     {
-        return static_cast<const Symbol&>(lhs());
+        return static_cast<const Symbol&>(*lhs());
     }
 
     const Symbol& rhsSymbol() const
     {
-        return static_cast<const Symbol&>(rhs());
+        return static_cast<const Symbol&>(*rhs());
     }
 };
 

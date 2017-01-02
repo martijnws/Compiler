@@ -24,10 +24,10 @@ void NFABuilderVisitor::visit(const regex::Symbol& n_)
 
 void NFABuilderVisitor::visit(const regex::Choice& n_)
 {
-    n_.lhs().accept(*this);
+    n_.lhs()->accept(*this);
     auto lhs = _result;
 
-    n_.rhs().accept(*this);
+    n_.rhs()->accept(*this);
     auto rhs = _result;
 
 	// TODO: verify the stronger assertion that all nfas have have empty transitionMaps for their final state.
@@ -43,10 +43,10 @@ void NFABuilderVisitor::visit(const regex::Choice& n_)
 
 void NFABuilderVisitor::visit(const regex::Concat& n_)
 {
-	n_.lhs().accept(*this);
+	n_.lhs()->accept(*this);
     auto lhs = _result;
 
-    n_.rhs().accept(*this);
+    n_.rhs()->accept(*this);
     auto rhs = _result;
 
     // lhs.start -> lhs.final -> rhs.final
@@ -61,7 +61,7 @@ void NFABuilderVisitor::visit(const regex::Concat& n_)
 
 void NFABuilderVisitor::visit(const regex::ZeroOrOne& n_)
 {
-    n_.opr().accept(*this);
+    n_.opr()->accept(*this);
     auto opr = _result;
     
     // skipping opr (zero repition) should not open the door to E transition loop backs
@@ -78,7 +78,7 @@ void NFABuilderVisitor::visit(const regex::ZeroToMany& n_)
     // Note: composition(OnetoMany, ZeroOrOne) == ZeroToMany
     // <factor>+? == <factor>*
 
-	n_.opr().accept(*this);
+	n_.opr()->accept(*this);
     auto opr = _result;
 
     auto s = new NFANode();
@@ -100,7 +100,7 @@ void NFABuilderVisitor::visit(const regex::ZeroToMany& n_)
 
 void NFABuilderVisitor::visit(const regex::OneToMany& n_)
 {
-	n_.opr().accept(*this);
+	n_.opr()->accept(*this);
     auto opr = _result;
 
     // Note: new start and final states are added to keep the loop back isolated. This ensures we
@@ -126,7 +126,7 @@ void NFABuilderVisitor::visit(const regex::CharClass& n_)
 {
 	CharClassVisitor ccv;
 
-	n_.opr().accept(ccv);
+	n_.opr()->accept(ccv);
 
     if (ccv._charClassSet.empty())
     {

@@ -55,9 +55,11 @@ public:
 	{
 		const auto type = static_cast<Token::Enum>(type_);
 
-		if (/*eof() ||*/ _cur._type != type)
+		if (_cur._type != type)
 		{
-			throw common::Exception(_C("Lexer error"));
+			mws::StringStream s;
+			s << "Parser Error: Expected = " << type_ << ", Actual = " << _cur._type;
+			throw common::Exception(s.str());
 		}
 
         if (fetchNext_)

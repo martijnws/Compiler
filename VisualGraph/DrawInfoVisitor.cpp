@@ -21,9 +21,9 @@ void DrawInfoSyntaxNodeVisitor::visit(const mws::regex::BinaryOp& n_)
 {
 	++m_curDepth;
 
-	n_.lhs().accept(*this);
+	n_.lhs()->accept(*this);
 	auto lhsTree = m_subTree;
-	n_.rhs().accept(*this);
+	n_.rhs()->accept(*this);
 	auto rhsTree = m_subTree;
 
 	--m_curDepth;
@@ -40,7 +40,7 @@ void DrawInfoSyntaxNodeVisitor::visit(const mws::regex::UnaryOp& n_)
 {
 	++m_curDepth;
 
-	n_.opr().accept(*this);
+	n_.opr()->accept(*this);
 	auto subTree = m_subTree;
 
 	--m_curDepth;

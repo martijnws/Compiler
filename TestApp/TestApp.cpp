@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "Parser.h"
 #include <FA/Lexer.h>
 #include <FA/ToStringVisitor.h>
 #include <FA/NFABuilderVisitor.h>
@@ -29,7 +30,7 @@ public:
 
 	bool isLast() const
 	{
-		return _type == Enum::Invalid || _type == Enum::Eof;
+		return _type == Enum::Eof;
 	}
 
 	mws::String _lexeme;
@@ -75,6 +76,19 @@ void testMatchAndSimulate(mws::DFANode* dfa_, const mws::DFAInfo* s_, const mws:
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	try
+	{
+		const auto* expr = _CExt("1+2");
+
+        mws::StringStreamExt is(expr, std::ios_base::in);
+		mws::arith::Parser parser(is);
+		parser.parse();
+	}
+	catch(const mws::common::Exception& e)
+	{
+		stdOut << e.what() << std::endl;
+	}
+
 	/*
 	const auto* regex = "[a-z]";
 	std::stringstream is(regex, std::ios::in);

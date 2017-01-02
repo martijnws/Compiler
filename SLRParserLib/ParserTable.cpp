@@ -106,7 +106,7 @@ void closure(std::set<LR0Item>& itemSet_, const grammar::Grammar& grammar_, cons
         for (uint8_t i = 0; i < grammar_[ntType]._prodList.size(); ++i)
         {
             LR0Item item = { ntType, i, 0 };
-            if (itemSet_.insert(item).second)
+            if (itemSet_.insert(item).second && item._nt != item_._nt)
             {
                 closure(itemSet_, grammar_, item);
             }

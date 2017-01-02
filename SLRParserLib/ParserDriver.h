@@ -33,7 +33,7 @@ private:
 	LexerT&                 _lexer;
     grammar::Handler&       _h;
     const grammar::Grammar& _grammar;
-    const ParserTable&   _parserTable;
+    const ParserTable&      _parserTable;
     const SubParserMap&     _subParserCol;
 };
 
@@ -50,11 +50,11 @@ void ParserDriver<LexerT>::parse()
     stack.push(_parserTable.start()->_label);
 
     // remember last terminal
-    grammar::Token lastTerminal;
+    auto lastTerminal = st.cur();
 
     for (bool done = false; !done; )
     {
-        GrammarSymbol t = { st.cur()._type, true };
+        GrammarSymbol t = { static_cast<grammar::GSID>(st.cur()._type), true };
 
         const auto entry = _parserTable.action(stack.top(), t._type);
         switch(entry._action)
@@ -71,7 +71,9 @@ void ParserDriver<LexerT>::parse()
                 if (itr != _subParserCol.end())
                 {
                     const auto& parser = itr->second;
-                    parser->parse(st.cur());
+                    parser->parse();
+					// (re)fetch last token
+					st.next();
                 }
 
                 st.next();
@@ -95,7 +97,9 @@ void ParserDriver<LexerT>::parse()
                     //std::cout << " ";
 
                     // lastTerminal is only going to be accurate if Symbol/ID tokens have a dedicated production
-                    gs._action(_h, lastTerminal, store);
+
+					//TODO: review this
+                    gs._action(_h, &lastTerminal, store);
 
                     // states (corresponding to GrammarSymbols of production) are popped right to left
                     stack.pop();
@@ -127,7 +131,10 @@ void ParserDriver<LexerT>::parse()
         }
     }
 	
-	assert(st.eof() || st.invalid());
+	if (!st.cur().isLast())
+	{
+		throw common::Exception(_S("Expected end of expression"));
+	}
 }
 
 }}}

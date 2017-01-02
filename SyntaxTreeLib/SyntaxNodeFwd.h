@@ -14,4 +14,7 @@ class UnaryOp;
 template<typename V>
 class BinaryOp;
 
+template<typename V>
+class TernaryOp;
+
 }}

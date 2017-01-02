@@ -105,7 +105,11 @@ void ParserDriver<LexerT>::parse()
 		}
 	}
 
-	assert(st.cur().isLast());
+	//assert(st.cur().isLast());
+	if (!st.cur().isLast())
+	{
+		throw common::Exception(_S("Expected end of expression"));
+	}
 }
 
 }}}

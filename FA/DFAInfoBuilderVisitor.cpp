@@ -29,10 +29,10 @@ void DFAInfoBuilderVisitor::visit(const regex::Symbol& n_)
 
 void DFAInfoBuilderVisitor::visit(const regex::Choice& n_)
 {
-    n_.lhs().accept(*this);
+    n_.lhs()->accept(*this);
     auto lhs = _dfaInfo;
 
-    n_.rhs().accept(*this);
+    n_.rhs()->accept(*this);
     auto rhs = _dfaInfo;
   
     auto n = new DFAInfo();
@@ -54,10 +54,10 @@ void DFAInfoBuilderVisitor::visit(const regex::Choice& n_)
 
 void DFAInfoBuilderVisitor::visit(const regex::Concat& n_)
 {
-	n_.lhs().accept(*this);
+	n_.lhs()->accept(*this);
     auto lhs = _dfaInfo;
 
-    n_.rhs().accept(*this);
+    n_.rhs()->accept(*this);
     auto rhs = _dfaInfo;
 
     _dfaInfo = concat(lhs, rhs);
@@ -104,7 +104,7 @@ DFAInfo* DFAInfoBuilderVisitor::concat(const DFAInfo* lhs_, const DFAInfo* rhs_)
 
 void DFAInfoBuilderVisitor::visit(const regex::ZeroToMany& n_)
 {
-	n_.opr().accept(*this);
+	n_.opr()->accept(*this);
     auto opr = _dfaInfo;
 
     // followPos calculates followPos of the subtrees, not of the current node.
@@ -127,7 +127,7 @@ void DFAInfoBuilderVisitor::visit(const regex::CharClass& n_)
 {
 	CharClassVisitor ccv;
 
-	n_.opr().accept(ccv);
+	n_.opr()->accept(ccv);
     
     auto ncs = new DFAInfo();
 

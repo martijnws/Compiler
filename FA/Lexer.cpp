@@ -108,8 +108,11 @@ bool Lexer::next(String& lexeme_, TokenID& type_, bool& skip_)
 	auto beg = pos;
 	auto regexID = InvalidTokenID;
 
-    for (auto cp = _buf.next(); _buf.valid(); cp = _buf.next())
+    //for (auto cp = _buf.next(); _buf.valid(); cp = _buf.next())
+	do
     {
+		auto cp = _buf.next();
+
         auto itr = d->_transitionMap.find(cp);
         if (itr == d->_transitionMap.end())
         {
@@ -127,6 +130,7 @@ bool Lexer::next(String& lexeme_, TokenID& type_, bool& skip_)
 			regexID = d->_regexID;
 		}
     }
+	while (_buf.valid());
 
 	//retract to position where valid regexID was found (or beg, in case no match was found at all)
 	_buf.retract(_buf.pos() - pos);

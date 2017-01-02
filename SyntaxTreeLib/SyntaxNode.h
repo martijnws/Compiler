@@ -11,7 +11,10 @@ class Acceptor
 public:
 	using Visitor = V;
 
-    virtual ~Acceptor() {}
+    virtual ~Acceptor() 
+	{
+
+	}
 	virtual void accept(Visitor& visitor_) const = 0;
 };
 
@@ -43,7 +46,7 @@ class SyntaxNode
 	public Acceptor<V>
 {
 public:
-	using Ptr = std::unique_ptr<const SyntaxNode<V>>;
+	using Ptr = std::shared_ptr<const SyntaxNode<V>>;
 
 	SyntaxNode(const SyntaxNode&) = delete;
 	SyntaxNode& operator = (const SyntaxNode&) = delete;
@@ -71,7 +74,7 @@ class UnaryOp
 	public SyntaxNode<V>
 {
 protected:
-	UnaryOp(const SyntaxNode<V>* n_)
+	UnaryOp(SyntaxNode<V>::Ptr n_)
 		: _n(n_)
 	{
 	
@@ -79,9 +82,9 @@ protected:
 
 public:
 
-	const SyntaxNode<V>& opr() const
+	const SyntaxNode<V>::Ptr& opr() const
 	{
-		return *_n;
+		return _n;
 	}
 
 private:
@@ -95,7 +98,7 @@ class BinaryOp
 {
 protected:
 
-	BinaryOp(const SyntaxNode<V>* lhs_, const SyntaxNode<V>* rhs_)
+	BinaryOp(SyntaxNode<V>::Ptr lhs_, SyntaxNode<V>::Ptr rhs_)
 		: _lhs(lhs_), _rhs(rhs_)
 	{
 	
@@ -103,19 +106,55 @@ protected:
 
 public:
 
-	const SyntaxNode<V>& lhs() const
+	const SyntaxNode<V>::Ptr& lhs() const
 	{
-		return *_lhs;
+		return _lhs;
 	}
 
-	const SyntaxNode<V>& rhs() const
+	const SyntaxNode<V>::Ptr& rhs() const
 	{
-		return *_rhs;
+		return _rhs;
 	}
 
 private:
 	SyntaxNode<V>::Ptr _lhs;
 	SyntaxNode<V>::Ptr _rhs;
+};
+
+template<typename V>
+class TernaryOp
+	:
+	public SyntaxNode<V>
+{
+protected:
+
+	TernaryOp(SyntaxNode<V>::Ptr op0_, SyntaxNode<V>::Ptr op1_, SyntaxNode<V>::Ptr op2_)
+		: _op0(op0_), _op1(op1_), _op2(op2_)
+	{
+	
+	}
+
+public:
+
+	const SyntaxNode<V>::Ptr& op0() const
+	{
+		return _op0;
+	}
+
+	const SyntaxNode<V>::Ptr& op1() const
+	{
+		return _op1;
+	}
+
+	const SyntaxNode<V>::Ptr& op2() const
+	{
+		return _op2;
+	}
+
+private:
+	SyntaxNode<V>::Ptr _op0;
+	SyntaxNode<V>::Ptr _op1;
+	SyntaxNode<V>::Ptr _op2;
 };
 
 }}

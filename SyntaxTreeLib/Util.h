@@ -41,7 +41,7 @@ public:
 	static void onUnaryOp(Stack& stack_)
 	{
 		auto n = Util::pop(stack_);
-		Util::push(stack_, new ast::AcceptorImpl<OperatorT>(n));
+		Util::push(stack_, new ast::AcceptorImpl<OperatorT>(typename SyntaxNode::Ptr(n)));
 	}
 
 	template<typename OperatorT>
@@ -49,7 +49,16 @@ public:
 	{
 		auto rhs = Util::pop(stack_);
 		auto lhs = Util::pop(stack_);
-		Util::push(stack_, new ast::AcceptorImpl<OperatorT>(lhs, rhs));
+		Util::push(stack_, new ast::AcceptorImpl<OperatorT>(typename SyntaxNode::Ptr(lhs), typename SyntaxNode::Ptr(rhs)));
+	}
+
+	template<typename OperatorT>
+	static void onTernaryOp(Stack& stack_)
+	{
+		auto op2 = Util::pop(stack_);
+		auto op1 = Util::pop(stack_);
+		auto op0 = Util::pop(stack_);
+		Util::push(stack_, new ast::AcceptorImpl<OperatorT>(typename SyntaxNode::Ptr(op0), typename SyntaxNode::Ptr(op1), typename SyntaxNode::Ptr(op2)));
 	}
 };
 
