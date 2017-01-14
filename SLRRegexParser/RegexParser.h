@@ -57,13 +57,13 @@ public:
 		using RELexer = regex::RELexer<Buffer>;
 
 		 // sub parser setup
-		SubParserMap ccSubParserCol;
+		ParserDriver<CCLexer>::SubParserMap ccSubParserCol;
 		CCLexer ccLexer(_buf);
 		ParserDriver<CCLexer> ccParser(ccLexer, _astBuilder, gCC, parserTableCC, ccSubParserCol);
 
-		SubParserMap reSubParserCol;
+		ParserDriver<RELexer>::SubParserMap reSubParserCol;
 		RELexer reLexer(_buf);
-		reSubParserCol.insert(std::make_pair(regex::Token::Enum::CharClassB, &ccParser));
+		reSubParserCol.insert(std::make_pair(regex::REToken::Enum::CharClassB, &ccParser));
 		ParserDriver<RELexer> reParser(reLexer, _astBuilder, gRE, parserTableRE, reSubParserCol);
 
 		reParser.parse();
