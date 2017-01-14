@@ -30,9 +30,9 @@ public:
     Entry   action(uint8_t state_, uint8_t t_) const;
     uint8_t goTo(uint8_t state_, uint8_t nt_) const;
 
-    const LR0State* start() const
+    const uint8_t startLabel() const
     {
-        return _start;
+        return _startLabel;
     }
 
 private:
@@ -41,7 +41,7 @@ private:
     void printActionTable();
 
 private:
-    LR0State* _start;
+    uint8_t                 _startLabel = 0;
     common::Matrix<Entry>   _actionTable;
     common::Matrix<uint8_t> _gotoTable;
 };

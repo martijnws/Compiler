@@ -81,7 +81,7 @@ public:
     using Map = std::map<GrammarSymbol, LR0State*>;
 
     Map                _transitionMap;
-    std::set<LR0Item>* _itemSet;
+    std::set<LR0Item>  _itemSetClosure;
     uint8_t            _label;
 };
 

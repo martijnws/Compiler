@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <LL1RegexParser/RegexParser.h>
+#include <SLRRegexParser/RegexParser.h>
 #include <RegexSyntaxTreeLib/SyntaxNode.h>
 #include <FA/NFABuilderVisitor.h>
 #include <FA/AlphabetVisitor.h>
@@ -15,7 +16,7 @@ namespace {
 using TChar   = mws::CharExt;
 using TString = std::basic_string<TChar>;
 using Buffer  = mws::common::BufferT<TChar, 64>;
-using Parser  = mws::td::LL1::RegexParser<Buffer>;
+using Parser  = mws::td::SLR::RegexParser<Buffer>; //mws::td::LL1::RegexParser<Buffer>;
 using Stream  = std::basic_stringstream<TChar>;
 
 #define _TC(_c) _CExt(_c)

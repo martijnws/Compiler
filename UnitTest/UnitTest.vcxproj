@@ -181,6 +181,9 @@
     <ProjectReference Include="..\RegexSyntaxTreeLib\RegexSyntaxTreeLib.vcxproj">
       <Project>{88264cfb-9540-4158-a9c1-bc95768101ed}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\SLRParserLib\SLRParserLib.vcxproj">
+      <Project>{6b6daf78-ff4b-4664-8283-0484724432d7}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

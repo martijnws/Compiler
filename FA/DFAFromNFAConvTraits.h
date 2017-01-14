@@ -61,7 +61,8 @@ public:
 
     static std::set<const Item*> e_closure(std::set<const Item*>& itemSet_)
     {
-        for (auto n : itemSet_)
+		const auto itemSet = itemSet_;
+        for (auto n : itemSet)
         {
             auto range = n->_transitionMap.equal_range(NFA::E);
             e_closure(range.first, range.second, itemSet_);

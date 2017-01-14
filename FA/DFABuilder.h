@@ -51,12 +51,12 @@ void convert(DFANode* dSrc_, const std::set<const Item*> srcItemSet_, DFANodeMap
 
     for (const auto& rk : rkSet)
     {
-        auto dstItemSet = new ItemSet<const Item*>(DFATraits<Item>::e_closure(move<Item>(srcItemSet_, rk)));
+        std::unique_ptr<ItemSet<const Item*>> dstItemSet(new ItemSet<const Item*>(DFATraits<Item>::e_closure(move<Item>(srcItemSet_, rk))));
 
         // this condition holds because we just checked each c has a transition for some n in d
         assert(!dstItemSet->empty());
 
-        auto res = dfaNodes_.insert(std::make_pair(dstItemSet, nullptr));
+        auto res = dfaNodes_.insert(std::make_pair(dstItemSet.get(), nullptr));
         // If we have an equivalent node in the map already, use it instead.
         DFANode* dDst = res.first->second;
         assert(res.second || dDst);
@@ -67,6 +67,7 @@ void convert(DFANode* dSrc_, const std::set<const Item*> srcItemSet_, DFANodeMap
             res.first->second = dDst;
 
             convert(dDst, dstItemSet->_items, dfaNodes_);
+			dstItemSet.release();
         }
        
         assert(dDst);

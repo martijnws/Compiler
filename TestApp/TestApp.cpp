@@ -78,7 +78,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	try
 	{
-		const auto* expr = _CExt("1+2");
+		const auto* expr = _CExt("1");
 
         mws::StringStreamExt is(expr, std::ios_base::in);
 		mws::arith::Parser parser(is);

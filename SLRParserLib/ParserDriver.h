@@ -47,7 +47,7 @@ void ParserDriver<LexerT>::parse()
 
     std::stack<uint8_t> stack;
     //std::cout << "stack.psh: " << (int)_parserTable.start()->_label << std::endl;
-    stack.push(_parserTable.start()->_label);
+    stack.push(_parserTable.startLabel());
 
     // remember last terminal
     auto lastTerminal = st.cur();
@@ -73,7 +73,7 @@ void ParserDriver<LexerT>::parse()
                     const auto& parser = itr->second;
                     parser->parse();
 					// (re)fetch last token
-					st.next();
+					//st.next();
                 }
 
                 st.next();
