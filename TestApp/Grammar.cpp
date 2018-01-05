@@ -24,11 +24,14 @@ grammar::Grammar& getGrammar()
 
     static grammar::Grammar g = { 
 
+    // S(tart)
     NT("S",   { { n(N::E) } }),
 
+    // E(xpression)
     NT("E",   { { n(N::E), t(T::Add), n(N::F) },
                 { n(N::F) } }),
 
+    // F(actor)
 	NT("F",   { { t(T::Num) } }), 
     };
 
