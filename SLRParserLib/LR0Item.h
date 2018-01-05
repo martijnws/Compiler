@@ -58,32 +58,4 @@ public:
     };
 };
 
-class GrammarSymbol
-{
-public:
-    uint8_t _type;
-    bool    _isTerminal;
-
-    friend bool operator < (const GrammarSymbol& lhs_, const GrammarSymbol& rhs_) //const
-    {
-        if (lhs_._isTerminal != rhs_._isTerminal)
-        {
-            return lhs_._isTerminal;
-        }
-
-        return lhs_._type < rhs_._type;
-    }
-};
-
-class LR0State
-{
-public:
-    using Map = std::map<GrammarSymbol, LR0State*>;
-
-    Map                _transitionMap;
-    std::set<LR0Item>  _itemSetClosure;
-    uint8_t            _label;
-};
-
-
 }}}

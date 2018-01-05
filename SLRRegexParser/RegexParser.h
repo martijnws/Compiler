@@ -46,15 +46,15 @@ public:
 
 	void parse()
 	{
+		using CCLexer = regex::CCLexer<Buffer>;
+		using RELexer = regex::RELexer<Buffer>;
+
 		//TODO: change to SLR compatible grammar.
         static grammar::Grammar& gRE = regex::getRegexGrammar();
         static grammar::Grammar& gCC = regex::getCharClassGrammar();
 
-        static ParserTable parserTableRE(gRE, regex::REToken::max() + 1);
-        static ParserTable parserTableCC(gCC, regex::CCToken::max() + 1);
-
-		using CCLexer = regex::CCLexer<Buffer>;
-		using RELexer = regex::RELexer<Buffer>;
+        static ParserDriver<CCLexer>::ParserTable parserTableRE(gRE, regex::REToken::max() + 1);
+        static ParserDriver<CCLexer>::ParserTable parserTableCC(gCC, regex::CCToken::max() + 1);
 
 		 // sub parser setup
 		ParserDriver<CCLexer>::SubParserMap ccSubParserCol;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ParserTable.h"
+#include "CLRParserTable.h"
 #include <ParserLib/ParserState.h>
 #include <ParserLib/IParser.h>
 #include <Grammar/Grammar.h>
@@ -13,6 +14,8 @@ class ParserDriver
     public IParser
 {
 public:
+	using ParserTable  = CLRParserTable;
+
 	using TokenEnum    = typename LexerT::Token::Enum;
 	using SubParserMap = std::map<TokenEnum, IParser*>;
 

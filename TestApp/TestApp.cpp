@@ -58,13 +58,6 @@ std::vector<TI> g_tokenInfoCol =
 	TI{ _CExt("\\0"),                                     Token::Enum::Eof } //Doesn't work yet
 };
 
-//const mws::CharExt* g_tokenInfoCol[] =
-//{
-//	_CExt("a"),
-//	_CExt("b"),
-//	_CExt("abc"),
-//};
-
 void testMatchAndSimulate(mws::DFANode* dfa_, const mws::DFAInfo* s_, const mws::DFAInfo* a_, const mws::Char* str_, bool expect_ = true)
 {
 	auto res = false;
@@ -78,7 +71,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	try
 	{
-		const auto* expr = _CExt("1");
+		const auto* expr = _CExt("1+2");
 
         mws::StringStreamExt is(expr, std::ios_base::in);
 		mws::arith::Parser parser(is);

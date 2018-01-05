@@ -6,7 +6,7 @@
 
 namespace mws { namespace td { namespace SLR {
 
-class ParserTable
+class CLRParserTable
 {
 public:
     enum Action { Shift, Reduce, Accept, Error };
@@ -25,7 +25,7 @@ public:
         };
     };
 
-    ParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_);
+    CLRParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_);
 
     Entry   action(uint8_t state_, uint8_t t_) const;
     uint8_t goTo(uint8_t state_, uint8_t nt_) const;
@@ -47,3 +47,4 @@ private:
 };
 
 }}}
+

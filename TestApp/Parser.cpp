@@ -18,7 +18,7 @@ void Parser::parse()
 {
 	static const auto& g = getGrammar();
 
-	static td::SLR::ParserTable parserTable(g, Token::max() + 1);
+	static td::SLR::ParserDriver<Lexer>::ParserTable parserTable(g, Token::max() + 1);
 
 	 // sub parser setup
 	td::SLR::ParserDriver<Lexer>::SubParserMap subParserCol;

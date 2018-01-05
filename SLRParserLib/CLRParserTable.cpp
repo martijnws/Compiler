@@ -1,5 +1,5 @@
-#include "ParserTable.h"
-#include "LR0Item.h"
+#include "CLRParserTable.h"
+#include "LR1Item.h"
 #include <FA/DFANode.h>
 #include <unordered_map>
 #include <functional>
@@ -8,13 +8,13 @@
 
 namespace mws { namespace td { namespace SLR {
 
-using LR0ItemSet  = ItemSet<LR0Item, LR0Item::Hash>;
-using LR0State    = LRState<LR0Item>;
-using LR0StateMap = std::unordered_map<typename LR0ItemSet::Ptr, LR0State*, typename LR0ItemSet::Hash, typename LR0ItemSet::Pred>;
+using LR1ItemSet  = ItemSet<LR1Item, LR1Item::Hash>;
+using LR1State    = LRState<LR1Item>;
+using LR1StateMap = std::unordered_map<typename LR1ItemSet::Ptr, LR1State*, typename LR1ItemSet::Hash, typename LR1ItemSet::Pred>;
 
 namespace {
 
-void deleteStateMapKeyVal(LR0StateMap& stateMap_)
+void deleteStateMapKeyVal(LR1StateMap& stateMap_)
 {
 	for (auto pair : stateMap_)
 	{
@@ -43,7 +43,7 @@ void print(const grammar::GrammarSymbol& gs_, const grammar::Grammar& grammar_)
     print(gs, grammar_);
 }
 
-void print(const std::set<LR0Item>& itemSet_, const grammar::Grammar& grammar_)
+void print(const std::set<LR1Item>& itemSet_, const grammar::Grammar& grammar_)
 {
 	auto& os_ = std::cout;
 
@@ -76,7 +76,7 @@ void print(const std::set<LR0Item>& itemSet_, const grammar::Grammar& grammar_)
             os_ << ". ";
         }
 
-        os_ << std::endl;
+		os_ << "--> " << static_cast<int>(item._lookAhead) << std::endl;
     }
 
     os_ << std::endl;
@@ -91,9 +91,38 @@ void printTransition(const GrammarSymbol& gs_, const grammar::Grammar& grammar_)
     std::cout << std::endl;
 }
 
-} //NS Anonymous
+} // NS Anonymous
 
-void closure(std::set<LR0Item>& itemSet_, const grammar::Grammar& grammar_, const LR0Item& item_)
+std::set<TokenID> firstOf(const grammar::Grammar& grammar_, const std::vector<grammar::GrammarSymbol>& gsList_, uint8_t dot_, TokenID lookAhead_)
+{
+	assert(dot_ <= gsList_.size());
+
+	std::set<TokenID> firstSet;
+
+	for ( ;dot_ < gsList_.size(); ++dot_)
+	{
+		const auto& gs = gsList_[dot_];
+		if (gs._isTerminal)
+		{
+			firstSet.insert(gs._type);
+			return firstSet;
+		}
+
+		assert(gs._type < grammar_.size());
+		const auto& nt = grammar_[gs._type];
+		nt.getFirst(firstSet);
+		if (!nt.derivesEmpty())
+		{
+			return firstSet;
+		}
+	}
+
+	//If we make it here it means the gsList suffix afer dot_ derives empty.
+	firstSet.insert(lookAhead_);
+	return firstSet;
+}
+
+void closure(std::set<LR1Item>& itemSet_, const grammar::Grammar& grammar_, const LR1Item& item_)
 {
     // All items added in the closure are non-kernel items (dot all the way to the left followed by non-terminal
 
@@ -117,16 +146,22 @@ void closure(std::set<LR0Item>& itemSet_, const grammar::Grammar& grammar_, cons
 		
         for (uint8_t i = 0; i < grammar_[ntType]._prodList.size(); ++i)
         {
-            LR0Item item = { ntType, i, 0 };
-            if (itemSet_.insert(item).second)
-            {
-                closure(itemSet_, grammar_, item);
-            }
+			//Difference with SLR: instead of using follow(ntType) which contains terminals that can follow ntType
+			//at any position in the grammar we use only those terminals wich follow ntType in this particular position in the grammar.
+			const auto firstSet = firstOf(grammar_, prod._gsList, item_._dot + 1, item_._lookAhead);
+			for (const auto lookAhead : firstSet)
+			{
+				LR1Item item = { ntType, i, 0, lookAhead};
+				if (itemSet_.insert(item).second)
+				{
+					closure(itemSet_, grammar_, item);
+				}
+			}
         }
     }
 }
 
-std::set<LR0Item> closure(const std::set<LR0Item>& itemSet_, const grammar::Grammar& grammar_)
+std::set<LR1Item> closure(const std::set<LR1Item>& itemSet_, const grammar::Grammar& grammar_)
 {
 	//Top level invocation of closure handles kernel items. These are different in that they
 	//may have the dot at any position, not just at the beginning.
@@ -140,11 +175,11 @@ std::set<LR0Item> closure(const std::set<LR0Item>& itemSet_, const grammar::Gram
     return itemSet;
 }
 
-std::map<GrammarSymbol, std::set<LR0Item>> getTransitionMap(const std::set<LR0Item>& srcItemSet_, const grammar::Grammar& grammar_)
+std::map<GrammarSymbol, std::set<LR1Item>> getTransitionMap(const std::set<LR1Item>& srcItemSet_, const grammar::Grammar& grammar_)
 {
-    std::set<LR0Item> dstItemSet;
+    std::set<LR1Item> dstItemSet;
 
-	std::map<GrammarSymbol, std::set<LR0Item>> transitionMap;
+	std::map<GrammarSymbol, std::set<LR1Item>> transitionMap;
 
     for (const auto& item : srcItemSet_)
     {
@@ -159,7 +194,7 @@ std::map<GrammarSymbol, std::set<LR0Item>> getTransitionMap(const std::set<LR0It
 		}
 
 		const auto& gs = GrammarSymbol { prod._gsList[item._dot]._type, prod._gsList[item._dot]._isTerminal };
-		auto& dstItemSet = transitionMap.insert(std::make_pair(gs, std::set<LR0Item>())).first->second;
+		auto& dstItemSet = transitionMap.insert(std::make_pair(gs, std::set<LR1Item>())).first->second;
 
 		auto kernelItem = item;
 		 // dot moves 1 to the right
@@ -170,7 +205,7 @@ std::map<GrammarSymbol, std::set<LR0Item>> getTransitionMap(const std::set<LR0It
     return transitionMap;
 }
 
-void convert(LR0State* dSrc_, const std::set<LR0Item>& srcItemSet_, LR0StateMap& states_, const grammar::Grammar& grammar_)
+void convert(LR1State* dSrc_, const std::set<LR1Item>& srcItemSet_, LR1StateMap& states_, const grammar::Grammar& grammar_)
 {
 	dSrc_->_itemSetClosure = closure(srcItemSet_, grammar_);
 	auto transitionMap = getTransitionMap(dSrc_->_itemSetClosure, grammar_);
@@ -179,22 +214,22 @@ void convert(LR0State* dSrc_, const std::set<LR0Item>& srcItemSet_, LR0StateMap&
 
 	for (auto& pair : transitionMap)
     {
-        //auto dstItemSet = new LR0ItemSet(closure(pair.second, grammar_));
-        std::unique_ptr<LR0ItemSet> dstItemSet(new LR0ItemSet(std::move(pair.second)));
+        //auto dstItemSet = new LR1ItemSet(closure(pair.second, grammar_));
+        std::unique_ptr<LR1ItemSet> dstItemSet(new LR1ItemSet(std::move(pair.second)));
        
         // this condition holds because we just checked each c has a transition for some n in d
         assert(!dstItemSet->empty());
 
         auto res = states_.insert(std::make_pair(dstItemSet.get(), nullptr));
         // If we have an equivalent node in the map already, use it instead.
-        LR0State* dDst = res.first->second;
+        LR1State* dDst = res.first->second;
         assert(res.second || dDst);
 
 		const auto gs = pair.first;
 
         if (res.second)
         {
-            dDst = new LR0State();
+            dDst = new LR1State();
             res.first->second = dDst;
 
             printTransition(gs, grammar_);
@@ -208,21 +243,26 @@ void convert(LR0State* dSrc_, const std::set<LR0Item>& srcItemSet_, LR0StateMap&
     }
 }
 
-std::set<LR0Item> createStartNode(const grammar::NT& ntStart_)
+std::set<LR1Item> createStartNode(const grammar::NT& ntStart_)
 {
-    std::set<LR0Item> itemSet;
+    std::set<LR1Item> itemSet;
 
 	//add kernel items
+
+	//follow of start symbol should contain only eof (aka $)
+	assert(ntStart_._follow.size() == 1);
+	auto lookAhead = *ntStart_._follow.begin();
+
     for (uint8_t i = 0; i < ntStart_._prodList.size(); ++i)
     {
-        LR0Item item = { 0, i, 0 };
+        LR1Item item = { 0, i, 0, lookAhead };
         itemSet.insert(item);
     }
 
     return itemSet;
 }
 
-void ParserTable::printActionTable()
+void CLRParserTable::printActionTable()
 {
     
     std::cout << "   | ";
@@ -263,18 +303,18 @@ void ParserTable::printActionTable()
     }
 }
 
-ParserTable::ParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_)
+CLRParserTable::CLRParserTable(const grammar::Grammar& grammar_, uint8_t cTerminal_)
 {
 	build(grammar_, cTerminal_);
 }
 
-void ParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
+void CLRParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
 {
-    auto itemSet = new LR0ItemSet(createStartNode(grammar_[0]));
+    auto itemSet = new LR1ItemSet(createStartNode(grammar_[0]));
    
-    auto* start = new LR0State();
+    auto* start = new LR1State();
 
-    LR0StateMap states;
+    LR1StateMap states;
     states.insert(std::make_pair(itemSet, start));
 
     convert(start, itemSet->_items, states, grammar_);
@@ -336,7 +376,8 @@ void ParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
             }
          
             // Reduce (dot to the right)
-            for (const auto t : nt._follow)
+			// Difference with SLR: instead of checking follow(nt) we check the subset of follow for nt in single location in grammar
+            const auto t = item._lookAhead;
             {
                 // follow sets of Reduce items not disjoint
                 if (_actionTable[state->_label][t]._action == Action::Reduce)
@@ -367,7 +408,7 @@ void ParserTable::build(const grammar::Grammar& grammar_, uint8_t cTerminal_)
     std::cout << std::endl << std::endl;
 }
 
-ParserTable::Entry ParserTable::action(uint8_t state_, uint8_t t_) const
+CLRParserTable::Entry CLRParserTable::action(uint8_t state_, uint8_t t_) const
 {
     assert(state_ < _actionTable.rowCount());
     assert(t_ < _actionTable.colCount());
@@ -375,7 +416,7 @@ ParserTable::Entry ParserTable::action(uint8_t state_, uint8_t t_) const
     return _actionTable[state_][t_];
 }
 
-uint8_t ParserTable::goTo(uint8_t state_, uint8_t nt_) const
+uint8_t CLRParserTable::goTo(uint8_t state_, uint8_t nt_) const
 {
     assert(state_ < _gotoTable.rowCount());
     assert(nt_ < _gotoTable.colCount());
